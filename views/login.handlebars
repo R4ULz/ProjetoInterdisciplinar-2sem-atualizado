@@ -1,0 +1,41 @@
+
+
+<div class="flex min-h-[640px] flex-col justify-center items-center px-3 py-12 max-w-screen-2xl w-full">
+  <div class="sm:mx-auto sm:w-full sm:max-w-sm">
+    <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900 capitalize">Faça login em sua conta</h2>
+  </div>
+
+  <div class="mt-5 sm:mx-auto sm:w-full sm:max-w-sm">
+    <form class="space-y-3" action="/login" method="POST">
+      <div>
+        <label for="email" class="block font-medium leading-6 text-gray-900">Email</label>
+        <div class="mt-2">
+          <input id="email" name="email" type="email" autocomplete="email" required class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6 outline-none px-2">
+        </div>
+      </div>
+
+      <div>
+        <div class="flex items-center justify-between">
+          <label for="password" class="block font-medium leading-6 text-gray-900">Senha</label>
+        </div>
+        <div class="mt-2">
+          <input id="password" name="password" type="password" autocomplete="current-password" required class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6 outline-none px-2">
+        </div>
+      </div>
+      {{#if message}}
+      <div class="flex flex-col text-center text-sm bg-red-500/20 px-3 py-2 rounded-md">
+        <span>{{message.[0]}}</span>
+        <span>{{message.[1]}}</span>
+      </div>
+      {{/if}}
+      <div>
+        <button type="submit" class="flex w-full justify-center rounded-md bg-red-600 px-3 py-1.5 font-semibold leading-6 text-white shadow-sm hover:bg-red-600/90 transition-all ease-in-out duration-300">Entrar</button>
+      </div>
+    </form>
+    <p class="mt-10 text-center text-black">
+      Não tem conta?
+      <a href="/signin" class="underline font-semibold leading-6 text-red-600 hover:text-red-600/80">Criar conta agora!</a>
+    </p>
+
+  </div>
+</div>
