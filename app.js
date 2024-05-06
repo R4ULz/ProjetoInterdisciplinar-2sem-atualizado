@@ -1,25 +1,27 @@
 //require das dependencias do projeto
 const express = require("express");
 const app = express();
-const passport = require('./config/auth')
+const passport = require("./config/auth");
 const session = require("express-session");
 const path = require("path");
-const { User } = require('./models/models');
-const produto = require('./models/produto')
-const bcrypt = require('bcryptjs')
-const flash = require('express-flash')
+const User  = require("./models/User");
+const produto = require("./models/produto");
+const bcrypt = require("bcryptjs");
+const flash = require("express-flash");
 const handlebars = require("express-handlebars").engine;
-const routes = require('./routes'); // Importando as rotas
+const routes = require("./routes"); // Importando as rotas
 const bodyParser = require("body-parser");
 
 //const { resolveSOA } = require("dns");
 
 //criando a sessão
-app.use(session({
-  secret: 'sua-chave-secreta',
-  resave: false,
-  saveUninitialized: false
-}));
+app.use(
+  session({
+    secret: "sua-chave-secreta",
+    resave: false,
+    saveUninitialized: false,
+  })
+);
 
 app.use(flash());
 
@@ -35,7 +37,7 @@ app.set("view engine", "handlebars");
 app.use(express.static("public"));
 
 //config do bodyparser para leitura do post
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.use(routes);

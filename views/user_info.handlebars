@@ -37,8 +37,9 @@
               <label for="name">Nome</label>
               <div class="flex items-center gap-2 border-b border-red-500 p-1">
                 <i class="fa-regular fa-user text-red-500"></i>
-                <input type="text" name="nome" id="nome" value="{{user.nome}}"
-                  class="outline-none w-full"
+                <input type="text" name="nome" id="nome"
+                  class="outline-none w-full bg-gray-100 cursor-not-allowed"
+                  disabled value="{{nome}}"
                   required>
               </div>
             </div>
@@ -47,7 +48,8 @@
               <div class="flex items-center gap-2 border-b border-red-500 p-1">
                 <i class="fa-solid fa-location-dot text-red-500"></i>
                 <input type="text" name="endereco" id="endereco" value=""
-                  class="outline-none w-full" placeholder="Digite seu endereço"
+                  class="outline-none w-full bg-gray-100 cursor-not-allowed"
+                  disabled placeholder="Digite seu endereço"
                   required>
               </div>
             </div>
@@ -67,8 +69,8 @@
               <label for="name">Email</label>
               <div class="flex items-center gap-2 border-b border-red-500 p-1">
                 <i class="fa-solid fa-envelope text-red-500"></i>
-                <input type="email" name="email" id="email" value="{{email}}"
-                  class="outline-none w-full"
+                <input type="email" name="email" id="email" value="{{email}}" class="outline-none w-full bg-gray-100 cursor-not-allowed"
+                  disabled"
                   required>
               </div>
             </div>
@@ -77,11 +79,13 @@
               <div class="flex items-center gap-2 border-b border-red-500 p-1">
                 <i class="fa-solid fa-phone text-red-500"></i>
                 <input type="tel" name="telefone" id="telefone" value=""
-                  class="outline-none w-full" placeholder="Digite seu Telefone"
+                  class="outline-none w-full bg-gray-100 cursor-not-allowed"
+                  disabled placeholder="Digite seu Telefone"
                   required>
               </div>
             </div>
           </div>
+
         </form>
         <button
           class="self-start mt-8 border border-red-500 rounded-full px-6 py-2 text-red-500 font-semibold">Editar
@@ -90,3 +94,4 @@
     </div>
   </div>
 </div>
+

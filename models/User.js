@@ -1,33 +1,31 @@
+// const {Sequelize, DataTypes} = require("sequelize");
 const db = require("./banco")
 
-const Produtos = db.sequelize.define("produtos",{
+
+const User = db.sequelize.define("User",{
     id:{
         type: db.Sequelize.INTEGER,
         autoIncrement: true,
         primaryKey: true
     },
-    imagem:{
+    nome:{
         type: db.Sequelize.STRING,
         allowNull:false
     },
-    nome:{
+    email:{
         type: db.Sequelize.STRING,
         allowNull: false
     },
-    valor:{
-        type: db.Sequelize.DOUBLE,
-        allowNull: false
-    },
-    descricao:{
+    cpf:{
         type: db.Sequelize.STRING,
         allowNull: false
     },
-    categoria:{
+    password:{
         type: db.Sequelize.STRING,
         allowNull: false
-    },
+    }
 })
 
-//Produtos.sync({force: true})
+//User.sync({force: true})
 
-module.exports = Produtos
+module.exports = User
