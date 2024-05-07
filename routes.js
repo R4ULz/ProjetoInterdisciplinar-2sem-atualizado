@@ -177,6 +177,16 @@ router.post("/signin", async (req, res) => {
   }
 });
 
+
+//rota login ADM
+router.get("/loginAdm", (req, res)=>{
+  res.render("loginAdm")
+})
+//rota painel ADM
+router.get("/painelAdm", (req, res)=>{
+  res.render("painelAdm")
+})
+
 //rota login
 router.get("/login", (req, res) => {
   res.render("login");
