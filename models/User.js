@@ -1,4 +1,3 @@
-// const {Sequelize, DataTypes} = require("sequelize");
 const db = require("./banco")
 
 
@@ -25,6 +24,27 @@ const User = db.sequelize.define("User",{
         allowNull: false
     }
 })
+// Adicionando login de adms automaticamente ao ser iniciada
+User.addHook('afterSync', 'addInitialData', async () => {
+    try {
+        await User.bulkCreate([
+            { nome: 'adm1', email: 'admkrusty@krusty.com.br', cpf: '12345678900', password: 'admkrusty01' }
+        ]);
+        console.log('Valores iniciais adicionados com sucesso!');
+    } catch (error) {
+        console.error('Erro ao adicionar valores iniciais:', error);
+    }
+});
+
+// Sincronizando o modelo com o banco de dados
+(async () => {
+    try {
+        await User.sync({ force: true });
+        console.log('Estrutura do banco de dados sincronizada com sucesso!');
+    } catch (error) {
+        console.error('Erro ao sincronizar a estrutura do banco de dados:', error);
+    }
+})();
 
 //User.sync({force: true})
 

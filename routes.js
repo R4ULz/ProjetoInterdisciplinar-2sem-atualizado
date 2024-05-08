@@ -145,38 +145,57 @@ router.get("/signin", (req, res) => {
 });
 
 
+//metodo post do signin
 router.post("/signin", async (req, res) => {
-  const { email } = req.body; // Extrai o email do corpo da requisição
-
   try {
-    const existingUser = await User.findOne({ where: { email } });
+    const existingUser = await User.findOne({
+      where: { email: req.body.email },
+    });
 
     if (existingUser) {
       return res.render("signin", {
-        message: "Este email já está em uso!",
+        message: "Esse email está em uso!",
+        name: req.body.name,
+        cpf: req.body.cpf,
+        email: req.body.email,
       });
-    } else {
-      const { name, email, cpf, password } = req.body;
-      if (!password) {
-        return res.status(400).send("Senha não fornecida");
-      }
-
-      const hashPassword = await bcrypt.hash(password, 8);
-      await User.create({
-        nome: name,
-        email: email,
-        cpf: cpf,
-        password: hashPassword,
-      });
-
-      res.redirect("/login");
     }
+
+    const password = req.body.password;
+    const confirmPassword = req.body.confirmPassword;
+
+    // Verifica se as senhas são iguais
+    if (password !== confirmPassword) {
+      return res.render("signin", {
+        message: "As senhas não coincidem!",
+        name: req.body.name,
+        cpf: req.body.cpf,
+        email: req.body.email,
+      });
+    }
+
+    if (!password || !confirmPassword) {
+      return res.status(400).send("Senha não fornecida");
+    }
+
+    const hashPassword = await bcrypt.hash(password, 8);
+
+    await User.create({
+      nome: req.body.name,
+      email: req.body.email,
+      cpf: req.body.cpf,
+      password: hashPassword,
+    });
+
+    console.log("Usuário cadastrado com sucesso no banco de dados!");
+    res.redirect(
+      "/login?success=Usuário cadastrado com sucesso! Faça o login agora."
+    );
   } catch (error) {
-    console.error("Erro ao cadastrar os dados:", error);
+    console.error("Erro ao criar usuário:", error);
     return res.status(500).send("Erro ao criar usuário");
   }
 });
-
 
 //rota login ADM
 router.get("/loginAdm", (req, res)=>{
@@ -195,6 +214,19 @@ router.get("/login", (req, res) => {
 //método post do login
 router.post(
   "/login",
+  async (req, res, next) => {
+    const email = req.body.email; // Obtenha o email do corpo da solicitação
+    const password = req.body.password; // Obtenha a senha do corpo da solicitação
+
+    // Verifica se o email e a senha correspondem aos valores específicos
+    if (email === "administracao@krusty.com.br" && password === "admkrusty01") {
+      // Se corresponderem, redirecione para uma rota diferente
+      return res.redirect("/painelAdm");
+    } else {
+      // Se não corresponderem, prossiga com a autenticação normal
+      next();
+    }
+  },
   passport.authenticate("local", {
     successRedirect: "/profile",
     failureRedirect: "/",
@@ -208,7 +240,6 @@ router.get("/profile", (req, res) => {
     const  userlogado  = req.user;
     const {nome, email, cpf} = userlogado
     const dadosUser = {nome,email,cpf}
-    console.log("AJUDA",  dadosUser)
     res.render("user_info",  dadosUser);
   } else {
     // Se o usuário não estiver autenticado, redirecione-o para a página de login
