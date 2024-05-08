@@ -7,29 +7,6 @@ const passport = require("./config/auth");
 const LocalStrategy = require("passport-local").Strategy;
 //require do body-parser para pegar os dados do form
 
-// passport.use(
-//   new LocalStrategy(
-//     { usernameField: "email" },
-//     async (email, password, done) => {
-//       try {
-//         const user = await User.findOne({ email });
-//         if (!user) {
-//           return done(null, false, { message: "Usuario nao encontrado" });
-//         }
-//         const isValidPassword = await bcrypt.compare(password, user.password);
-
-//         if (!isValidPassword) {
-//           return done(null, false, { message: "Senha incorreta" });
-//         }
-
-//         return done(null, user);
-//       } catch (error) {
-//         return done(error);
-//       }
-//     }
-//   )
-// );
-
 passport.serializeUser((user, done) => {
   done(null, user.id);
 });
@@ -255,70 +232,12 @@ router.get("/profile", (req, res) => {
   }
 });
 
-//     // post.findAll({where: {"id" : req.params.id}}).then((posts)=>{
-//     // res.render('user_info', {post:posts})
-// // try {
-// //   const usuario = req.session.user;
-// //   res.render('user_info', { post });
-// // } catch (error) {
-// //   console.log("Erro ao renderizar o perfil:", error);
-// //   res.status(500).send("Erro ao renderizar o perfil");
-// // }
-
-// });
-
 // Rota de logout
 router.get("/logout", (req, res) => {
   req.logout();
   res.redirect("/login");
 });
 
-// try {
-//   const usuario = req.session.user;
-//   res.render('user_info', { post });
-// } catch (error) {
-//   console.log("Erro ao renderizar o perfil:", error);
-//   res.status(500).send("Erro ao renderizar o perfil");
-// }
-
-// {
-//   // Pega os valores digitados pelo usuário
-
-//   const {email, pass} = req.body;
-//   try {
-//     // Procurar usuário pelo email fornecido
-//     const user = await post.findOne({ where: { email } });
-
-//     if (user) {
-//       // Se o usuário for encontrado, comparar a senha fornecida com a senha armazenada usando bcrypt
-//       const hashedPass = user.pass;
-//       const match = await bcrypt.compare(pass, hashedPass);
-
-//       if (match) {
-//         // Se as senhas corresponderem, o login é bem-sucedido
-//         req.session.user = email;
-//         console.log("Login feito com sucesso!");
-//         res.redirect("/user/perfil/:id");
-//       } else {
-//         // Se as senhas não corresponderem, retornar uma mensagem de erro
-//         console.log("Login incorreto!");
-//         res.render("login", {
-//           message: "Login incorreto! Verifique suas credenciais e tente novamente"
-//         });
-//       }
-//     } else {
-//       // Se o usuário não for encontrado, retornar uma mensagem de erro
-//       console.log("Este email não existe!");
-//       res.render("login", {
-//         message: "Este email não existe!"
-//       });
-//     }
-//   } catch (error) {
-//     // Se ocorrer algum erro durante a consulta ao banco de dados, retornar uma mensagem de erro
-//     console.log("Erro ao consultar banco de dados:", error);
-//     res.status(500).send("Erro interno ao fazer login");
-//   }
-// });
 
 router.get("/logout", (req, res) => {
   req.session.destroy();
@@ -355,6 +274,10 @@ router.post("/alterar-senha", async (req, res) => {
     res.status(500).send("Erro ao atualizar senha");
   }
 });
+
+router.get('/carrinho', (req,res)=>{
+  res.render('cart')
+})
 
 function verificaAutenticacao(req, res, next) {
   if (req.session && req.session.user) {
