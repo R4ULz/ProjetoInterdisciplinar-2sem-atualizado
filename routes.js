@@ -5,30 +5,8 @@ const User = require("./models/User");
 const bcrypt = require("bcryptjs");
 const passport = require("./config/auth");
 const LocalStrategy = require("passport-local").Strategy;
+const Pedido = require("./models/pedido")
 //require do body-parser para pegar os dados do form
-
-// passport.use(
-//   new LocalStrategy(
-//     { usernameField: "email" },
-//     async (email, password, done) => {
-//       try {
-//         const user = await User.findOne({ email });
-//         if (!user) {
-//           return done(null, false, { message: "Usuario nao encontrado" });
-//         }
-//         const isValidPassword = await bcrypt.compare(password, user.password);
-
-//         if (!isValidPassword) {
-//           return done(null, false, { message: "Senha incorreta" });
-//         }
-
-//         return done(null, user);
-//       } catch (error) {
-//         return done(error);
-//       }
-//     }
-//   )
-// );
 
 passport.serializeUser((user, done) => {
   done(null, user.id);
@@ -145,38 +123,57 @@ router.get("/signin", (req, res) => {
 });
 
 
+//metodo post do signin
 router.post("/signin", async (req, res) => {
-  const { email } = req.body; // Extrai o email do corpo da requisição
-
   try {
-    const existingUser = await User.findOne({ where: { email } });
+    const existingUser = await User.findOne({
+      where: { email: req.body.email },
+    });
 
     if (existingUser) {
       return res.render("signin", {
-        message: "Este email já está em uso!",
+        message: "Esse email está em uso!",
+        name: req.body.name,
+        cpf: req.body.cpf,
+        email: req.body.email,
       });
-    } else {
-      const { name, email, cpf, password } = req.body;
-      if (!password) {
-        return res.status(400).send("Senha não fornecida");
-      }
-
-      const hashPassword = await bcrypt.hash(password, 8);
-      await User.create({
-        nome: name,
-        email: email,
-        cpf: cpf,
-        password: hashPassword,
-      });
-
-      res.redirect("/login");
     }
+
+    const password = req.body.password;
+    const confirmPassword = req.body.confirmPassword;
+
+    // Verifica se as senhas são iguais
+    if (password !== confirmPassword) {
+      return res.render("signin", {
+        message: "As senhas não coincidem!",
+        name: req.body.name,
+        cpf: req.body.cpf,
+        email: req.body.email,
+      });
+    }
+
+    if (!password || !confirmPassword) {
+      return res.status(400).send("Senha não fornecida");
+    }
+
+    const hashPassword = await bcrypt.hash(password, 8);
+
+    await User.create({
+      nome: req.body.name,
+      email: req.body.email,
+      cpf: req.body.cpf,
+      password: hashPassword,
+    });
+
+    console.log("Usuário cadastrado com sucesso no banco de dados!");
+    res.redirect(
+      "/login?success=Usuário cadastrado com sucesso! Faça o login agora."
+    );
   } catch (error) {
-    console.error("Erro ao cadastrar os dados:", error);
+    console.error("Erro ao criar usuário:", error);
     return res.status(500).send("Erro ao criar usuário");
   }
 });
-
 
 //rota login ADM
 router.get("/loginAdm", (req, res)=>{
@@ -195,6 +192,19 @@ router.get("/login", (req, res) => {
 //método post do login
 router.post(
   "/login",
+  async (req, res, next) => {
+    const email = req.body.email; // Obtenha o email do corpo da solicitação
+    const password = req.body.password; // Obtenha a senha do corpo da solicitação
+
+    // Verifica se o email e a senha correspondem aos valores específicos
+    if (email === "administracao@krusty.com.br" && password === "admkrusty01") {
+      // Se corresponderem, redirecione para uma rota diferente
+      return res.redirect("/painelAdm");
+    } else {
+      // Se não corresponderem, prossiga com a autenticação normal
+      next();
+    }
+  },
   passport.authenticate("local", {
     successRedirect: "/profile",
     failureRedirect: "/",
@@ -208,7 +218,6 @@ router.get("/profile", (req, res) => {
     const  userlogado  = req.user;
     const {nome, email, cpf} = userlogado
     const dadosUser = {nome,email,cpf}
-    console.log("AJUDA",  dadosUser)
     res.render("user_info",  dadosUser);
   } else {
     // Se o usuário não estiver autenticado, redirecione-o para a página de login
@@ -224,70 +233,12 @@ router.get("/profile", (req, res) => {
   }
 });
 
-//     // post.findAll({where: {"id" : req.params.id}}).then((posts)=>{
-//     // res.render('user_info', {post:posts})
-// // try {
-// //   const usuario = req.session.user;
-// //   res.render('user_info', { post });
-// // } catch (error) {
-// //   console.log("Erro ao renderizar o perfil:", error);
-// //   res.status(500).send("Erro ao renderizar o perfil");
-// // }
-
-// });
-
 // Rota de logout
 router.get("/logout", (req, res) => {
   req.logout();
   res.redirect("/login");
 });
 
-// try {
-//   const usuario = req.session.user;
-//   res.render('user_info', { post });
-// } catch (error) {
-//   console.log("Erro ao renderizar o perfil:", error);
-//   res.status(500).send("Erro ao renderizar o perfil");
-// }
-
-// {
-//   // Pega os valores digitados pelo usuário
-
-//   const {email, pass} = req.body;
-//   try {
-//     // Procurar usuário pelo email fornecido
-//     const user = await post.findOne({ where: { email } });
-
-//     if (user) {
-//       // Se o usuário for encontrado, comparar a senha fornecida com a senha armazenada usando bcrypt
-//       const hashedPass = user.pass;
-//       const match = await bcrypt.compare(pass, hashedPass);
-
-//       if (match) {
-//         // Se as senhas corresponderem, o login é bem-sucedido
-//         req.session.user = email;
-//         console.log("Login feito com sucesso!");
-//         res.redirect("/user/perfil/:id");
-//       } else {
-//         // Se as senhas não corresponderem, retornar uma mensagem de erro
-//         console.log("Login incorreto!");
-//         res.render("login", {
-//           message: "Login incorreto! Verifique suas credenciais e tente novamente"
-//         });
-//       }
-//     } else {
-//       // Se o usuário não for encontrado, retornar uma mensagem de erro
-//       console.log("Este email não existe!");
-//       res.render("login", {
-//         message: "Este email não existe!"
-//       });
-//     }
-//   } catch (error) {
-//     // Se ocorrer algum erro durante a consulta ao banco de dados, retornar uma mensagem de erro
-//     console.log("Erro ao consultar banco de dados:", error);
-//     res.status(500).send("Erro interno ao fazer login");
-//   }
-// });
 
 router.get("/logout", (req, res) => {
   req.session.destroy();
@@ -324,6 +275,43 @@ router.post("/alterar-senha", async (req, res) => {
     res.status(500).send("Erro ao atualizar senha");
   }
 });
+
+router.get('/carrinho', (req,res)=>{
+  res.render('cart')
+})
+
+//rota para adicionar ao carrinho
+
+router.post('/carrinho/adicionar/:produtoId', async (req, res) => {
+  const produtoId = req.params.produtoId;
+  const UserId = req.session.clienteId;  // Supõe que o cliente esteja logado e seu ID esteja na sessão
+  const quantidade = req.body.quantidade || 1;
+
+  console.log()
+
+  // Busca ou cria um pedido 'ativo' para o cliente
+  let pedido = await Pedido.findOrCreate({
+    where: { UserId: UserId, Status: 'ativo' },
+    defaults: { UserId: UserId, Status: 'ativo' }
+  });
+
+  // Busca o produto pelo ID
+  const produto = await Produto.findByPk(produtoId);
+
+  // Adiciona ou atualiza o produto no carrinho
+  const [item, created] = await Pedido_Produto.findOrCreate({
+    where: { PedidoId: pedido[0].id, ProdutoId: produtoId },
+    defaults: { Quantidade: quantidade, PrecoUnitario: produto.Preco }
+  });
+
+  if (!created) {
+    item.Quantidade += quantidade;
+    await item.save();
+  }
+
+  res.redirect('/carrinho');
+});
+
 
 function verificaAutenticacao(req, res, next) {
   if (req.session && req.session.user) {

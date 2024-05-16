@@ -1,7 +1,11 @@
 const db = require("./banco")
+const Pedido = require('./pedido');
+const Pedido_Produto = require('./pedido_produto');
+
+
 
 const Produtos = db.sequelize.define("produtos",{
-    id:{
+    ProdutoId:{
         type: db.Sequelize.INTEGER,
         autoIncrement: true,
         primaryKey: true
@@ -28,6 +32,5 @@ const Produtos = db.sequelize.define("produtos",{
     },
 })
 
-//Produtos.sync({force: true})
 
 module.exports = Produtos

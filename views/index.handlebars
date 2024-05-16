@@ -43,7 +43,31 @@
               </div>
               <div class="flex justify-between items-center">
                 <span class="text-xl font-bold text-teal-500">R$ {{valor}},00</span>
-                <button class="bg-orange-500 text-sm text-white px-6 py-2 rounded-full font-bold uppercase">adicionar</button>
+                <button onclick="adicionarAoCarrinho()" class="bg-orange-500 text-sm text-white px-6 py-2 rounded-full font-bold uppercase" >adicionar</button>
+                <script>
+function adicionarAoCarrinho(produtoId) {
+    fetch(`/carrinho/adicionar/${produtoId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'quantidade=1'  // Você pode pegar esse valor de um campo de entrada, se quiser permitir que os usuários especifiquem a quantidade
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.text();
+        }
+        throw new Error('Algo deu errado no servidor.');
+    })
+    .then(data => {
+        console.log('Produto adicionado com sucesso!');
+        window.location.href = '/carrinho';  // Redireciona para a página do carrinho
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+    });
+}
+</script>
               </div>
             </div>
             {{/dataValues}}
