@@ -5,6 +5,7 @@ const User = require("./models/User");
 const bcrypt = require("bcryptjs");
 const passport = require("./config/auth");
 const LocalStrategy = require("passport-local").Strategy;
+
 //require do body-parser para pegar os dados do form
 
 passport.serializeUser((user, done) => {
@@ -24,15 +25,22 @@ passport.deserializeUser(async (id, done) => {
 
 // Rota inicial
 router.get("/", (req, res) => {
+  let userLoggedIn = false;
+
+  if (req.isAuthenticated()) {
+    userLoggedIn = true;
+  }
   produto
     .findAll()
     .then((produtos) => {
-      res.render("index", { produto: produtos });
+      res.render("index", { produto: produtos, userLoggedIn});
     })
     .catch((erro) => {
       console.log("erro ao buscar produtos" + erro);
       res.status(500).send("Erro ao buscar usuarios");
     });
+
+    
 });
 
 // Rota para cadastrar produto
@@ -140,20 +148,21 @@ router.post("/signin", async (req, res) => {
 
     const password = req.body.password;
     const confirmPassword = req.body.confirmPassword;
+        // Verifica se as senhas são iguais
+        if (password !== confirmPassword) {
+          return res.render("signin", {
+            message: "As senhas não coincidem!",
+            name: req.body.name,
+            cpf: req.body.cpf,
+            email: req.body.email,
+          });
+        }
+    
+        if (!password || !confirmPassword) {
+          return res.status(400).send("Senha não fornecida");
+        }
+    
 
-    // Verifica se as senhas são iguais
-    if (password !== confirmPassword) {
-      return res.render("signin", {
-        message: "As senhas não coincidem!",
-        name: req.body.name,
-        cpf: req.body.cpf,
-        email: req.body.email,
-      });
-    }
-
-    if (!password || !confirmPassword) {
-      return res.status(400).send("Senha não fornecida");
-    }
 
     const hashPassword = await bcrypt.hash(password, 8);
 
@@ -189,18 +198,13 @@ router.get("/login", (req, res) => {
 });
 
 //método post do login
-router.post(
-  "/login",
+router.post("/login",
   async (req, res, next) => {
     const email = req.body.email; // Obtenha o email do corpo da solicitação
     const password = req.body.password; // Obtenha a senha do corpo da solicitação
-
-    // Verifica se o email e a senha correspondem aos valores específicos
     if (email === "administracao@krusty.com.br" && password === "admkrusty01") {
-      // Se corresponderem, redirecione para uma rota diferente
       return res.redirect("/painelAdm");
     } else {
-      // Se não corresponderem, prossiga com a autenticação normal
       next();
     }
   },
@@ -208,16 +212,19 @@ router.post(
     successRedirect: "/profile",
     failureRedirect: "/",
     failureFlash: true,
-  })
+  }),
+  
 );
 
 // Rota para renderizar a página de perfil
 router.get("/profile", (req, res) => {
+  
   if (req.isAuthenticated()) {
     const  userlogado  = req.user;
     const {nome, email, cpf} = userlogado
     const dadosUser = {nome,email,cpf}
-    res.render("user_info",  dadosUser);
+    const userLoggedIn = true;
+    res.render("user_info",  {dadosUser ,userLoggedIn});
   } else {
     // Se o usuário não estiver autenticado, redirecione-o para a página de login
     res.redirect("/login");
@@ -232,11 +239,21 @@ router.get("/profile", (req, res) => {
   }
 });
 
-// Rota de logout
-router.get("/logout", (req, res) => {
-  req.logout();
-  res.redirect("/login");
+router.get("/logout", (req, res, next) => {
+  req.logout((err) => {
+    if (err) {
+      return next(err);
+    }
+    req.session.destroy((err) => {
+      if (err) {
+        return next(err);
+      }
+      res.clearCookie('connect.sid');
+      res.redirect("/login");
+    });
+  });
 });
+
 
 
 router.get("/logout", (req, res) => {
@@ -264,7 +281,7 @@ router.post("/alterar-senha", async (req, res) => {
       await user.save();
 
       console.log("Senha atualizada com sucesso");
-      res.redirect("/perfil");
+      res.redirect("/profile");
     } else {
       console.log("Usuário não encontrado");
       res.status(404).send("Usuário não encontrado");
@@ -276,8 +293,19 @@ router.post("/alterar-senha", async (req, res) => {
 });
 
 router.get('/carrinho', (req,res)=>{
-  res.render('cart')
+  if (req.isAuthenticated()) {
+    userLoggedIn = true;
+  }
+  res.render('cart', userLoggedIn)
+}) 
+
+router.get('/profile/pedidos' , (req,res)=>{
+  if (req.isAuthenticated()) {
+    userLoggedIn = true;
+  }
+  res.render('user_historic', userLoggedIn)
 })
+
 
 function verificaAutenticacao(req, res, next) {
   if (req.session && req.session.user) {

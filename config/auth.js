@@ -32,6 +32,9 @@ passport.use(
           console.log("senha ruim");
           return done(null, false, { message: "Senha incorreta" });
         }
+
+        foundUser.userLoggedIn = true;
+
         return done(null, foundUser);
       } catch (error) {
         return done(error);

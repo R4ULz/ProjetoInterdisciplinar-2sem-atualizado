@@ -30,7 +30,12 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 //config engines
-app.engine("handlebars", handlebars({ defaultLayout: "main" }));
+app.engine("handlebars", handlebars({ 
+  defaultLayout: "main", 
+  layoutsDir:path.join(__dirname, '/views/layouts/'), 
+  partialsDir: path.join(__dirname, 'views', 'partials')
+}));
+
 app.set("view engine", "handlebars");
 
 //definindo acesso a pasta publica
