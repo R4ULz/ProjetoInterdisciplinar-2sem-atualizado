@@ -5,6 +5,7 @@ const User = require("./models/User");
 const bcrypt = require("bcryptjs");
 const passport = require("./config/auth");
 const LocalStrategy = require("passport-local").Strategy;
+const Pedido = require("./models/pedido")
 //require do body-parser para pegar os dados do form
 
 passport.serializeUser((user, done) => {
@@ -278,6 +279,39 @@ router.post("/alterar-senha", async (req, res) => {
 router.get('/carrinho', (req,res)=>{
   res.render('cart')
 })
+
+//rota para adicionar ao carrinho
+
+router.post('/carrinho/adicionar/:produtoId', async (req, res) => {
+  const produtoId = req.params.produtoId;
+  const UserId = req.session.clienteId;  // Supõe que o cliente esteja logado e seu ID esteja na sessão
+  const quantidade = req.body.quantidade || 1;
+
+  console.log()
+
+  // Busca ou cria um pedido 'ativo' para o cliente
+  let pedido = await Pedido.findOrCreate({
+    where: { UserId: UserId, Status: 'ativo' },
+    defaults: { UserId: UserId, Status: 'ativo' }
+  });
+
+  // Busca o produto pelo ID
+  const produto = await Produto.findByPk(produtoId);
+
+  // Adiciona ou atualiza o produto no carrinho
+  const [item, created] = await Pedido_Produto.findOrCreate({
+    where: { PedidoId: pedido[0].id, ProdutoId: produtoId },
+    defaults: { Quantidade: quantidade, PrecoUnitario: produto.Preco }
+  });
+
+  if (!created) {
+    item.Quantidade += quantidade;
+    await item.save();
+  }
+
+  res.redirect('/carrinho');
+});
+
 
 function verificaAutenticacao(req, res, next) {
   if (req.session && req.session.user) {

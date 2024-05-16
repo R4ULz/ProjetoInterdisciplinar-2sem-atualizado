@@ -1,16 +1,15 @@
 //require das dependencias do projeto
 const express = require("express");
 const app = express();
+const { db, User, Pedido, Produto, Pedido_Produto } = require('./models');
 const passport = require("./config/auth");
 const session = require("express-session");
 const path = require("path");
-const User  = require("./models/User");
-const produto = require("./models/produto");
-const bcrypt = require("bcryptjs");
 const flash = require("express-flash");
 const handlebars = require("express-handlebars").engine;
 const routes = require("./routes"); // Importando as rotas
 const bodyParser = require("body-parser");
+
 
 //const { resolveSOA } = require("dns");
 
@@ -39,6 +38,15 @@ app.use(express.static("public"));
 //config do bodyparser para leitura do post
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+db.sequelize.sync({ force: true }) // Use force: true com cautela em produção
+  .then(() => {
+    console.log("Banco de dados sincronizado.");
+    // Outras operações de inicialização podem ocorrer aqui
+  })
+  .catch(err => {
+    console.error("Erro ao sincronizar o banco de dados:", err);
+  });
 
 app.use(routes);
 

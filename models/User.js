@@ -1,8 +1,8 @@
 const db = require("./banco")
-
+const Pedido = require('./pedido');
 
 const User = db.sequelize.define("User",{
-    id:{
+    UserId:{
         type: db.Sequelize.INTEGER,
         autoIncrement: true,
         primaryKey: true
@@ -24,7 +24,7 @@ const User = db.sequelize.define("User",{
         allowNull: false
     }
 })
-// Adicionando login de adms automaticamente ao ser iniciada
+//Adicionando login de adms automaticamente ao ser iniciada
 User.addHook('afterSync', 'addInitialData', async () => {
     try {
         await User.bulkCreate([
@@ -39,13 +39,16 @@ User.addHook('afterSync', 'addInitialData', async () => {
 // Sincronizando o modelo com o banco de dados
 (async () => {
     try {
-        await User.sync({ force: true });
+        await User.sync({});
         console.log('Estrutura do banco de dados sincronizada com sucesso!');
     } catch (error) {
         console.error('Erro ao sincronizar a estrutura do banco de dados:', error);
     }
 })();
 
-//User.sync({force: true})
+    // User.hasMany(Pedido, {
+    //     constraint: true,
+    //     foreignKey: 'PedidoID'}
+    // );
 
 module.exports = User
