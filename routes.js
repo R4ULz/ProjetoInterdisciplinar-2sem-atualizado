@@ -1,7 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const produto = require("./models/produto");
+const Produto = require("./models/produto");
+const Pedido = require('./models/pedido')
 const User = require("./models/User");
+const db = require("./models/banco");
+const Pedido_Produto = require('./models/pedido_produto');
 const bcrypt = require("bcryptjs");
 const passport = require("./config/auth");
 const LocalStrategy = require("passport-local").Strategy;
@@ -9,31 +12,35 @@ const LocalStrategy = require("passport-local").Strategy;
 //require do body-parser para pegar os dados do form
 
 passport.serializeUser((user, done) => {
-  done(null, user.id);
+  console.log("Serializando", user.UserId)
+  done(null, user.UserId);
 });
 
-passport.deserializeUser(async (id, done) => {
-  try {
-    const user = await User.findByPk(id);
-    done(null, user);
-  } catch (error) {
-    done(error);
-  }
+passport.deserializeUser((UserId, done) => {
+  console.log("Desserializando ID:", UserId)
+  User.findById(UserId, (err, user) => {
+    if (err) {
+      return done(err);
+    }
+    if (!user) {
+      return done(null, false);  // O usuário não foi encontrado
+    }
+    return done(null, user);
+  });
 });
 
 //config do bodyparser para leitura do post
 
 // Rota inicial
-router.get("/", (req, res) => {
+router.get("/", logUserId, (req, res) => {
   let userLoggedIn = false;
-
   if (req.isAuthenticated()) {
     userLoggedIn = true;
   }
-  produto
+  Produto
     .findAll()
     .then((produtos) => {
-      res.render("index", { produto: produtos, userLoggedIn});
+      res.render("index", { Produto: produtos, userLoggedIn});
     })
     .catch((erro) => {
       console.log("erro ao buscar produtos" + erro);
@@ -50,7 +57,7 @@ router.get("/cadastrarProduto", (req, res) => {
 
 // Rota POST para cadastrar produto
 router.post("/cadastrarProduto", (req, res) => {
-  produto
+  Produto
     .create({
       imagem: req.body.imagem,
       nome: req.body.nome,
@@ -68,11 +75,11 @@ router.post("/cadastrarProduto", (req, res) => {
 
 //rota para consultar
 router.get("/consultar", (req, res) => {
-  produto
+  Produto
     .findAll()
     .then((produtos) => {
       console.log("cheghei aquii");
-      res.render("consultar", { produto: produtos });
+      res.render("consultar", { Produto: produtos });
     })
     .catch(function (erro) {
       res.send("Falha ao consultar os dados: " + erro);
@@ -81,10 +88,10 @@ router.get("/consultar", (req, res) => {
 
 //rota para editar
 router.get("/editar/:id", function (req, res) {
-  produto
+  Produto
     .findAll({ where: { id: req.params.id } })
     .then(function (produtos) {
-      res.render("editarProduto", { produto: produtos });
+      res.render("editarProduto", { Produto: produtos });
     })
     .catch(function (erro) {
       res.send("Falha ao acessar a pagina editar: " + erro);
@@ -93,7 +100,7 @@ router.get("/editar/:id", function (req, res) {
 
 //metodo para atualizar da rota editar
 router.post("/atualizar", function (req, res) {
-  produto
+  Produto
     .update(
       {
         imagem: req.body.imagem,
@@ -114,7 +121,7 @@ router.post("/atualizar", function (req, res) {
 
 // botão pra excluir
 router.get("/excluir/:id", function (req, res) {
-  produto
+  Produto
     .destroy({ where: { id: req.params.id } })
     .then(function () {
       res.redirect("/consultar");
@@ -202,7 +209,7 @@ router.post("/login",
   async (req, res, next) => {
     const email = req.body.email; // Obtenha o email do corpo da solicitação
     const password = req.body.password; // Obtenha a senha do corpo da solicitação
-    if (email === "administracao@krusty.com.br" && password === "admkrusty01") {
+    if (email === "admkrusty@krusty.com.br" && password === "admkrusty01") {
       return res.redirect("/painelAdm");
     } else {
       next();
@@ -307,6 +314,50 @@ router.get('/profile/pedidos' , (req,res)=>{
 })
 
 
+router.post('/carrinho/adicionar/:ProdutoId', async (req, res) => {
+  const produtoId = req.params.ProdutoId;
+  const UserId = req.user.UserId;  // Supõe que o cliente esteja logado e seu ID esteja na sessão
+  const quantidade = req.body.quantidade || 1;
+
+  // Busca ou cria um pedido 'ativo' para o cliente
+    let pedido = await Pedido.findOrCreate({
+      where: { UserId: UserId, Status: 'ativo' },
+      defaults: { UserId: UserId, Status: 'ativo' }
+    });
+
+
+  console.log("Buscando produto com ID:", produtoId)
+  // Busca o produto pelo ID
+  const produto = await Produto.findByPk(produtoId);
+  console.log("Produto encontrado:", produto);
+
+
+  if (!produto) {
+    console.error(`Nenhum produto encontrado com ID: ${produtoId}`);
+    return res.status(404).send("Produto não encontrado");
+}
+
+  const [item, created] = await Pedido_Produto.findOrCreate({
+      where: { PedidoPedidoId: pedido[0].PedidoId, produtoProdutoId: produtoId },
+      defaults: { Quantidade: quantidade, PrecoUnitario: produto.valor },
+      transaction: t
+  });
+
+  if (!created) {
+      item.Quantidade += quantidade;
+      item.PrecoUnitario = produto.valor;
+      await item.save({ transaction: t });
+  }
+
+  await atualizarTotalPedido(pedido[0].PedidoId, t);  // Passando a transação como argumento
+
+if (!resultado) {
+  console.log('erro de transação');
+}
+
+  res.json({message: "produto adicionado com sucesso ao carrinho"});
+});
+
 function verificaAutenticacao(req, res, next) {
   if (req.session && req.session.user) {
     return next();
@@ -315,4 +366,26 @@ function verificaAutenticacao(req, res, next) {
   }
 }
 
+function logUserId(req, res, next) {
+  if (req.isAuthenticated()) { // Verifica se o método isAuthenticated está disponível e o usuário está logado
+      console.log(`Usuário logado com ID: ${req.user.UserId}`); // Acessa o ID do usuário armazenado na sessão
+  } else {
+      console.log("Nenhum usuário logado.");
+  }
+  next(); // Continua para a próxima função de middleware na pilha
+}
+
+async function atualizarTotalPedido(PedidoId){
+  const itens = await Pedido_Produto.findAll({
+    where:{PedidoPedidoId: PedidoId}
+  });
+  let total = 0;
+  itens.forEach(item =>{
+    total += item.Quantidade * item.PrecoUnitario;
+  });
+  const pedido = await Pedido.findByPk(pedidoId);
+    pedido.Total = total;
+    await pedido.save();
+
+}
 module.exports = router;
