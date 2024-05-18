@@ -52,12 +52,12 @@
             class="rounded-xl">
         </div>
         <div class="flex flex-col">
-          <h2 class="font-bold text-xl">{{ProdutoId}}{{nome}}</h2>
+          <h2 class="font-bold text-xl">{{nome}}</h2>
           <p class="text-gray-600 text-sm">{{descricao}}</p>
         </div>
         <div class="flex justify-between items-center">
           <span class="text-xl font-bold text-teal-500">R$ {{valor}},00</span>
-          <button id="add-to-cart" class="bg-orange-500 text-sm text-white px-6 py-2 rounded-full font-bold uppercase">adicionar</button>
+          <button data-produtoid="{{ProdutoId}}" class="bg-orange-500 text-sm text-white px-6 py-2 rounded-full font-bold uppercase add-to-cart">adicionar</button>
         </div>
       </div>
       {{/dataValues}}
@@ -179,13 +179,12 @@
             class="rounded-xl">
         </div>
         <div class="flex flex-col">
-          <h2 class="font-bold text-xl">{{ProdutoId}}{{nome}}</h2>
+          <h2 class="font-bold text-xl">{{nome}}</h2>
           <p class="text-gray-600 text-sm">{{descricao}}</p>
         </div>
         <div class="flex justify-between items-center">
           <span class="text-xl font-bold text-teal-500">R$ {{valor}},00</span>
-          <button
-            class="bg-orange-500 text-sm text-white px-6 py-2 rounded-full font-bold uppercase">adicionar</button>
+          <button data-produtoid="{{ProdutoId}}" class="bg-orange-500 text-sm text-white px-6 py-2 rounded-full font-bold uppercase add-to-cart">adicionar</button>
         </div>
       </div>
       {{/dataValues}}
@@ -194,11 +193,14 @@
   </div>
 </section>
 <script>
-  document.getElementById('add-to-cart').addEventListener('click', function() {
+  document.querySelectorAll('.add-to-cart').forEach(button =>{
+    button.addEventListener('click', function() {
     const produtoId = this.getAttribute('data-produtoid');
     const quantidade = 1; // Este valor pode ser dinâmico ou fixo, dependendo do seu caso
 
-    fetch(`/carrinho/adicionar/1`, {
+    console.log("Produto ID:", produtoId);
+
+    fetch(`/carrinho/adicionar/${produtoId}`, {
       method: 'POST',
       headers: {
       'Content-Type': 'application/json',
@@ -216,5 +218,6 @@
       console.error('Erro:', error);
       alert('Falha ao adicionar o produto ao carrinho.');
     });
+  });
   });
 </script>

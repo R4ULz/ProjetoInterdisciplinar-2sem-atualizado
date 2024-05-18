@@ -9,7 +9,11 @@ const Pedido_Produto = db.sequelize.define('Pedido_Produto', {
     PrecoUnitario: {
       type: db.Sequelize.DECIMAL(10, 2),
       allowNull: false
-    }
+    },
 });
+
+Pedido_Produto.associate = function(models) {
+  Pedido_Produto.belongsTo(models.Pedido, { foreignKey: 'PedidoId' });
+};
 
 module.exports = Pedido_Produto;

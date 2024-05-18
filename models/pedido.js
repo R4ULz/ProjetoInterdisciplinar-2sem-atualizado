@@ -9,9 +9,10 @@ const Pedido = db.sequelize.define('Pedido', {
       autoIncrement: true,
       primaryKey: true
     },
-    DataPedido: {
-      type: db.Sequelize.DATE,
-      allowNull: true
+    Total: {
+      type: db.Sequelize.DECIMAL(10, 2),  // Tipo decimal para suportar centavos
+      allowNull: false,
+      defaultValue: 0.00  // Inicializa com zero
     },
     Status: {
       type: db.Sequelize.ENUM('Ativo', 'concluído', 'cancelado'),
@@ -19,13 +20,10 @@ const Pedido = db.sequelize.define('Pedido', {
     }
   });
 
+  Pedido.associate = function(models) {
+    Pedido.hasMany(models.Pedido_Produto, { foreignKey: 'PedidoId' });
+  };
 
-// Pedido.belongsTo(User, {
-//     constraint: true,
-//     foreignKey: 'UserId'
-// })
-
-// Pedido.belongsToMany(Produto, { through: Pedido_Produto, foreignKey: 'PedidoID', otherKey: 'ProdutoID' });
 
 
 module.exports = Pedido;

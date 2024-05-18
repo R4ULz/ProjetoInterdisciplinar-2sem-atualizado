@@ -299,12 +299,59 @@ router.post("/alterar-senha", async (req, res) => {
   }
 });
 
-router.get('/carrinho', (req,res)=>{
+router.get('/carrinho', async (req,res)=>{
+  let userLoggedIn = false;
+  
   if (req.isAuthenticated()) {
     userLoggedIn = true;
+    try {
+      // Supondo que o modelo de Pedido armazene uma referência ao UserId
+      const pedido = await Pedido.findOne({
+        where: { UserId: req.user.UserId, Status: 'ativo' }, // Ajuste o campo conforme seu modelo
+        include: [{
+          model: Pedido_Produto,
+          include: [Produto]
+        }]
+      });
+
+      console.log("Pedido encontrado:", pedido);
+        if (pedido) {
+          console.log("Pedido_Produtos:", pedido.Pedido_Produtos);
+          pedido.Pedido_Produtos.forEach(pp => {
+          console.log("Produto associado:", pp.ProdutoId);
+          });
+        }
+
+      const produtos = pedido ? pedido.Pedido_Produtos.map(item => {
+        if (!item.produto) {
+          console.error("Produto não encontrado para o Pedido_Produto com ID:", item.ProdutoId);
+          return {}; // Ou pode retornar um objeto de produto padrão ou nulo
+        }
+
+        return{
+          nome: item.produto.nome,
+          descricao: item.produto.descricao,
+          imagem: item.produto.imagem,
+          valor: item.produto.valor,
+          quantidade: item.Quantidade,
+          ProdutoId: item.produtoId
+      };
+      }) : [];
+
+      console.log("Produtos a serem renderizados:", produtos);
+
+      res.render('cart', {
+        userLoggedIn: req.isAuthenticated,
+        produtos: produtos  // Passando produtos para a view
+      });
+    } catch (error) {
+      console.error("Erro ao buscar dados do carrinho:", error);
+      res.status(500).send("Erro ao processar o pedido de carrinho.");
+    }
+  } else {
+    res.render('cart', { userLoggedIn: userLoggedIn });
   }
-  res.render('cart', userLoggedIn)
-}) 
+});
 
 router.get('/profile/pedidos' , (req,res)=>{
   if (req.isAuthenticated()) {
@@ -314,48 +361,49 @@ router.get('/profile/pedidos' , (req,res)=>{
 })
 
 
-router.post('/carrinho/adicionar/:ProdutoId', async (req, res) => {
-  const produtoId = req.params.ProdutoId;
+router.post('/carrinho/adicionar/:produtoId', async (req, res) => {
+  const produtoId = req.params.produtoId;
   const UserId = req.user.UserId;  // Supõe que o cliente esteja logado e seu ID esteja na sessão
   const quantidade = req.body.quantidade || 1;
 
-  // Busca ou cria um pedido 'ativo' para o cliente
-    let pedido = await Pedido.findOrCreate({
-      where: { UserId: UserId, Status: 'ativo' },
-      defaults: { UserId: UserId, Status: 'ativo' }
-    });
+  try{
+    // Busca ou cria um pedido 'ativo' para o cliente
+      const [pedido, created] = await Pedido.findOrCreate({
+        where: { UserId: UserId, Status: 'ativo' },
+        defaults: { UserId: UserId, Status: 'ativo' }
+      });
 
 
-  console.log("Buscando produto com ID:", produtoId)
-  // Busca o produto pelo ID
-  const produto = await Produto.findByPk(produtoId);
-  console.log("Produto encontrado:", produto);
-
-
-  if (!produto) {
-    console.error(`Nenhum produto encontrado com ID: ${produtoId}`);
-    return res.status(404).send("Produto não encontrado");
-}
-
-  const [item, created] = await Pedido_Produto.findOrCreate({
-      where: { PedidoPedidoId: pedido[0].PedidoId, produtoProdutoId: produtoId },
-      defaults: { Quantidade: quantidade, PrecoUnitario: produto.valor },
-      transaction: t
-  });
-
-  if (!created) {
-      item.Quantidade += quantidade;
-      item.PrecoUnitario = produto.valor;
-      await item.save({ transaction: t });
+    // Busca o produto pelo ID
+    const produto = await Produto.findByPk(produtoId);
+    if (!produto) {
+      console.error(`Nenhum produto encontrado com ID: ${produtoId}`);
+      return res.status(404).send("Produto não encontrado");
   }
 
-  await atualizarTotalPedido(pedido[0].PedidoId, t);  // Passando a transação como argumento
+    const [item, itemCreated] = await Pedido_Produto.findOrCreate({
+        where: { PedidoId: pedido.PedidoId, ProdutoId: produtoId },
+        defaults: { Quantidade: quantidade, PrecoUnitario: produto.valor },
+    });
 
-if (!resultado) {
-  console.log('erro de transação');
-}
+    if (!created) {
+        item.Quantidade += quantidade;
+        await item.save();
+    }
 
-  res.json({message: "produto adicionado com sucesso ao carrinho"});
+    const itens = await Pedido_Produto.findAll({
+      where:{PedidoId: pedido.PedidoId}
+    });
+
+    const total = itens.reduce((acc, curr)=> acc + (curr.Quantidade * curr.PrecoUnitario), 0);
+    pedido.Total = total;
+    await pedido.save();
+
+    res.json({message: "produto adicionado com sucesso ao carrinho"});
+  }catch(error){
+    console.error("erro ao adicionar produto ao carrinho", error);
+    res.status(500).send("erro interno do servidor")
+  }
 });
 
 function verificaAutenticacao(req, res, next) {
