@@ -56,9 +56,13 @@ db.sequelize.sync({}) // Use force: true com cautela em produção
     console.error("Erro ao sincronizar o banco de dados:", err);
 });
 
+
+
 app.use(routes);
 
 //executa servidor
 app.listen("3000", () => {
   console.log("Server on");
 });
+
+// Configure esta função para ser executada em intervalos regulares

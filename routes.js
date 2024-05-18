@@ -4,12 +4,24 @@ const Produto = require("./models/produto");
 const Pedido = require('./models/pedido')
 const User = require("./models/User");
 const db = require("./models/banco");
+const path = require("path");
 const Pedido_Produto = require('./models/pedido_produto');
 const bcrypt = require("bcryptjs");
 const passport = require("./config/auth");
-const LocalStrategy = require("passport-local").Strategy;
+const multer  = require('multer');
 
-//require do body-parser para pegar os dados do form
+const storage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    cb(null, 'public/images/') // Caminho da pasta onde os arquivos serão salvos
+  },
+  filename: function(req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname))
+  }
+});
+
+const upload = multer({ storage: storage });
+
 
 passport.serializeUser((user, done) => {
   console.log("Serializando", user.UserId)
@@ -56,22 +68,31 @@ router.get("/cadastrarProduto", (req, res) => {
 });
 
 // Rota POST para cadastrar produto
-router.post("/cadastrarProduto", (req, res) => {
-  Produto
-    .create({
-      imagem: req.body.imagem,
-      nome: req.body.nome,
-      valor: req.body.valor,
-      descricao: req.body.descricao,
-      categoria: req.body.categoria,
-    })
-    .then(() => {
-      res.redirect("/cadastrarProduto");
-    })
-    .catch((erro) => {
-      console.log("Falha ao cadastrar os dados" + erro);
-    });
+router.post("/cadastrarProduto", upload.single('imagem'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).send('Nenhum arquivo foi enviado.');
+  }
+
+  const imageName = req.file.filename; // Nome do arquivo salvo na pasta img
+
+  // Criação do Produto com o nome do arquivo de imagem
+  Produto.create({
+    imagem: imageName,  // Salva o nome do arquivo no banco de dados
+    nome: req.body.nome,
+    valor: req.body.valor,
+    descricao: req.body.descricao,
+    categoria: req.body.categoria,
+  })
+  .then(() => {
+    res.redirect("/cadastrarProduto");
+  })
+  .catch((erro) => {
+    console.log("Falha ao cadastrar os dados" + erro);
+    res.status(500).send("Erro ao processar o cadastro do produto.");
+  });
 });
+
+module.exports = router;
 
 //rota para consultar
 router.get("/consultar", (req, res) => {
@@ -190,10 +211,6 @@ router.post("/signin", async (req, res) => {
   }
 });
 
-//rota login ADM
-router.get("/loginAdm", (req, res)=>{
-  res.render("loginAdm")
-})
 //rota painel ADM
 router.get("/painelAdm", (req, res)=>{
   res.render("painelAdm")
@@ -260,8 +277,6 @@ router.get("/logout", (req, res, next) => {
     });
   });
 });
-
-
 
 router.get("/logout", (req, res) => {
   req.session.destroy();
@@ -364,11 +379,11 @@ router.get('/profile/pedidos' , (req,res)=>{
 router.post('/carrinho/adicionar/:produtoId', async (req, res) => {
   const produtoId = req.params.produtoId;
   const UserId = req.user.UserId;  // Supõe que o cliente esteja logado e seu ID esteja na sessão
-  const quantidade = req.body.quantidade || 1;
+  const quantidade = parseInt(req.body.quantidade) || 1;
 
   try{
     // Busca ou cria um pedido 'ativo' para o cliente
-      const [pedido, created] = await Pedido.findOrCreate({
+      const [pedido, pedidoCreated] = await Pedido.findOrCreate({
         where: { UserId: UserId, Status: 'ativo' },
         defaults: { UserId: UserId, Status: 'ativo' }
       });
@@ -386,7 +401,7 @@ router.post('/carrinho/adicionar/:produtoId', async (req, res) => {
         defaults: { Quantidade: quantidade, PrecoUnitario: produto.valor },
     });
 
-    if (!created) {
+    if (!itemCreated) {
         item.Quantidade += quantidade;
         await item.save();
     }
@@ -405,6 +420,7 @@ router.post('/carrinho/adicionar/:produtoId', async (req, res) => {
     res.status(500).send("erro interno do servidor")
   }
 });
+
 
 function verificaAutenticacao(req, res, next) {
   if (req.session && req.session.user) {
