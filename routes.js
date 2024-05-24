@@ -7,7 +7,7 @@ const db = require("./models/banco");
 const path = require("path");
 const Pedido_Produto = require('./models/pedido_produto');
 const bcrypt = require("bcryptjs");
-const passport = require("./config/auth");
+const { passport, authMiddleware } = require("./config/auth");
 const multer  = require('multer');
 
 const storage = multer.diskStorage({
@@ -21,6 +21,8 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
+
+router.use(authMiddleware);
 
 
 passport.serializeUser((user, done) => {
@@ -44,15 +46,11 @@ passport.deserializeUser((UserId, done) => {
 //config do bodyparser para leitura do post
 
 // Rota inicial
-router.get("/", logUserId, (req, res) => {
-  let userLoggedIn = false;
-  if (req.isAuthenticated()) {
-    userLoggedIn = true;
-  }
+router.get("/", authMiddleware, (req, res) => {
   Produto
     .findAll()
     .then((produtos) => {
-      res.render("index", { Produto: produtos, userLoggedIn});
+      res.render("index", { Produto: produtos});
     })
     .catch((erro) => {
       console.log("erro ao buscar produtos" + erro);
@@ -63,7 +61,7 @@ router.get("/", logUserId, (req, res) => {
 });
 
 // Rota para cadastrar produto
-router.get("/cadastrarProduto", (req, res) => {
+router.get("/cadastrarProduto", authMiddleware,(req, res) => {
   res.render("cadProduto");
 });
 
@@ -72,9 +70,7 @@ router.post("/cadastrarProduto", upload.single('imagem'), (req, res) => {
   if (!req.file) {
     return res.status(400).send('Nenhum arquivo foi enviado.');
   }
-
   const imageName = req.file.filename; // Nome do arquivo salvo na pasta img
-
   // Criação do Produto com o nome do arquivo de imagem
   Produto.create({
     imagem: imageName,  // Salva o nome do arquivo no banco de dados
@@ -95,7 +91,7 @@ router.post("/cadastrarProduto", upload.single('imagem'), (req, res) => {
 module.exports = router;
 
 //rota para consultar
-router.get("/consultar", (req, res) => {
+router.get("/consultar", authMiddleware,(req, res) => {
   Produto
     .findAll()
     .then((produtos) => {
@@ -108,7 +104,7 @@ router.get("/consultar", (req, res) => {
 });
 
 //rota para editar
-router.get("/editar/:id", function (req, res) {
+router.get("/editar/:id", authMiddleware,function (req, res) {
   Produto
     .findAll({ where: { id: req.params.id } })
     .then(function (produtos) {
@@ -212,7 +208,7 @@ router.post("/signin", async (req, res) => {
 });
 
 //rota painel ADM
-router.get("/painelAdm", (req, res)=>{
+router.get("/painelAdm", authMiddleware,(req, res)=>{
   res.render("painelAdm")
 })
 
@@ -240,8 +236,10 @@ router.post("/login",
   
 );
 
+
+
 // Rota para renderizar a página de perfil
-router.get("/profile", (req, res) => {
+router.get("/profile", authMiddleware,(req, res) => {
   
   if (req.isAuthenticated()) {
     const  userlogado  = req.user;
@@ -255,7 +253,29 @@ router.get("/profile", (req, res) => {
   }
 });
 
-router.get("/profile", (req, res) => {
+router.post("/atualizarUsuario",async(req,res)=>{
+  try{
+    const userId = req.user.UserId;
+    const {nome,endereco,cpf,email,telefone} = req.body;
+    const user = await User.findByPk(userId);
+    if(!user){
+      return res.status(404).json({ message: "Usuario nao encontrado. "})
+    }
+    user.nome = nome;
+    user.endereco = endereco;
+    user.cpf = cpf;
+    user.email = email;
+    user.telefone = telefone;
+
+    await user.save();
+    res.redirect('/profile')
+  } catch (error) {
+    console.error("Erro ao atualizar dados do usuário:", error);
+    res.status(500).json({ error: "Erro interno do servidor ao atualizar dados do usuário." });
+  }
+})
+
+router.get("/profile", authMiddleware,(req, res) => {
   if (req.isAuthenticated()) {
     res.json(req.user);
   } else {
@@ -263,7 +283,7 @@ router.get("/profile", (req, res) => {
   }
 });
 
-router.get("/logout", (req, res, next) => {
+router.get("/logout",authMiddleware, (req, res, next) => {
   req.logout((err) => {
     if (err) {
       return next(err);
@@ -278,12 +298,12 @@ router.get("/logout", (req, res, next) => {
   });
 });
 
-router.get("/logout", (req, res) => {
-  req.session.destroy();
-  res.redirect("/login");
-});
+// router.get("/logout", (req, res) => {
+//   req.session.destroy();
+//   res.redirect("/login");
+// });
 
-router.get("/s", verificaAutenticacao, (req, res) => {
+router.get("/s", authMiddleware, (req, res) => {
   res.render("alterar-senha");
 });
 
@@ -314,11 +334,7 @@ router.post("/alterar-senha", async (req, res) => {
   }
 });
 
-router.get('/carrinho', async (req,res)=>{
-  let userLoggedIn = false;
-  
-  if (req.isAuthenticated()) {
-    userLoggedIn = true;
+router.get('/carrinho', authMiddleware, async (req,res)=>{
     try {
       // Supondo que o modelo de Pedido armazene uma referência ao UserId
       const pedido = await Pedido.findOne({
@@ -356,23 +372,17 @@ router.get('/carrinho', async (req,res)=>{
       console.log("Produtos a serem renderizados:", produtos);
 
       res.render('cart', {
-        userLoggedIn: req.isAuthenticated,
         produtos: produtos  // Passando produtos para a view
       });
     } catch (error) {
       console.error("Erro ao buscar dados do carrinho:", error);
       res.status(500).send("Erro ao processar o pedido de carrinho.");
     }
-  } else {
-    res.render('cart', { userLoggedIn: userLoggedIn });
-  }
-});
+  })
+  
 
-router.get('/profile/pedidos' , (req,res)=>{
-  if (req.isAuthenticated()) {
-    userLoggedIn = true;
-  }
-  res.render('user_historic', userLoggedIn)
+router.get('/profile/pedidos',authMiddleware,  (req,res)=>{
+  res.render('user_historic')
 })
 
 

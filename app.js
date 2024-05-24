@@ -1,7 +1,7 @@
 //require das dependencias do projeto
 const express = require("express");
 const app = express();
-const passport = require("./config/auth");
+const {passport, authMiddleware} = require("./config/auth");
 const session = require("express-session");
 const path = require("path");
 const flash = require("express-flash");
@@ -30,6 +30,7 @@ app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.json());
+app.use(authMiddleware);
 
 //config engines
 app.engine("handlebars", handlebars({ 
