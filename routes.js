@@ -298,11 +298,6 @@ router.get("/logout",authMiddleware, (req, res, next) => {
   });
 });
 
-// router.get("/logout", (req, res) => {
-//   req.session.destroy();
-//   res.redirect("/login");
-// });
-
 router.get("/s", authMiddleware, (req, res) => {
   res.render("alterar-senha");
 });
@@ -334,52 +329,96 @@ router.post("/alterar-senha", async (req, res) => {
   }
 });
 
-router.get('/carrinho', authMiddleware, async (req,res)=>{
-    try {
+router.get('/carrinho', authMiddleware, async (req, res) => {
+  try {
       // Supondo que o modelo de Pedido armazene uma referência ao UserId
       const pedido = await Pedido.findOne({
-        where: { UserId: req.user.UserId, Status: 'ativo' }, // Ajuste o campo conforme seu modelo
-        include: [{
-          model: Pedido_Produto,
-          include: [Produto]
-        }]
+          where: { UserId: req.user.UserId, Status: 'ativo' }, // Ajuste o campo conforme seu modelo
+          include: [{
+              model: Pedido_Produto,
+              include: [Produto]
+          }]
       });
 
+      if (!pedido) {
+          return res.render('cart', { produtos: [], subtotal: 0.00 }); // Mostra carrinho vazio se não houver pedido
+      }
+
       console.log("Pedido encontrado:", pedido);
-        if (pedido) {
-          console.log("Pedido_Produtos:", pedido.Pedido_Produtos);
-          pedido.Pedido_Produtos.forEach(pp => {
-          console.log("Produto associado:", pp.ProdutoId);
-          });
-        }
+      
+      const produtos = pedido.Pedido_Produtos.map(item => {
+          if (!item.produto) {
+              console.error("Produto não encontrado para o Pedido_Produto com ID:", item.ProdutoId);
+              return {}; // Retorna um objeto vazio ou padrão se não encontrar o produto
+          }
 
-      const produtos = pedido ? pedido.Pedido_Produtos.map(item => {
-        if (!item.produto) {
-          console.error("Produto não encontrado para o Pedido_Produto com ID:", item.ProdutoId);
-          return {}; // Ou pode retornar um objeto de produto padrão ou nulo
-        }
-
-        return{
-          nome: item.produto.nome,
-          descricao: item.produto.descricao,
-          imagem: item.produto.imagem,
-          valor: item.produto.valor,
-          quantidade: item.Quantidade,
-          ProdutoId: item.produtoId
-      };
-      }) : [];
+          return {
+              nome: item.produto.nome,
+              descricao: item.produto.descricao,
+              imagem: item.produto.imagem,
+              valor: item.produto.valor,
+              quantidade: item.Quantidade,
+              ProdutoId: item.ProdutoId
+          };
+      });
 
       console.log("Produtos a serem renderizados:", produtos);
 
+      // Calcula o subtotal
+      const subtotal = produtos.reduce((acc, curr) => acc + (curr.quantidade * curr.valor), 0);
+
+      // Passando produtos e subtotal para a view
       res.render('cart', {
-        produtos: produtos  // Passando produtos para a view
+          produtos: produtos,
+          subtotal: subtotal.toFixed(2)  // Formata o subtotal para ter duas casas decimais
       });
-    } catch (error) {
+  } catch (error) {
       console.error("Erro ao buscar dados do carrinho:", error);
       res.status(500).send("Erro ao processar o pedido de carrinho.");
-    }
-  })
+  }
+});
+
   
+// Atualizar a quantidade do produto
+router.post('/carrinho/update/:produtoId', async (req, res) => {
+  const { produtoId } = req.params;
+  const { quantity } = req.body;
+
+  try {
+      const item = await Pedido_Produto.findOne({
+          where: { ProdutoId: produtoId },
+          include: [{model: Produto}]
+      });
+
+      if (!item) {
+          return res.status(404).send("Produto não encontrado.");
+      }
+
+      item.Quantidade = quantity;
+      await item.save();
+
+      // Recalcula o subtotal após a atualização
+      const pedido = await Pedido.findOne({
+          where: { PedidoId: item.PedidoId },
+          include: [Pedido_Produto]
+      });
+
+      const subtotal = pedido.Pedido_Produtos.reduce((acc, curr) => {
+        if (!curr.Produto) {
+            console.error("Produto não encontrado para o Pedido_Produto com ID:", curr.ProdutoId);
+            return acc; // Retorna o acumulador sem adicionar nada se o produto não existir
+        }
+        return acc + (curr.Quantidade * curr.Produto.valor);
+    }, 0);
+
+      await pedido.update({ Total: subtotal });
+
+      res.json({ success: true, newSubtotal: subtotal });
+  } catch (error) {
+      console.error('Erro ao atualizar carrinho:', error);
+      res.status(500).send("Erro ao processar a atualização do carrinho.");
+  }
+});
 
 router.get('/profile/pedidos',authMiddleware,  (req,res)=>{
   res.render('user_historic')
@@ -388,49 +427,62 @@ router.get('/profile/pedidos',authMiddleware,  (req,res)=>{
 
 router.post('/carrinho/adicionar/:produtoId', async (req, res) => {
   const produtoId = req.params.produtoId;
-  const UserId = req.user.UserId;  // Supõe que o cliente esteja logado e seu ID esteja na sessão
   const quantidade = parseInt(req.body.quantidade) || 1;
 
-  try{
-    // Busca ou cria um pedido 'ativo' para o cliente
-      const [pedido, pedidoCreated] = await Pedido.findOrCreate({
-        where: { UserId: UserId, Status: 'ativo' },
-        defaults: { UserId: UserId, Status: 'ativo' }
-      });
-
-
-    // Busca o produto pelo ID
+  try {
     const produto = await Produto.findByPk(produtoId);
     if (!produto) {
       console.error(`Nenhum produto encontrado com ID: ${produtoId}`);
       return res.status(404).send("Produto não encontrado");
-  }
-
-    const [item, itemCreated] = await Pedido_Produto.findOrCreate({
-        where: { PedidoId: pedido.PedidoId, ProdutoId: produtoId },
-        defaults: { Quantidade: quantidade, PrecoUnitario: produto.valor },
-    });
-
-    if (!itemCreated) {
-        item.Quantidade += quantidade;
-        await item.save();
     }
 
-    const itens = await Pedido_Produto.findAll({
-      where:{PedidoId: pedido.PedidoId}
+    // Retorna os detalhes necessários do produto para serem usados no localStorage
+    res.json({
+      message: "Produto obtido com sucesso",
+      produtoId: produto.id,
+      nome: produto.nome,
+      precoUnitario: produto.valor,
+      quantidade: quantidade
     });
-
-    const total = itens.reduce((acc, curr)=> acc + (curr.Quantidade * curr.PrecoUnitario), 0);
-    pedido.Total = total;
-    await pedido.save();
-
-    res.json({message: "produto adicionado com sucesso ao carrinho"});
-  }catch(error){
-    console.error("erro ao adicionar produto ao carrinho", error);
-    res.status(500).send("erro interno do servidor")
+  } catch (error) {
+    console.error("Erro ao buscar produto:", error);
+    res.status(500).send("Erro interno do servidor");
   }
 });
 
+
+router.post('/confirmarPedido', async (req, res) => {
+  const { carrinho } = req.body; // O carrinho deve ser enviado como um array de objetos com produtoId e quantidade
+  const UserId = req.user.UserId; // Supõe que o cliente esteja logado
+
+  try {
+    const pedido = await Pedido.create({
+      UserId: UserId,
+      Status: 'ativo'
+    });
+
+    for (const produtoId in carrinho) {
+      const item = carrinho[produtoId];
+      await Pedido_Produto.create({
+        PedidoId: pedido.id,
+        ProdutoId: item.produtoId,
+        Quantidade: item.quantidade,
+        // Aqui você precisa buscar o preço atual do produto
+        PrecoUnitario: await getProdutoPreco(item.produtoId) // Função hipotética para buscar o preço
+      });
+    }
+
+    // Calcula o total e salva no pedido
+    const total = Object.values(carrinho).reduce((acc, curr) => acc + (curr.quantidade * curr.preco), 0);
+    pedido.Total = total;
+    await pedido.save();
+
+    res.json({ success: true, message: "Pedido confirmado com sucesso!" });
+  } catch (error) {
+    console.error("Erro ao confirmar pedido:", error);
+    res.status(500).send("Erro interno do servidor");
+  }
+});
 
 function verificaAutenticacao(req, res, next) {
   if (req.session && req.session.user) {

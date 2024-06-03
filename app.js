@@ -8,7 +8,9 @@ const flash = require("express-flash");
 const handlebars = require("express-handlebars").engine;
 const routes = require("./routes"); // Importando as rotas
 const bodyParser = require("body-parser");
-const { db, User, Pedido, Produto, Pedido_Produto } = require('./models');
+const {db} = require('./models');
+const cors = require('cors');
+
 
 //const { resolveSOA } = require("dns");
 
@@ -36,13 +38,22 @@ app.use(authMiddleware);
 app.engine("handlebars", handlebars({ 
   defaultLayout: "main", 
   layoutsDir:path.join(__dirname, '/views/layouts/'), 
-  partialsDir: path.join(__dirname, 'views', 'partials')
+  partialsDir: path.join(__dirname, 'views', 'partials'),
+  helpers: {
+    formatCurrency: function(value) {
+        return parseFloat(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+  }
 }));
 
 app.set("view engine", "handlebars");
 
 //definindo acesso a pasta publica
 app.use(express.static("public"));
+
+app.use(cors({
+  origin: 'http://localhost:3000'
+}));
 
 //config do bodyparser para leitura do post
 app.use(bodyParser.urlencoded({ extended: true }));

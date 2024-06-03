@@ -62,57 +62,6 @@
       </div>
       {{/dataValues}}
       {{/each}}
-      {{!-- <div
-        class="border border-gray-200 w-full h-fit flex flex-col gap-3 p-5 bg-white rounded-lg">
-        <div class="rounded-xl">
-          <img src="/images/teste-cards.jpg" alt="Teste Produto"
-            class="rounded-xl">
-        </div>
-        <div class="flex flex-col">
-          <h2 class="font-bold text-xl">Krusty Cheddar</h2>
-          <p class="text-gray-600 text-sm">Lorem ipsum dolor sit, amet
-            consectetur adipisicing elit. Exercitationem, non?</p>
-        </div>
-        <div class="flex justify-between items-center">
-          <span class="text-xl font-bold text-teal-500">R$ 19,90</span>
-          <button
-            class="bg-orange-500 text-sm text-white px-6 py-2 rounded-full font-bold uppercase">adicionar</button>
-        </div>
-      </div>
-      <div
-        class="border border-gray-200 w-full h-fit flex flex-col gap-3 p-5 bg-white rounded-lg hidden xl:flex">
-        <div class="rounded-xl">
-          <img src="/images/teste-cards.jpg" alt="Teste Produto"
-            class="rounded-xl">
-        </div>
-        <div class="flex flex-col">
-          <h2 class="font-bold text-xl">Krusty Cheddar</h2>
-          <p class="text-gray-600 text-sm">Lorem ipsum dolor sit, amet
-            consectetur adipisicing elit. Exercitationem, non?</p>
-        </div>
-        <div class="flex justify-between items-center">
-          <span class="text-xl font-bold text-teal-500">R$ 19,90</span>
-          <button
-            class="bg-orange-500 text-sm text-white px-6 py-2 rounded-full font-bold uppercase">adicionar</button>
-        </div>
-      </div>
-      <div
-        class="border border-gray-200 w-full h-fit flex flex-col gap-3 p-5 bg-white rounded-lg hidden xl:flex">
-        <div class="rounded-xl">
-          <img src="/images/teste-cards.jpg" alt="Teste Produto"
-            class="rounded-xl">
-        </div>
-        <div class="flex flex-col">
-          <h2 class="font-bold text-xl">Krusty Cheddar</h2>
-          <p class="text-gray-600 text-sm">Lorem ipsum dolor sit, amet
-            consectetur adipisicing elit. Exercitationem, non?</p>
-        </div>
-        <div class="flex justify-between items-center">
-          <span class="text-xl font-bold text-teal-500">R$ 19,90</span>
-          <button
-            class="bg-orange-500 text-sm text-white px-6 py-2 rounded-full font-bold uppercase">adicionar</button>
-        </div> --}}
-
       </div>
     </div>
   </div>
@@ -175,7 +124,7 @@
       <div
         class="border border-gray-200 w-full h-fit flex flex-col gap-3 p-5 bg-white rounded-lg">
         <div class="rounded-xl">
-          <img src="images/{{imagem}}.png" alt="Teste Produto"
+          <img src="images/{{imagem}}" alt="Teste Produto"
             class="rounded-xl">
         </div>
         <div class="flex flex-col">
@@ -193,31 +142,44 @@
   </div>
 </section>
 <script>
-  document.querySelectorAll('.add-to-cart').forEach(button =>{
-    button.addEventListener('click', function() {
+  document.querySelectorAll('.add-to-cart').forEach(button => {
+  button.addEventListener('click', function() {
     const produtoId = this.getAttribute('data-produtoid');
-    const quantidade = 1; // Este valor pode ser dinâmico ou fixo, dependendo do seu caso
-
-    console.log("Produto ID:", produtoId);
+    const quantidade = 1; // Ajuste conforme necessário
 
     fetch(`/carrinho/adicionar/${produtoId}`, {
       method: 'POST',
       headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
       },
       body: JSON.stringify({ quantidade: quantidade })
-      })
-      .then(response => response.json())
-        .then(data => {
-          console.log('Sucesso:', data);
-          // Atualize a UI aqui se necessário
-          alert('Produto adicionado ao carrinho!');
-        })
-      .catch((error) => {
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.message === "Produto obtido com sucesso") {
+        updateLocalStorageCart(data.produtoId, data.quantidade, data.nome, data.precoUnitario);
+        alert('Produto adicionado ao carrinho!');
+      } else {
+        alert(data.message);
+      }
+    })
+    .catch(error => {
       console.error('Erro:', error);
       alert('Falha ao adicionar o produto ao carrinho.');
     });
   });
-  });
+});
+
+  function updateLocalStorageCart(produtoId, quantidade) {
+  let carrinho = JSON.parse(localStorage.getItem('carrinho')) || {};
+  if (carrinho[produtoId]) {
+    carrinho[produtoId].quantidade += quantidade;
+  } else {
+    carrinho[produtoId] = { quantidade: quantidade };
+  }
+
+  localStorage.setItem('carrinho', JSON.stringify(carrinho));
+  console.log('Carrinho atualizado no localStorage:', carrinho);
+}
 </script>
