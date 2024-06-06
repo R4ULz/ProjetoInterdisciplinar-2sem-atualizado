@@ -12,6 +12,7 @@ const {db} = require('./models');
 const cors = require('cors');
 
 
+
 //const { resolveSOA } = require("dns");
 
 //criando a sessão
@@ -67,8 +68,6 @@ db.sequelize.sync({}) // Use force: true com cautela em produção
   .catch(err => {
     console.error("Erro ao sincronizar o banco de dados:", err);
 });
-
-
 
 app.use(routes);
 

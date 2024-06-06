@@ -46,9 +46,26 @@ const User = db.sequelize.define("User",{
 //     }
 // })();
 
-    // User.hasMany(Pedido, {
-    //     constraint: true,
-    //     foreignKey: 'PedidoID'}
-    // );
 
+        
+            
+        
+        
+    
+        
+    
+
+
+
+
+    
+        
+        
+    
+        
+    
+
+
+
+ 
 module.exports = User
