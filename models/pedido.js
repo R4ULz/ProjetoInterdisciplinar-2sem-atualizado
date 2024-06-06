@@ -8,10 +8,11 @@ const Pedido = db.sequelize.define('Pedido', {
       type: db.Sequelize.INTEGER,
       autoIncrement: true,
       primaryKey: true
-    },
-    DataPedido: {
-      type: db.Sequelize.DATE,
-      allowNull: false
+    }
+    Total: {
+      type: db.Sequelize.DECIMAL(10, 2),  // Tipo decimal para suportar centavos
+      allowNull: false,
+      defaultValue: 0.00  // Inicializa com zero
     },
     Status: {
       type: db.Sequelize.ENUM('Ativo', 'concluído', 'cancelado'),
@@ -19,23 +20,8 @@ const Pedido = db.sequelize.define('Pedido', {
     }
   });
 
-  if(Pedido.prototype instanceof db.Sequelize.Model) {
-    console.log("Pedido is a Sequelize model.");
-}else {
-    console.error("Pedido is NOT a Sequelize model.");
-}
-try {
-    Produto.belongsToMany(Pedido, { through: Pedido_Produto, foreignKey: 'ProdutoId', otherKey: 'PedidoId' });
-} catch (error) {
-    console.error("Failed to define relationship:", error);
-}
-
-// Pedido.belongsTo(User, {
-//     constraint: true,
-//     foreignKey: 'UserId'
-// })
-
-// Pedido.belongsToMany(Produto, { through: Pedido_Produto, foreignKey: 'PedidoID', otherKey: 'ProdutoID' });
-
+  Pedido.associate = function(models) {
+    Pedido.hasMany(models.Pedido_Produto, { foreignKey: 'PedidoId' });
+  };
 
 module.exports = Pedido;

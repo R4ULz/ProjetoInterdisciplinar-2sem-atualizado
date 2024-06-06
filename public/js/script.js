@@ -1,6 +1,24 @@
+
 // Funcionamento Menu Mobile
 const btnMenu = document.getElementById("cesta");
 const menuMobile = document.getElementById("menu-mobile");
+const menuMobileLogged = document.getElementById("menu-mobile-logged")
+
+btnMenu.addEventListener("click", () => {
+  menuMobile.classList.toggle("disable-menu");
+  menuMobile.classList.toggle("active-menu");
+  (menuMobile.classList.contains('active-menu')) ? setTimeout(() => {
+      document.addEventListener("click", handleOutsideClick);
+    }, 0) : document.removeEventListener("click", handleOutsideClick);
+});
+
+btnMenu.addEventListener("click", () => {
+  menuMobileLogged.classList.toggle("disable-menu");
+  menuMobileLogged.classList.toggle("active-menu-logged");
+  (menuMobileLogged.classList.contains('active-menu-logged')) ? setTimeout(() => {
+      document.addEventListener("click", handleOutsideClick);
+    }, 0) : document.removeEventListener("click", handleOutsideClick);
+});
 
 const handleOutsideClick = (event) => {
   const target = event.target;
@@ -10,14 +28,6 @@ const handleOutsideClick = (event) => {
   document.removeEventListener("click", handleOutsideClick);
 };
 
-btnMenu.addEventListener("click", () => {
-  menuMobile.classList.toggle("disable-menu");
-  menuMobile.classList.toggle("active-menu");
-  
-  (menuMobile.classList.contains('active-menu')) ? setTimeout(() => {
-      document.addEventListener("click", handleOutsideClick);
-    }, 0) : document.removeEventListener("click", handleOutsideClick);
-});
 
 //Menu com Draggable
 document.addEventListener('DOMContentLoaded', function() {
@@ -55,7 +65,4 @@ const lancheImg = document.querySelector('.lanche-item--img');
 const lancheTitle = document.querySelector('.lanche-item--title');
 const lancheDesc = document.querySelector('.lanche-item--desc');
 const lanchePrice = document.querySelector('.lanche-item--price');
-
-
-
 

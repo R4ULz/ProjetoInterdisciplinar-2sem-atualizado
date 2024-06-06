@@ -6,18 +6,18 @@
       class="w-full h-full bg-white border border-gray-50 shadow-md rounded-md flex flex-col p-3 "
     >
       <div
-        class="grid grid-cols-5 w-full p-1 border mb-3 border-red-500 h-full flex items-center justify-center font-semibold text-sm md:text-lg rounded-lg"
+        class="grid md:grid-cols-5 grid-cols-2 w-full p-1 border mb-3 border-red-500 h-full flex items-center justify-center font-semibold text-sm md:text-lg rounded-lg"
       >
         <div class="flex justify-center border-r">
           <h2>Nome</h2>
         </div>
-        <div class="flex justify-center border-r">
+        <div class="flex md:flex hidden  justify-center border-r">
           <p>Preço</p>
         </div>
-        <div class="flex justify-center border-r">
+        <div class="flex md:flex hidden justify-center border-r">
           <p>Descrição</p>
         </div>
-        <div class="flex justify-center border-r">
+        <div class="flex md:flex hidden justify-center items-center border-r">
           <p>Categoria</p>
         </div>
         <div class="flex justify-center border-r">
@@ -26,30 +26,30 @@
 
       </div>
       <div
-        class="grid grid-cols-5 gap-3 w-full h-full p-1 items-center justify-center auto-rows-max text-sm md:text-lg"
+        class="grid md:grid-cols-5 grid-cols-2 gap-3 w-full h-full p-1 items-center justify-center auto-rows-max text-sm md:text-lg"
       >
-        {{#each produto}}
+        {{#each Produto}}
           {{#dataValues}}
             <div
               class="auto-rows-max col-start-1 flex items-center justify-center"
             >{{nome}}</div>
             <div
-              class="auto-rows-max col-start-2 flex items-center justify-center"
+              class="auto-rows-max md:col-start-2 hidden md:flex items-center justify-center"
             >R$ {{valor}},00</div>
             <div
-              class="auto-rows-max col-start-3 flex items-center justify-center"
+              class="auto-rows-max md:col-start-3 hidden md:flex items-center justify-center"
             >{{descricao}}</div>
             <div
-              class="auto-rows-max col-start-4 flex items-center justify-center"
+              class="auto-rows-max md:col-start-4 hidden md:flex items-center justify-center"
             >{{categoria}}</div>
             <div
-              class="auto-rows-max col-start-5 flex gap-4 items-center justify-center text:sm"
+              class="auto-rows-max col-start-2 md:col-start-5 flex gap-2 md:gap-4 items-center justify-center text:sm"
             >
-              <button type="button" class=" text-sm border border-red-500 rounded-lg px-3 py-1 text-red-500 font-semibold"><a
+              <button type="button" class="text-sm border border-red-500 rounded-lg px-2 md:px-3 py-1 text-red-500 font-semibold"><a
                   href="/editar/{{id}}"
                   style="color:inherit"
                 >Editar</a></button>
-              <button type="button" class="text-sm border bg-red-500 rounded-lg px-3 py-1 text-white font-semibold"><a
+              <button type="button" class="text-sm border bg-red-500 rounded-lg px-2 md:px-3 py-1 text-white font-semibold"><a
                   href="/excluir/{{id}}"
                   style="color:inherit"
                 >Excluir</a></button>

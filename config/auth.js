@@ -3,6 +3,15 @@ const localStrategy = require("passport-local").Strategy;
 const bcrypt = require("bcryptjs");
 const User  = require("../models/User");
 
+const authMiddleware = (req, res, next) => {
+  if (req.isAuthenticated()) {
+    res.locals.userLoggedIn = true; // Define uma variável local para ser acessada nos templates
+  } else {
+    res.locals.userLoggedIn = false;
+  }
+  next();
+};
+
 passport.use(
   new localStrategy(
     {
@@ -53,4 +62,4 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
-module.exports = passport;
+module.exports = {passport, authMiddleware};

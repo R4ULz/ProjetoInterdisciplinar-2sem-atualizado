@@ -2,17 +2,17 @@
   <div class="max-w-screen-2xl w-full h-fit flex flex-col gap-5">
     <div class="grid grid-cols-1 md:grid-cols-4 items-start ">
       <ul class="flex flex-col gap-4 pl-5 font-semibold col-span-1 text-lg">
-        <a href="#" class="hover:text-red-500 ease-in-out duration-300 w-fit">
+        <a href="/profile" class="hover:text-red-500 ease-in-out duration-300 w-fit">
           <li class="relative">Informações pessoais <div
               class="bg-gradient-to-b from-orange-400 to-red-600 w-1 h-4 absolute top-[5px] -left-3"></div></li>
         </a>
-        <a href="#" class="hover:text-red-500 ease-in-out duration-300 w-fit">
+        <a href="/profile/pedidos" class="hover:text-red-500 ease-in-out duration-300 w-fit">
           <li>Histórico de pedido</li>
         </a>
-        <a href="#" class="hover:text-red-500 ease-in-out duration-300 w-fit">
-          <li>Login e senha</li>
+        <a href="/s" class="hover:text-red-500 ease-in-out duration-300 w-fit">
+          <li>Alterar senha</li>
         </a>
-        <a href="#" class="hover:text-red-500 ease-in-out duration-300 w-fit">
+        <a href="/logout" class="hover:text-red-500 ease-in-out duration-300 w-fit">
           <li><button
               class="border border-red-500 rounded-full px-6 py-1 text-red-500 font-semibold">Sair</button></li>
         </a>
@@ -29,9 +29,8 @@
           <div class="w-28 h-28 rounded-full my-5">
             <img src="/images/avatar.jpg" class="rounded-full" alt>
           </div>
-          <button class="text-cyan-400 font-semibold">Editar</button>
         </div>
-        <form class="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <form id="editForm" class="grid grid-cols-1 gap-6 md:grid-cols-2" action="/atualizarUsuario" method="POST">
           <div class="space-y-6">
             <div class="flex flex-col gap-1">
               <label for="name">Nome</label>
@@ -39,7 +38,7 @@
                 <i class="fa-regular fa-user text-red-500"></i>
                 <input type="text" name="nome" id="nome"
                   class="outline-none w-full bg-gray-100 cursor-not-allowed"
-                  disabled value="{{nome}}"
+                  disabled value="{{dadosUser.nome}}"
                   required>
               </div>
             </div>
@@ -56,9 +55,9 @@
             <div class="flex flex-col gap-1">
               <label for="name">CPF</label>
               <div
-                class="flex items-center gap-2 border-b border-red-500 p-1 bg-gray-100">
+                class="flex items-center gap-2 border-b border-red-500 p-1">
                 <i class="fa-regular fa-address-card text-red-500"></i>
-                <input type="text" name="cpf" id="cpf" value="{{cpf}}"
+                <input type="text" name="cpf" id="cpf" value="{{dadosUser.cpf}}"
                   class="outline-none w-full bg-gray-100 cursor-not-allowed"
                   disabled required>
               </div>
@@ -69,8 +68,8 @@
               <label for="name">Email</label>
               <div class="flex items-center gap-2 border-b border-red-500 p-1">
                 <i class="fa-solid fa-envelope text-red-500"></i>
-                <input type="email" name="email" id="email" value="{{email}}" class="outline-none w-full bg-gray-100 cursor-not-allowed"
-                  disabled"
+                <input type="email" name="email" id="email" value="{{dadosUser.email}}" class="outline-none w-full bg-gray-100 cursor-not-allowed"
+                  disabled
                   required>
               </div>
             </div>
@@ -85,11 +84,30 @@
               </div>
             </div>
           </div>
-
+          <div class="flex gap-2">
+          <button type="button" id="editButton" class="self-start mt-8 border border-red-500 rounded-full px-6 py-2 text-red-500 font-semibold">Editar informações</button>
+          <button type="submit" id="saveButton" class="self-start mt-8 border border-red-500 rounded-full px-6 py-2 text-red-500 font-semibold">Salvar</button>
+        </div>
+        
         </form>
-        <button
-          class="self-start mt-8 border border-red-500 rounded-full px-6 py-2 text-red-500 font-semibold">Editar
-          informações</button>
+
+         <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const editButton = document.getElementById('editButton');
+      const saveButton = document.getElementById('saveButton');
+      const inputs = document.querySelectorAll('#editForm input');
+
+      editButton.addEventListener('click', function() {
+        inputs.forEach(input => {
+          input.disabled = false;
+          input.classList.remove('bg-gray-100','cursor-not-allowed') 
+          });
+        saveButton.disabled = false;
+      });
+    });
+  </script>
+
+        
       </section>
     </div>
   </div>

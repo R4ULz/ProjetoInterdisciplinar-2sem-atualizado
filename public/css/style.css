@@ -19,6 +19,10 @@
   font-style: normal;
 }
 
+.active-menu-logged{
+  bottom: -240px;
+}
+
 .active-menu {
   bottom: -280px;
 }

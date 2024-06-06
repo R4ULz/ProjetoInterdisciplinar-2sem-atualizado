@@ -15,6 +15,7 @@
           action="/cadastrarProduto"
           method="POST"
           class="flex flex-col gap-5 font-semibold"
+          enctype="multipart/form-data"
         >
          <div class="flex flex-col gap-1 md:w-[38%]">
               <label for="name">Imagem:</label>
@@ -23,28 +24,14 @@
               >
                <i class="fa-solid fa-image text-red-500"></i>
                 <input
-                  type="text"
+                  type="file"
                   name="imagem"
                   id="imagem"
-                  value=""
                   class="outline-none w-full"
                   required
                 />
               </div>
             </div>
-         {{!-- <div>
-            <label class="form-label">Imagem do Produto:
-              <div  class="pt-2" >
-                <input
-                  type="text"
-                  name="imagem"
-                  id="imagem"
-                  class="outline-none bg-red"
-                />
-              </div>
-            </label>
-          </div> --}}
-
           <div class="flex flex-col md:flex-row gap-16 w-4/5 justify-between">
             <div class="flex flex-col gap-1 md:w-1/2">
               <label for="name">Nome:</label>
@@ -62,7 +49,6 @@
                 />
               </div>
             </div>
-
             <div class="flex flex-col gap-1 md:w-1/2">
               <label for="name">Valor:</label>
               <div
