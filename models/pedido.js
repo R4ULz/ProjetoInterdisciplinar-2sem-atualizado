@@ -8,7 +8,7 @@ const Pedido = db.sequelize.define('Pedido', {
       type: db.Sequelize.INTEGER,
       autoIncrement: true,
       primaryKey: true
-    }
+    },
     Total: {
       type: db.Sequelize.DECIMAL(10, 2),  // Tipo decimal para suportar centavos
       allowNull: false,

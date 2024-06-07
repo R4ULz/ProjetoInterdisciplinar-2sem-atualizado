@@ -13,7 +13,7 @@ User.hasMany(Pedido, {
 Pedido.belongsTo(User, {
     constraint: true,
     foreignKey: 'UserId'});
-}
+
 Produto.belongsToMany(Pedido, { 
   through: Pedido_Produto,
   foreignKey: 'ProdutoId',

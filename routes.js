@@ -211,6 +211,12 @@ router.get("/painelAdm", authMiddleware,(req, res)=>{
   res.render("painelAdm")
 })
 
+//rota painel Gernete
+router.get("/painelGerente", authMiddleware,(req, res)=>{
+  res.render("painelGerente")
+})
+
+
 //rota login
 router.get("/login", (req, res) => {
   res.render("login");
@@ -454,6 +460,11 @@ router.post('/carrinho/adicionar/:produtoId', async (req, res) => {
   }
 
   res.redirect('/carrinho');
+});
+
+//rota para pagina de obrigado
+router.get("/thanku", (req, res) => {
+  res.render("thankU");
 });
 
 
