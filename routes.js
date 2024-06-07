@@ -179,7 +179,13 @@ router.get("/painelAdm", (req, res) => {
   res.render("painelAdm");
 });
 
-// Rota de login
+//rota painel Gernete
+router.get("/painelGerente", authMiddleware,(req, res)=>{
+  res.render("painelGerente")
+})
+
+
+//rota login
 router.get("/login", (req, res) => {
   const successMessage = req.query.success;
   const email = req.query.email || ""; // Adicione esta linha para passar o valor do campo de email, se estiver presente na query
@@ -355,4 +361,77 @@ router.post("/criarPedido", async (req, res) => {
   }
 });
 
+router.get('/profile/pedidos',authMiddleware,  (req,res)=>{
+  res.render('user_historic')
+})
+
+
+//rota para adicionar ao carrinho
+
+router.post('/carrinho/adicionar/:produtoId', async (req, res) => {
+  const produtoId = req.params.produtoId;
+  const UserId = req.session.clienteId;  // Supõe que o cliente esteja logado e seu ID esteja na sessão
+  const quantidade = req.body.quantidade || 1;
+
+  console.log()
+
+  // Busca ou cria um pedido 'ativo' para o cliente
+  let pedido = await Pedido.findOrCreate({
+    where: { UserId: UserId, Status: 'ativo' },
+    defaults: { UserId: UserId, Status: 'ativo' }
+  });
+
+  // Busca o produto pelo ID
+  const produto = await Produto.findByPk(produtoId);
+
+  // Adiciona ou atualiza o produto no carrinho
+  const [item, created] = await Pedido_Produto.findOrCreate({
+    where: { PedidoId: pedido[0].id, ProdutoId: produtoId },
+    defaults: { Quantidade: quantidade, PrecoUnitario: produto.Preco }
+  });
+
+  if (!created) {
+    item.Quantidade += quantidade;
+    await item.save();
+  }
+
+  res.redirect('/carrinho');
+});
+
+//rota para pagina de obrigado
+router.get("/thanku", (req, res) => {
+  res.render("thankU");
+});
+
+
+function verificaAutenticacao(req, res, next) {
+  if (req.session && req.session.user) {
+    return next();
+  } else {
+    res.redirect("/login"); //redirecionar para /login quando o usuário não estiver logado
+  }
+}
+
+function logUserId(req, res, next) {
+  if (req.isAuthenticated()) { // Verifica se o método isAuthenticated está disponível e o usuário está logado
+      console.log(`Usuário logado com ID: ${req.user.UserId}`); // Acessa o ID do usuário armazenado na sessão
+  } else {
+      console.log("Nenhum usuário logado.");
+  }
+  next(); // Continua para a próxima função de middleware na pilha
+}
+
+async function atualizarTotalPedido(PedidoId){
+  const itens = await Pedido_Produto.findAll({
+    where:{PedidoPedidoId: PedidoId}
+  });
+  let total = 0;
+  itens.forEach(item =>{
+    total += item.Quantidade * item.PrecoUnitario;
+  });
+  const pedido = await Pedido.findByPk(pedidoId);
+    pedido.Total = total;
+    await pedido.save();
+
+}
 module.exports = router;
