@@ -1,6 +1,6 @@
 const db = require("./banco")
 const Pedido = require('./pedido');
-const Pedido_Produto = require('./pedido_produto')
+const Pedido_Produto = require('./pedido_produto');
 
 const Produtos = db.sequelize.define("produtos",{
     ProdutoId:{

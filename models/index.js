@@ -37,6 +37,7 @@ Produto.hasMany(Pedido_Produto, {
 Pedido_Produto.belongsTo(Produto, {
   foreignKey: 'ProdutoId'
 });
+
 module.exports = {
   db,
   User,

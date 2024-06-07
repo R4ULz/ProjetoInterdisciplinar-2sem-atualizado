@@ -24,4 +24,6 @@ const Pedido = db.sequelize.define('Pedido', {
     Pedido.hasMany(models.Pedido_Produto, { foreignKey: 'PedidoId' });
   };
 
+
+
 module.exports = Pedido;
