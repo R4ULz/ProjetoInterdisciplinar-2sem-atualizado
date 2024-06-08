@@ -38,11 +38,11 @@
           </div>
           <div class="flex items-center justify-between gap-10 text-[10px] text-zinc-500">
             <p>Frete</p>
-            <p>03,00</p>
+            <p>00,00</p>
           </div>
           <div class="flex items-center justify-between gap-10 text-[10px] text-zinc-500">
             <p>Descontos</p>
-            <p>99,99</p>
+            <p>00,00</p>
           </div>
           <div class="border border-yellow-500 w-full"></div>
           <div class="flex items-center justify-between text-[14px]">
@@ -58,34 +58,6 @@
   </div> 
 </div>
 <script>
-
-  document.addEventListener('DOMContentLoaded', function () {
-  const decreaseButtons = document.querySelectorAll('.decrease');
-  const increaseButtons = document.querySelectorAll('.increase');
-  const deleteButtons = document.querySelectorAll('.delete');
-
-  decreaseButtons.forEach(button => {
-    button.addEventListener('click', function () {
-      const produtoId = this.dataset.produtoId;
-      updateQuantity(produtoId, -1);
-    });
-  });
-
-  increaseButtons.forEach(button => {
-    button.addEventListener('click', function () {
-      const produtoId = this.dataset.produtoId;
-      updateQuantity(produtoId, 1);
-    });
-  });
-
-  deleteButtons.forEach(button => {
-    button.addEventListener('click', function () {
-      const produtoId = this.dataset.produtoId;
-      deleteProduct(produtoId);
-    });
-  });
-});
-
 document.addEventListener('DOMContentLoaded', () => {
     const carrinhoContainer = document.getElementById('carrinhoContainer');
     if (!carrinhoContainer) {
@@ -93,114 +65,128 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    const carrinho = JSON.parse(localStorage.getItem('carrinho')) || {};
+    const carrinho = JSON.parse(sessionStorage.getItem('carrinho')) || {};
     Object.keys(carrinho).forEach(produtoId => {
         const produto = carrinho[produtoId];
         const produtoElement = document.createElement('div');
+        produtoElement.className = 'produto_' + produtoId; // Adiciona uma classe única
 
         const precoUnitario = produto.precoUnitario ? produto.precoUnitario.toFixed(2) : '0';
-        
+
         produtoElement.innerHTML = `
-            <div class="flex items-center justify-between p-2 gap-2 w-full border border-gray-50 shadow-md rounded-md produto">
-                <img src="/images/${produto.imagem}." class="w-16 h-16" alt="${produto.nome}">
-              <div class="flex justify-between items-center w-full">
-                <div class="w-fit h-fit flex flex-col gap-3">
-                  <p class="text-sm">${produto.nome}</p>
-                  <span class="text-teal-500 text-sm" id="price_{{ProdutoId}}">R$:${precoUnitario},00</span>
+            <div class="flex items-center justify-between p-2 gap-2 w-full border border-gray-50 shadow-md rounded-md">
+                <img src="/public/images/${produto.imagem}" class="w-16 h-16" alt="${produto.nome}">
+                <div class="flex justify-between items-center w-full">
+                    <div class="w-fit h-fit flex flex-col gap-3">
+                        <p class="text-sm">${produto.nome}</p>
+                        <span class="text-teal-500 text-sm">R$: ${precoUnitario}</span>
+                    </div>
+                    <div class="flex flex-col gap-3">
+                        <button class="self-end delete" data-produto-id="${produtoId}"><i class="fa-solid fa-trash text-red-500"></i></button>
+                        <div class="border border-yellow-500 rounded-full flex justify-center items-center text-sm">
+                            <button data-produto-id="${produtoId}" class="md:w-8 w-5 flex items-center justify-center decrease">-</button>
+                            <span class="md:w-8 w-4 border-r border-l border-yellow-500 text-teal-500 flex items-center justify-center quantity_${produtoId}">${produto.quantidade}</span>
+                            <button data-produto-id="${produtoId}" class="md:w-8 w-5 flex items-center justify-center increase">+</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="flex flex-col gap-3">
-                  <button class="self-end delete" data-produto-id="{ProdutoId}"><i class="fa-solid fa-trash text-red-500"></i></button>
-                  <div class="border border-yellow-500 rounded-full flex jusitfy-center items-center text-sm">
-                    <button data-produto-id="${produtoId}" class="md:w-8 w-5 flex items-center justify-center decrease" >-</button>
-                    <span class="md:w-8 w-4 border-r border-l border-yellow-500 text-teal-500 flex items-center justify-center quantity_${produtoId}}">${produto.quantidade}</span>
-                    <button data-produto-id="${produtoId}}" class="md:w-8 w-5 flex items-center justify-center increase" >+</button>
-                  </div>
-                </div>
-              </div>
             </div>
         `;
         carrinhoContainer.appendChild(produtoElement);
     });
+
+    addEventListeners();
 });
 
+document.addEventListener('DOMContentLoaded', () => {
+    updateSubtotal();  // Calcula o subtotal inicial quando a página carrega
+});
+
+function addEventListeners() {
+    document.querySelectorAll('.increase').forEach(button => {
+        button.addEventListener('click', function() {
+            const produtoId = this.dataset.produtoId;
+            updateQuantity(produtoId, 1);
+        });
+    });
+
+    document.querySelectorAll('.decrease').forEach(button => {
+        button.addEventListener('click', function() {
+            const produtoId = this.dataset.produtoId;
+            updateQuantity(produtoId, -1);
+        });
+    });
+
+    document.querySelectorAll('.delete').forEach(button => {
+        button.addEventListener('click', function() {
+            const produtoId = this.dataset.produtoId;
+            deleteProduct(produtoId);
+        });
+    });
+}
 
 function updateQuantity(produtoId, change) {
-    const quantityDisplays = document.querySelectorAll(`.quantity_${produtoId}`);
-    if (quantityDisplays.length === 0) {
-        console.error(`Elemento não encontrado para ProdutoId: ${produtoId}`);
-        return; // Saia da função se não encontrar o elemento
-    }
-
-    let quantityDisplay = quantityDisplays[0];
+    // Busque o elemento correto usando a classe única
+    const quantityDisplay = document.querySelector(`.produto_${produtoId} .quantity_${produtoId}`);
     let currentQuantity = parseInt(quantityDisplay.textContent);
 
-    // Se a quantidade atual é 1 e a mudança é negativa, não permita a mudança
     if (currentQuantity === 1 && change < 0) {
-        console.log("Quantidade mínima alcançada, não pode diminuir mais.");
         alert("Quantidade mínima alcançada, não pode diminuir mais.");
-        return; // Impede que a quantidade seja reduzida abaixo de 1
+        return;
     }
 
     let newQuantity = currentQuantity + change;
-    newQuantity = Math.max(1, newQuantity); // Assegura que a quantidade é pelo menos 1
-
-    // Atualiza a quantidade no display
+    newQuantity = Math.max(1, newQuantity);
     quantityDisplay.textContent = newQuantity;
 
-    const priceDisplay = document.querySelector(`#price_${produtoId}`);
-    if (!priceDisplay) {
-        console.error(`Elemento de preço não encontrado para ProdutoId: ${produtoId}`);
-        return;
+    // Atualiza o sessionStorage
+    const carrinho = JSON.parse(sessionStorage.getItem('carrinho')) || {};
+    if (carrinho[produtoId]) {
+        carrinho[produtoId].quantidade = newQuantity;
+        sessionStorage.setItem('carrinho', JSON.stringify(carrinho));
+        updateSubtotal();
     }
-    const unitPrice = parseFloat(priceDisplay.textContent.replace(/[^0-9\.-]+/g,"")); // Garante que o texto seja convertido para número
-
-    // Atualizar subtotal
-    const subtotalDisplay = document.querySelector('#subtotal');
-    let currentSubtotal = parseFloat(subtotalDisplay.textContent.replace(/[^0-9\.-]+/g,""));
-    if(isNaN(currentSubtotal) || isNaN(unitPrice)) {
-        console.error('Erro ao calcular subtotal: valores inválidos');
-        return;
-    }
-    currentSubtotal += change * unitPrice;
-    subtotalDisplay.textContent = currentSubtotal;
-    
-    fetch(`/carrinho/update/${produtoId}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ quantity: newQuantity })
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Success:', data);
-    })
-    .catch((error) => {
-        console.error('Error:', error);
-    });
 }
 
-
 function deleteProduct(produtoId) {
-    // Enviar a solicitação de delete para o servidor
-    fetch(`/carrinho/delete/${produtoId}`, {
-        method: 'DELETE'
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Product deleted:', data);
-        // Certifique-se de remover o elemento do DOM
-        const productElement = document.querySelector(`#product_${produtoId}`);
-        if (productElement) {
-            productElement.remove();
+    let carrinho = JSON.parse(sessionStorage.getItem('carrinho')) || {};
+    
+    if (carrinho[produtoId]) {
+        delete carrinho[produtoId];  // Remove o produto do armazenamento local
+        sessionStorage.setItem('carrinho', JSON.stringify(carrinho));  // Atualiza o carrinho no armazenamento local
+        console.log(`Produto com ID ${produtoId} removido do carrinho.`);
+
+        // Remove o elemento visual do produto no carrinho
+        const produtoElement = document.querySelector(`.produto_${produtoId}`);
+        if (produtoElement) {
+            updateSubtotal();
+            produtoElement.remove();  // Remove o elemento do DOM
+            console.log('Elemento do produto removido da página.');
+            
         } else {
             console.error('Elemento do produto não encontrado no DOM:', produtoId);
         }
-    })
-    .catch((error) => {
-        console.error('Error:', error);
-    });
+    } else {
+        console.error(`Produto com ID ${produtoId} não encontrado no carrinho.`);
+    }
 }
+
+function updateSubtotal() {
+    let carrinho = JSON.parse(sessionStorage.getItem('carrinho')) || {};
+    let subtotal = 0;
+
+    Object.keys(carrinho).forEach(produtoId => {
+        let item = carrinho[produtoId];
+        subtotal += item.quantidade * item.precoUnitario;
+    });
+
+    // Atualiza o DOM com o novo subtotal
+    const subtotalDisplay = document.getElementById('subtotal');
+    subtotalDisplay.textContent = `R$ ${subtotal.toFixed(2)}`;
+}
+
+// Chame esta função sempre que um produto for adicionado, atualizado ou removido
+
 
 document.getElementById('confirmarPedido').addEventListener('click', function() {
   const carrinho = JSON.parse(localStorage.getItem('carrinho'));

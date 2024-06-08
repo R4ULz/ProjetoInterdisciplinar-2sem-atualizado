@@ -145,12 +145,9 @@
 document.querySelectorAll('.add-to-cart').forEach(button => {
     button.addEventListener('click', function() {
         const produtoId = this.getAttribute('data-produtoid');
-        if (!produtoId) {
-            console.error("Não foi possível encontrar o ID do produto para este botão.");
-            return;
-        }
+        console.log("Produto ID capturado:", produtoId);  // Verifica se o ID é capturado corretamente
 
-        const quantidade = 1; // Ajuste conforme necessário
+        const quantidade = 1;  // Quantidade inicial quando adicionado ao carrinho
 
         fetch(`/carrinho/adicionar/${produtoId}`, {
             method: 'POST',
@@ -175,37 +172,40 @@ document.querySelectorAll('.add-to-cart').forEach(button => {
             }
         })
         .catch(error => {
-            console.error('Erro ao adicionar produto ao carrinho:', error.message);
+            console.error('Erro ao adicionar produto ao carrinho:', error);
         });
     });
 });
 
+
 function updateLocalStorageCart(produtoId, quantidade, nome, precoUnitario, imagem) {
-  
-  console.log('Tentando atualizar o carrinho com:', {produtoId, quantidade, nome, precoUnitario, imagem});
-  
+    console.log('Tentando atualizar o carrinho com:', {produtoId, quantidade, nome, precoUnitario, imagem});
 
-  if (!produtoId || !nome || precoUnitario == null || imagem == null) {
-    console.error('Dados faltando para adicionar ao carrinho:', {produtoId, quantidade, nome, precoUnitario, imagem});
-    return;
-  }
-
-  let carrinho = JSON.parse(localStorage.getItem('carrinho')) || {};
-  
-  if (carrinho[produtoId]) {
-    let novaQuantidade = carrinho[produtoId].quantidade + quantidade;
-    if (novaQuantidade > 0) {
-      carrinho[produtoId].quantidade = novaQuantidade;
-    } else {
-      delete carrinho[produtoId]; // Remove o produto do carrinho se a quantidade for zero ou negativa
+    if (!produtoId || !nome || precoUnitario == null || imagem == null) {
+      console.error('Dados faltando para adicionar ao carrinho:', {produtoId, quantidade, nome, precoUnitario, imagem});
+      return;
     }
-  } else if (quantidade > 0) { // Só adiciona novos produtos com quantidade positiva
-    carrinho[produtoId] = { quantidade, nome, precoUnitario, imagem };
-  }
 
-  localStorage.setItem('carrinho', JSON.stringify(carrinho));
-  console.log('Carrinho atualizado:', carrinho);
+    let carrinho = JSON.parse(sessionStorage.getItem('carrinho')) || {};
+    
+    if (carrinho[produtoId]) {
+      let novaQuantidade = carrinho[produtoId].quantidade + quantidade;
+      if (novaQuantidade > 0) {
+        carrinho[produtoId].quantidade = novaQuantidade;
+        carrinho[produtoId].nome = nome;
+        carrinho[produtoId].precoUnitario = precoUnitario;
+        carrinho[produtoId].imagem = imagem;
+      } else {
+        delete carrinho[produtoId]; // Remove o produto do carrinho se a quantidade for zero ou negativa
+      }
+    } else if (quantidade > 0) { // Só adiciona novos produtos com quantidade positiva
+      carrinho[produtoId] = { quantidade, nome, precoUnitario, imagem };
+    }
+
+    sessionStorage.setItem('carrinho', JSON.stringify(carrinho));
+    console.log('Carrinho atualizado no sessionStorage:', carrinho);
 }
+
 
 
 </script>
