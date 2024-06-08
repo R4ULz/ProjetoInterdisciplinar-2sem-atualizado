@@ -59,6 +59,18 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
+function atualizarQuantidadeNoIconeCarrinho() {
+  const carrinho = JSON.parse(sessionStorage.getItem('carrinho')) || {};
+  let totalItens = 0;
+  Object.values(carrinho).forEach(item => {
+      totalItens += item.quantidade;  // somando a quantidade de cada item
+  });
+
+  const carrinhoIconeQuantidade = document.querySelector('#carrinho-icone-quantidade'); // supondo que você tem um elemento com este ID
+  if (carrinhoIconeQuantidade) {
+      carrinhoIconeQuantidade.textContent = totalItens;  // atualizando o texto do elemento
+  }
+}
 
 //Funcionamento Produtos
 const lancheImg = document.querySelector('.lanche-item--img');

@@ -6,6 +6,7 @@ const User = require("./models/User");
 const db = require("./models/banco");
 const path = require("path");
 const Pedido_Produto = require('./models/pedido_produto');
+const Gerente = require("./models/gerente");
 const bcrypt = require("bcryptjs");
 const { passport, authMiddleware } = require("./config/auth");
 const multer  = require('multer');
@@ -214,28 +215,82 @@ router.get("/painelAdm", authMiddleware,(req, res)=>{
 
 //rota login
 router.get("/login", (req, res) => {
-  res.render("login");
+  const successMessage = req.query.success;
+  const email = req.query.email || ""; // Adicione esta linha para passar o valor do campo de email, se estiver presente na query
+  const errorMessage = req.query.errorMessage || ""; // Adicione esta linha para passar a mensagem de erro, se estiver presente na query
+  res.render("login", { successMessage, email, errorMessage }); // Adicione email e errorMessage ao objeto passado para a renderização da página
 });
 
-//método post do login
-router.post("/login",
-  async (req, res, next) => {
-    const email = req.body.email; // Obtenha o email do corpo da solicitação
-    const password = req.body.password; // Obtenha a senha do corpo da solicitação
-    if (email === "admkrusty@krusty.com.br" && password === "admkrusty01") {
-      return res.redirect("/painelAdm");
-    } else {
-      next();
-    }
-  },
-  passport.authenticate("local", {
-    successRedirect: "/profile",
-    failureRedirect: "/",
-    failureFlash: true,
-  }),
-  
-);
+//rota login
+router.get("/login", (req, res) => {
+  const successMessage = req.query.success;
+  const email = req.query.email || ""; // Adicione esta linha para passar o valor do campo de email, se estiver presente na query
+  const errorMessage = req.query.errorMessage || ""; // Adicione esta linha para passar a mensagem de erro, se estiver presente na query
+  res.render("login", { successMessage, email, errorMessage }); // Adicione email e errorMessage ao objeto passado para a renderização da página
+});
 
+router.post("/login", async (req, res, next) => {
+  const { email, password } = req.body;
+  if (req.body.email === "admkrusty@krusty.com.br" && req.body.password === "admkrusty01") {
+    return res.redirect("/painelAdm");
+  }  
+  if (email.endsWith("@gerencia.com.br")) {
+    // Redirecionar para a página de painel de gerente
+    return res.redirect("/painelGerente");
+  }
+  // const existingGerente = await Gerente.findOne({ where: { email } });
+  // if (!existingGerente) {
+  //   // Se o email não existir, enviar a mensagem de erro para a página de login
+  //   const errorMessage = "Não existe cadastro com o e-mail fornecido!";
+  //   return res.render("login", { errorMessage, email });
+  // }
+  // const isPasswordValid = await bcrypt.compare(password, existingGerente.senha);
+
+  // if (!isPasswordValid) {
+  //   // Se a senha não coincidir, enviar a mensagem de erro para a página de login
+  //   const errorMessage = "Email e senha não coincidem.";
+  //   return res.render("login", { errorMessage, email });
+  // }
+
+  // // Redirecionar para o painel de gerentes após o login bem-sucedido
+  // res.redirect("/painelGerente");
+  try {
+    // Verificar se o email existe no banco de dados
+    const existingUser = await User.findOne({ where: { email } });
+    if (!existingUser) {
+      // Se o email não existir, enviar a mensagem de erro para a página de login
+      const errorMessage = "Não existe cadastro com o e-mail fornecido!" + "<br> <a href='/signin'> Cadastre-se clicando aqui!</a>";
+      return res.render("login", { errorMessage, email }); // Passar o email de volta para a página de login
+    }
+
+    // Se o email existir, verificar se a senha está correta
+    const isPasswordValid = await bcrypt.compare(password, existingUser.password);
+    if (!isPasswordValid) {
+      // Se a senha não coincidir, enviar a mensagem de erro para a página de login
+      const errorMessage = "Email e senha não coincidem.";
+      return res.render("login", { errorMessage, email }); // Passar o email de volta para a página de login
+    }
+
+    // Autenticar usuário
+    req.login(existingUser, (err) => {
+      if (err) {
+        console.error("Erro ao fazer login:", err);
+        return res.status(500).send("Erro ao fazer login");
+      }
+      // Redirecionar para a página de perfil após o login bem-sucedido
+      return res.redirect("/profile");
+    });
+  } catch (error) {
+    // Tratar erros de forma adequada
+    console.error("Erro ao fazer login:", error);
+    res.status(500).send("Erro ao fazer login");
+  }
+});
+
+// Rota para o painel de gerente
+router.get("/painelGerente", authMiddleware, (req, res) => {
+  res.render("painelGerente");
+});
 
 
 // Rota para renderizar a página de perfil
@@ -243,8 +298,8 @@ router.get("/profile", authMiddleware,(req, res) => {
   
   if (req.isAuthenticated()) {
     const  userlogado  = req.user;
-    const {nome, email, cpf} = userlogado
-    const dadosUser = {nome,email,cpf}
+    const {nome, email, cpf,  endereco, telefone} = userlogado
+    const dadosUser = {nome,email,cpf, endereco, telefone}
     const userLoggedIn = true;
     res.render("user_info",  {dadosUser ,userLoggedIn});
   } else {
@@ -253,14 +308,20 @@ router.get("/profile", authMiddleware,(req, res) => {
   }
 });
 
-router.post("/atualizarUsuario",async(req,res)=>{
-  try{
+router.post("/atualizarUsuario", upload.single("foto"), async (req, res) => {
+  try {
     const userId = req.user.UserId;
-    const {nome,endereco,cpf,email,telefone} = req.body;
+    const { nome, endereco, cpf, email, telefone } = req.body;
     const user = await User.findByPk(userId);
-    if(!user){
-      return res.status(404).json({ message: "Usuario nao encontrado. "})
+
+    if (!user) {
+      return res.status(404).json({ message: "Usuário não encontrado." });
     }
+
+    if (req.file) {
+      user.foto = req.file.filename;
+    }
+
     user.nome = nome;
     user.endereco = endereco;
     user.cpf = cpf;
@@ -268,12 +329,16 @@ router.post("/atualizarUsuario",async(req,res)=>{
     user.telefone = telefone;
 
     await user.save();
-    res.redirect('/profile')
+    res.redirect("/profile");
   } catch (error) {
     console.error("Erro ao atualizar dados do usuário:", error);
-    res.status(500).json({ error: "Erro interno do servidor ao atualizar dados do usuário." });
+    res
+      .status(500)
+      .json({
+        error: "Erro interno do servidor ao atualizar dados do usuário.",
+      });
   }
-})
+});
 
 router.get("/profile", authMiddleware,(req, res) => {
   if (req.isAuthenticated()) {
@@ -298,35 +363,27 @@ router.get("/logout",authMiddleware, (req, res, next) => {
   });
 });
 
-router.get("/s", authMiddleware, (req, res) => {
+// Rota para alterar senha
+router.get("/alterar-senha", (req, res) => {
   res.render("alterar-senha");
 });
 
-router.post("/alterar-senha", async (req, res) => {
-  try {
-    const novaSenha = req.body.novaSenha;
-    const usuarioId = req.session.user;
-
-    // Criptografar a nova senha
-    const hashNovaSenha = await bcrypt.hash(novaSenha, 8);
-
-    // Atualizar a senha no banco de dados usando o Sequelize
-    const user = await post.findOne({ where: { email: usuarioId } });
-
-    if (user) {
-      user.pass = hashNovaSenha;
-      await user.save();
-
-      console.log("Senha atualizada com sucesso");
-      res.redirect("/profile");
-    } else {
-      console.log("Usuário não encontrado");
-      res.status(404).send("Usuário não encontrado");
-    }
-  } catch (error) {
-    console.log("Erro ao atualizar senha:", error);
-    res.status(500).send("Erro ao atualizar senha");
+router.post("/alterar-senha", authMiddleware, async (req, res) => {
+  const {novaSenha, confirmaSenha} = req.body;
+  if(novaSenha !== confirmaSenha){
+    return alert("Senhas não são iguais")
   }
+
+  const userId = req.user.UserId;
+  const user = await User.findByPk(userId);
+
+  const salt = await bcrypt.genSalt(10)
+  const hashedSenha = await bcrypt.hash(novaSenha, salt)
+
+  user.password = hashedSenha
+  await user.save()
+
+  res.redirect("/profile")
 });
 
 router.get('/carrinho', authMiddleware, async (req, res) => {
@@ -453,41 +510,82 @@ router.post('/carrinho/adicionar/:produtoId', async (req, res) => {
   }
 });
 
-
+router.get("/thanku", (req, res) => {
+  res.render("thankU");
+});
 
 
 router.post('/confirmarPedido', async (req, res) => {
-  const { carrinho } = req.body; // O carrinho deve ser enviado como um array de objetos com produtoId e quantidade
-  const UserId = req.user.UserId; // Supõe que o cliente esteja logado
+  const { carrinho } = req.body;  // O carrinho é esperado como { produtoId: { quantidade, precoUnitario, ... }, ... }
 
   try {
-    const pedido = await Pedido.create({
-      UserId: UserId,
-      Status: 'ativo'
+      const novoPedido = await Pedido.create({
+          UserId: req.user.id,  // Asumindo que o usuário está autenticado e seu id está disponível
+          status: 'Confirmado',
+          // outros campos necessários
+      });
+
+      for (const produtoId in carrinho) {
+          const { quantidade, precoUnitario } = carrinho[produtoId];
+          await PedidoProduto.create({
+              PedidoId: novoPedido.id,
+              ProdutoId: produtoId,
+              quantidade: quantidade,
+              precoUnitario: precoUnitario,
+          });
+      }
+
+      res.json({ success: true, message: 'Pedido confirmado com sucesso!' });
+  } catch (error) {
+      console.error('Erro ao salvar o pedido:', error);
+      res.status(500).json({ success: false, message: 'Erro ao processar o pedido.' });
+  }
+});
+
+router.get("/gerenciarGerente", (req,res)=>{
+  res.render("cadastrarGerente")
+})
+
+router.post("/cadastrarG", async (req,res)=>{
+  try {
+    const existingUser = await Gerente.findOne({
+      where: { email: req.body.email },
     });
 
-    for (const produtoId in carrinho) {
-      const item = carrinho[produtoId];
-      await Pedido_Produto.create({
-        PedidoId: pedido.id,
-        ProdutoId: item.produtoId,
-        Quantidade: item.quantidade,
-        // Aqui você precisa buscar o preço atual do produto
-        PrecoUnitario: await getProdutoPreco(item.produtoId) // Função hipotética para buscar o preço
+    if (existingUser) {
+      return res.render("cadastrarGerente", {
+        message: "Esse email está em uso!",
+        name: req.body.name,
+        turno: req.body.turno,
+        email: req.body.email,
       });
     }
 
-    // Calcula o total e salva no pedido
-    const total = Object.values(carrinho).reduce((acc, curr) => acc + (curr.quantidade * curr.preco), 0);
-    pedido.Total = total;
-    await pedido.save();
+    if (req.body.senha !== req.body.confirmPassword) {
+      return res.render("/gerenciarGerente", {
+        message: "As senhas não coincidem!",
+        name: req.body.name,
+        turno: req.body.turno,
+        email: req.body.email,
+      });
+    }
 
-    res.json({ success: true, message: "Pedido confirmado com sucesso!" });
+    const hashPassword = await bcrypt.hash(req.body.senha,8);
+    await Gerente.create({
+      nome: req.body.name,
+      email: req.body.email,
+      turno: req.body.turno,
+      senha: hashPassword,
+    });
+
+    res.redirect(
+      "/login?success=Usuário cadastrado com sucesso! Faça o login agora."
+    );
   } catch (error) {
-    console.error("Erro ao confirmar pedido:", error);
-    res.status(500).send("Erro interno do servidor");
+    console.error("Erro ao criar usuário:", error);
+    res.status(500).send("Erro ao criar usuário.");
   }
-});
+})
 
 function verificaAutenticacao(req, res, next) {
   if (req.session && req.session.user) {
