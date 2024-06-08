@@ -28,17 +28,18 @@ const upload = multer({ storage: storage });
 router.use(authMiddleware);
 
 passport.serializeUser((user, done) => {
-  done(null, user.UserId);
+  done(null, user.id); 
 });
 
-passport.deserializeUser((UserId, done) => {
-  User.findByPk(UserId, (err, user) => {
+passport.deserializeUser((id, done) => {
+  User.findByPk(id, (err, user) => {
     if (err) {
       return done(err);
     }
     return done(null, user);
   });
 });
+
 
 // Rota inicial
 router.get("/", async (req, res) => {
@@ -179,10 +180,6 @@ router.get("/painelAdm", (req, res) => {
   res.render("painelAdm");
 });
 
-//rota painel Gernete
-router.get("/painelGerente", authMiddleware,(req, res)=>{
-  res.render("painelGerente")
-})
 
 
 //rota login
@@ -197,13 +194,17 @@ router.post("/login", async (req, res, next) => {
   const { email, password } = req.body;
   if (req.body.email === "admkrusty@krusty.com.br" && req.body.password === "admkrusty01") {
     return res.redirect("/painelAdm");
+  }  
+  if (email.endsWith("@gerencia.com.br")) {
+    // Redirecionar para a página de painel de gerente
+    return res.redirect("/painelGerente");
   }
   try {
     // Verificar se o email existe no banco de dados
     const existingUser = await User.findOne({ where: { email } });
     if (!existingUser) {
       // Se o email não existir, enviar a mensagem de erro para a página de login
-      const errorMessage = "Não existe cadastro com o e-mail fornecido! <br> <a href='/signin'>Cadastre-se clicando aqui!</a>";
+      const errorMessage = "Não existe cadastro com o e-mail fornecido!" + "<br> <a href='/signin'> Cadastre-se clicando aqui!</a>";
       return res.render("login", { errorMessage, email }); // Passar o email de volta para a página de login
     }
 
@@ -231,13 +232,18 @@ router.post("/login", async (req, res, next) => {
   }
 });
 
+// Rota para o painel de gerente
+router.get("/painelGerente", authMiddleware, (req, res) => {
+  res.render("painelGerente");
+});
+
 
 // Rota para renderizar a página de perfil
-router.get("/profile", async (req, res) => {
+router.get("/profile",authMiddleware, async (req, res) => {
   if (req.isAuthenticated()) {
     const userlogado = req.user;
     const { nome, email, cpf, endereco, telefone } = userlogado;
-    const dadosUser = { nome, email, cpf, endereco, telefone }; // Adicionando o endereço e o telefone
+    const dadosUser = { nome, email, cpf, endereco, telefone }; 
     const userLoggedIn = true;
     res.render("user_info", { dadosUser, userLoggedIn });
   } else {
