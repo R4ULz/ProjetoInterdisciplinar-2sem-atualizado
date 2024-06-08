@@ -1,8 +1,13 @@
-<div class="w-full h-fit text-black px-3 py-5 flex justify-center items-center md:mt-12">
+<div
+  class="w-full h-fit text-black px-3 py-5 flex justify-center items-center md:mt-12"
+>
   <div class="max-w-screen-2xl w-full h-fit flex flex-col gap-5 items-center">
-    <div class="w-full h-full bg-white border border-gray-50 shadow-md rounded-md flex flex-col p-3 ">
+    <div
+      class="w-full h-full bg-white border border-gray-50 shadow-md rounded-md flex flex-col p-3 "
+    >
       <div
-        class="grid md:grid-cols-5 grid-cols-2 w-full p-1 border mb-3 border-red-500 h-full flex items-center justify-center font-semibold text-sm md:text-lg rounded-lg">
+        class="grid md:grid-cols-5 grid-cols-2 w-full p-1 border mb-3 border-red-500 h-full flex items-center justify-center font-semibold text-sm md:text-lg rounded-lg"
+      >
         <div class="flex justify-center border-r">
           <h2>Nome</h2>
         </div>
@@ -21,23 +26,36 @@
 
       </div>
       <div
-        class="grid md:grid-cols-5 grid-cols-2 gap-3 w-full h-full p-1 items-center justify-center auto-rows-max text-sm md:text-lg">
+        class="grid md:grid-cols-5 grid-cols-2 gap-3 w-full h-full p-1 items-center justify-center auto-rows-max text-sm md:text-lg"
+      >
         {{#each Produto}}
-        {{#dataValues}}
-        <div class="auto-rows-max col-start-1 flex items-center justify-center">{{nome}}</div>
-        <div class="auto-rows-max md:col-start-2 hidden md:flex items-center justify-center">R$ {{valor}},00</div>
-        <div class="auto-rows-max md:col-start-3 hidden md:flex items-center justify-center">{{descricao}}</div>
-        <div class="auto-rows-max md:col-start-4 hidden md:flex items-center justify-center">{{categoria}}</div>
-        <div class="auto-rows-max col-start-2 md:col-start-5 flex gap-2 md:gap-4 items-center justify-center text:sm">
-          <button type="button"
-            class="text-sm border border-red-500 rounded-lg px-2 md:px-3 py-1 text-red-500 font-semibold"><a
-              href="/editar/{{id}}" style="color:inherit">Editar</a></button>
-          <button type="button"
-            class="text-sm border bg-red-500 rounded-lg px-2 md:px-3 py-1 text-white font-semibold"><a
-              href="/excluir/{{id}}" style="color:inherit">Excluir</a></button>
+          {{#dataValues}}
+            <div
+              class="auto-rows-max col-start-1 flex items-center justify-center"
+            >{{nome}}</div>
+            <div
+              class="auto-rows-max md:col-start-2 hidden md:flex items-center justify-center"
+            >R$ {{valor}},00</div>
+            <div
+              class="auto-rows-max md:col-start-3 hidden md:flex items-center justify-center"
+            >{{descricao}}</div>
+            <div
+              class="auto-rows-max md:col-start-4 hidden md:flex items-center justify-center"
+            >{{categoria}}</div>
+            <div
+              class="auto-rows-max col-start-2 md:col-start-5 flex gap-2 md:gap-4 items-center justify-center text:sm"
+            >
+              <button type="button" class="text-sm border border-red-500 rounded-lg px-2 md:px-3 py-1 text-red-500 font-semibold"><a
+                  href="/editar/{{id}}"
+                  style="color:inherit"
+                >Editar</a></button>
+              <button type="button" class="text-sm border bg-red-500 rounded-lg px-2 md:px-3 py-1 text-white font-semibold"><a
+                  href="/excluir/{{id}}"
+                  style="color:inherit"
+                >Excluir</a></button>
 
-        </div>
-        {{/dataValues}}
+            </div>
+          {{/dataValues}}
         {{/each}}
       </div>
     </div>

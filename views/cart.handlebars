@@ -1,297 +1,145 @@
 <div class="w-full h-fit text-black px-3 py-5 flex justify-center items-center md:mt-12">
   <div class="max-w-screen-2xl w-full h-fit flex flex-col gap-5 items-center">
-    <div class="grid grid-cols-1 w-full md:w-[70%] h-fit md:grid-cols-3 md:gap-10 ">
-      <div
-        class="flex flex-col gap-5 p-3 h-fit md:h-[400px] md:overflow-auto custom-scrollbar md:border border-red-500 col-span-2 md:shadow-md md:p-5 md:rounded-md">
-        <div class="flex items-center gap-2 font-bold">
-          <div class="bg-gradient-to-b from-orange-400 to-red-600 w-1 h-5"></div>
-          <h2>Meu <span class="text-orange-500">carrinho</span></h2>
-        </div>
-        <div class="flex flex-col items-center gap-3 w-full">
-          {{#each produtos}}
-          <div class="flex items-center justify-between p-2 gap-2 w-full border border-gray-50 shadow-md rounded-md">
+   <div class="grid grid-cols-1 w-full md:w-[70%] h-fit md:grid-cols-3 md:gap-10 ">
+    <div class="flex flex-col gap-5 p-3 h-fit md:h-[400px] md:overflow-auto custom-scrollbar md:border border-red-500 col-span-2 md:shadow-md md:p-5 md:rounded-md">
+      <div class="flex items-center gap-2 font-bold">
+        <div class="bg-gradient-to-b from-orange-400 to-red-600 w-1 h-5"></div>
+        <h2>Meu <span class="text-orange-500">carrinho</span></h2>
+      </div>
+      <div class="flex flex-col items-center gap-3 w-full">
+        {{#each produtos}}
+        <div class="flex items-center justify-between p-2 gap-2 w-full border border-gray-50 shadow-md rounded-md">
             <img src="/images/{{imagem}}.png" class="w-16 h-16" alt="">
-            <div class="flex justify-between items-center w-full">
-              <div class="w-fit h-fit flex flex-col gap-3">
-                <p class="text-sm">{{nome}}</p>
-                <span class="text-teal-500 text-sm" id="price_{{ProdutoId}}">R$: {{valor}},00</span>
-              </div>
-              <div class="flex flex-col gap-3">
-                <button class="self-end delete" data-produto-id="{{ProdutoId}}"><i
-                    class="fa-solid fa-trash text-red-500"></i></button>
-                <div class="border border-yellow-500 rounded-full flex jusitfy-center items-center text-sm">
-                  <button data-produto-id="{{ProdutoId}}"
-                    class="md:w-8 w-5 flex items-center justify-center decrease">-</button>
-                  <span
-                    class="md:w-8 w-4 border-r border-l border-yellow-500 text-teal-500 flex items-center justify-center quantity_{{ProdutoId}}">{{quantidade}}</span>
-                  <button data-produto-id="{{ProdutoId}}"
-                    class="md:w-8 w-5 flex items-center justify-center increase">+</button>
-                </div>
+          <div class="flex justify-between items-center w-full">
+            <div class="w-fit h-fit flex flex-col gap-3">
+              <p class="text-sm">{{nome}}</p>
+              <span class="text-teal-500 text-sm" id="price_{{ProdutoId}}">R$: {{valor}},00</span>
+            </div>
+            <div class="flex flex-col gap-3">
+              <button class="self-end delete" data-produto-id="{{ProdutoId}}"><i class="fa-solid fa-trash text-red-500"></i></button>
+              <div class="border border-yellow-500 rounded-full flex jusitfy-center items-center text-sm">
+                <button data-produto-id="{{ProdutoId}}" class="md:w-8 w-5 flex items-center justify-center decrease" >-</button>
+                <span class="md:w-8 w-4 border-r border-l border-yellow-500 text-teal-500 flex items-center justify-center quantity_{{ProdutoId}}">{{quantidade}}</span>
+                <button data-produto-id="{{ProdutoId}}" class="md:w-8 w-5 flex items-center justify-center increase" >+</button>
               </div>
             </div>
           </div>
-          {{else}}
-          <p>nenhum produto no carrinho</p>
-          {{/each}}
+        </div>
+        {{else}}
+        <p>nenhum produto no carrinho</p>
+        {{/each}}
+            </div>
+          </div>
+          <div class="flex flex-col gap-3 w-full md:w-72">
+      <div class="flex flex-col gap-5 items-center justify-center p-5 rounded-md shadow-md border-gray-50 w-full h-fit"> 
+        <div class="flex items-center gap-2 w-full font-bold">
+          <div class="bg-gradient-to-b from-orange-400 to-red-600 w-1 h-5"></div>
+                <h2>Você <span class="text-orange-500">prefere</span></h2>
+        </div>
+      <div class="flex justify-center items-center gap-11 ">
+        <div class=" border border-red-500 w-max h-max p-3 rounded-md ">
+          <img src="/images/moto.png" class="w-12" alt="">
+          <p class="text-sm">Delivery</p>
+        </div>
+        <div class="">
+          <img src="/images/retirar.png" class="w-8">
+          <p class="text-sm">Retirar</p>
         </div>
       </div>
-      <div class="flex flex-col gap-3 w-full md:w-72">
-        <div
-          class="flex flex-col gap-5 items-center justify-center p-5 rounded-md shadow-md border-gray-50 w-full h-fit">
-          <div class="flex items-center gap-2 w-full font-bold">
-            <div class="bg-gradient-to-b from-orange-400 to-red-600 w-1 h-5"></div>
-            <h2>Você <span class="text-orange-500">prefere</span></h2>
+      </div>
+      <div class="flex flex-col items-center justify-center p-5 rounded-md shadow-md border-gray-50 w-full h-[60%]">
+        <div class="flex items-center gap-2 w-full">
+          <div class="bg-gradient-to-b from-orange-400 to-red-600 w-1 h-5"></div>
+          <h2 class="font-bold">Pagamento</h2>
+        </div>
+        <div class="flex flex-col w-full gap-1 p-3">
+          <div class="flex items-center justify-between gap-10 text-[10px] text-zinc-500">
+            <p>Subtotal</p>
+            <p id="subtotal">{{formatCurrency subtotal}}</p>
           </div>
-          <div class="flex justify-center items-center gap-11 ">
-            <div class=" border border-red-500 w-max h-max p-3 rounded-md ">
-              <img src="/images/moto.png" class="w-12" alt="">
-              <p class="text-sm">Delivery</p>
-            </div>
-            <div class="">
-              <img src="/images/retirar.png" class="w-8">
-              <p class="text-sm">Retirar</p>
-            </div>
+          <div class="flex items-center justify-between gap-10 text-[10px] text-zinc-500">
+            <p>Frete</p>
+            <p>03,00</p>
+          </div>
+          <div class="flex items-center justify-between gap-10 text-[10px] text-zinc-500">
+            <p>Descontos</p>
+            <p>99,99</p>
+          </div>
+          <div class="border border-yellow-500 w-full"></div>
+          <div class="flex items-center justify-between text-[14px]">
+            <p>Total a pagar:</p>
+            <p>R$:50,00</p>
           </div>
         </div>
-        <div class="flex flex-col items-center justify-center p-5 rounded-md shadow-md border-gray-50 w-full h-[60%]">
-          <div class="flex items-center gap-2 w-full">
-            <div class="bg-gradient-to-b from-orange-400 to-red-600 w-1 h-5"></div>
-            <h2 class="font-bold">Pagamento</h2>
-          </div>
-          <div class="flex flex-col w-full gap-1 p-3">
-            <div class="flex items-center justify-between gap-10 text-[10px] text-zinc-500">
-              <p>Subtotal</p>
-              <p id="subtotal">{{formatCurrency subtotal}}</p>
-            </div>
-            <div class="flex items-center justify-between gap-10 text-[10px] text-zinc-500">
-              <p>Frete</p>
-              <p>03,00</p>
-            </div>
-            <div class="flex items-center justify-between gap-10 text-[10px] text-zinc-500">
-              <p>Descontos</p>
-              <p>99,99</p>
-            </div>
-            <div class="border border-yellow-500 w-full"></div>
-            <div class="flex items-center justify-between text-[14px]">
-              <p>Total a pagar:</p>
-              <p>R$:50,00</p>
-            </div>
-          </div>
-          <button id="confirmarPedido" class="px-8 py-2 bg-red-500 text-white rounded-full">Pedir agora!</button>
+        <button id="confirmarPedido" class="px-8 py-2 bg-red-500 text-white rounded-full">Pedir agora!</button>
 
-        </div>
       </div>
     </div>
-  </div>
-</div>
-<div
-  id="modalCard"
-  class="w-full h-screen fixed top-0 left-0 bg-black bg-opacity-50 flex justify-center items-center transition-all pointer-events-none opacity-0"
->
-
-  <div
-    class="md:w-full h-fit max-w-screen-md bg-white shadow-md rounded-lg flex justify-center items-center px-8 py-4 relative"
-  >
-    <i
-      id="arrow"
-      class="fa-solid fa-arrow-left absolute left-[3%] top-4 font-semibold text-2xl text-gray-600 cursor-pointer"
-    ></i>
-    <div class="content max-w-screen-sm w-full py-8 px-6">
-      <div class="flex justify-between items-center">
-        <div class="w-full relative flex flex-col gap-3 mb-6 justify-center">
-          <div
-            class="bg-gradient-to-b from-orange-400 to-red-600 w-1 h-4 absolute -left-2 top-2"
-          ></div>
-          <h2 class="font-bold text-2xl">Pagamento
-          </h2>
-        </div>
-
-        <div class="img">
-          <img src="/images/Bandeiras.svg" alt="" />
-        </div>
-      </div>
-
-      <div class="w-full flex gap-4 mb-8 justify-center">
-        <div
-          id="credito"
-          class="bg-white rounded-lg shadow-xl px-4 py-3 flex items-center justify-center cursor-pointer active border border-[#EF4444]"
-        >
-          <div class="flex gap-3 w-full items-center justify-center">
-            <img class="w-2/5" src="/images/credito.svg" alt="" />
-            <div
-              class="w-3/5 h-fit px-4 py-1 text-white bg-[#EF4444] rounded-lg flex justify-center items-center"
-            >
-              <p>Crédito</p>
-            </div>
-          </div>
-        </div>
-
-        <div
-          id="debito"
-          class="bg-white rounded-lg shadow-xl px-4 py-3 flex items-center justify-center cursor-pointer"
-        >
-          <div class="flex gap-3 w-full items-center justify-center">
-            <img class="w-2/5" src="/images/debito.svg" alt="" />
-            <div
-              class="w-3/5 h-fit px-4 py-1 text-white bg-[#EF4444] rounded-lg flex justify-center items-center"
-            >
-              <p>Dédito</p>
-            </div>
-          </div>
-        </div>
-
-        <div
-          id="boleto"
-          class="bg-white rounded-lg shadow-xl px-4 py-3 flex items-center justify-center cursor-pointer"
-        >
-          <div class="flex gap-3 w-full items-center justify-center">
-            <img class="w-2/5" src="/images/boleto.svg" alt="" />
-            <div
-              class="w-3/5 h-fit px-4 py-1 text-white bg-[#EF4444] rounded-lg flex justify-center items-center"
-            >
-              <p>Boleto</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      {{! forms dos cartões }}
-      <form
-        action="#"
-        method="POST"
-        id="formCard"
-        class="w-full flex flex-col gap-6 transition-all opacity-100 pointer-events-auto z-10"
-      >
-
-        <div class="gap-3">
-          <label for="name" class="font-semibold text-lg text-gray-600">Número
-            do cartão:</label>
-          <div
-            class="flex items-center gap-2 border-b border-red-500 p-1 w-full font-normal text-black"
-          >
-            <i class="fa-regular fa-credit-card text-red-500 text-xl"></i>
-            <input
-              type="text"
-              name="numberCard"
-              id="card-number"
-              class="outline-none w-full"
-            />
-          </div>
-        </div>
-
-        <div class="gap-3 mb-6">
-          <label for="name" class="font-semibold text-lg text-gray-600">Seu nome
-            impresso no cartão</label>
-          <div
-            class="flex items-center gap-2 border-b border-red-500 p-1 w-full font-normal text-black"
-          >
-            <i class="fa-regular fa-credit-card text-red-500 text-xl"></i>
-            <input type="text" name="numberCard" class="outline-none w-full" />
-          </div>
-        </div>
-
-        <div class="flex justify-between items-center mb-8">
-          <div>
-            <label class="" for="exp-month"></label>
-            <select
-              class="outline-none border border-red-500 rounded-lg px-2 py-1 mr-2"
-              id="exp-month"
-            >
-              <option value="">Mês</option>
-            </select>
-
-            <label for="exp-year"></label>
-            <select
-              class="outline-none border border-red-500 rounded-lg px-2 py-1"
-              id="exp-year"
-            >
-              <option value="">Ano</option>
-            </select>
-          </div>
-
-          <div class="gap-3">
-            <label
-              for="name"
-              class="font-semibold text-lg text-gray-600"
-            >CVV/Codigo de segurança:</label>
-            <div
-              class="flex items-center gap-2 border-b border-red-500 p-1 w-full font-normal text-black"
-            >
-              <input
-                type="text"
-                name="numberCard"
-                id="CVV"
-                class="outline-none w-full"
-                maxlength="4"
-              />
-            </div>
-          </div>
-        </div>
-
-        <button type="button"
-          class="w-full py-4 pd bg-[#00A490] flex items-center justify-center rounded-3xl"
-           
-        >
-          <a href="thanku" class="text-white font-semibold">Finalizar pedido</a>
-        </button>
-      </form>
-
-      <div id="formSlip" class="hidden transition-all w-full flex flex-col gap-4 justify-center">
-        <div class="container w-full flex flex-row justify-between items-center">
-          <div class="w-1/2">
-             <img class="w-4/5" src="/images/boleto.png" alt="imagem de um boleto" />
-          </div>
-         
-          <div class="w-1/2 flex flex-col gap-4">
-            <p class="font-semibold">Atenção</p>
-            <p>1 - Boleto (somente à vista)</p>
-            <p>2 - Depois do pagamento, fique atento ao seu e-mail para receber
-              os dados de acesso ao produto (verifique também a caixa de SPAM)</p>
-          </div>
-        </div>
-        <button type="button"
-          class="w-full py-4 pd bg-[#00A490] flex items-center justify-center rounded-3xl"
-           
-        >
-          <a href="thanku" class="text-white font-semibold">Finalizar pedido</a>
-        </button>
-      </div>
-
-    </div>
-  </div>
+   </div>
+  </div> 
 </div>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    const decreaseButtons = document.querySelectorAll('.decrease');
-    const increaseButtons = document.querySelectorAll('.increase');
-    const deleteButtons = document.querySelectorAll('.delete');
+  const decreaseButtons = document.querySelectorAll('.decrease');
+  const increaseButtons = document.querySelectorAll('.increase');
+  const deleteButtons = document.querySelectorAll('.delete');
 
-    decreaseButtons.forEach(button => {
-      button.addEventListener('click', function () {
-        const produtoId = this.dataset.produtoId;
-        updateQuantity(produtoId, -1);
-      });
-    });
-
-    increaseButtons.forEach(button => {
-      button.addEventListener('click', function () {
-        const produtoId = this.dataset.produtoId;
-        updateQuantity(produtoId, 1);
-      });
-    });
-
-    deleteButtons.forEach(button => {
-      button.addEventListener('click', function () {
-        const produtoId = this.dataset.produtoId;
-        deleteProduct(produtoId);
-      });
+  decreaseButtons.forEach(button => {
+    button.addEventListener('click', function () {
+      const produtoId = this.dataset.produtoId;
+      updateQuantity(produtoId, -1);
     });
   });
 
-  function updateQuantity(produtoId, change) {
+  increaseButtons.forEach(button => {
+    button.addEventListener('click', function () {
+      const produtoId = this.dataset.produtoId;
+      updateQuantity(produtoId, 1);
+    });
+  });
+
+  deleteButtons.forEach(button => {
+    button.addEventListener('click', function () {
+      const produtoId = this.dataset.produtoId;
+      deleteProduct(produtoId);
+    });
+  });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+  const carrinhoContainer = document.querySelector('.flex.flex-col.items-center.gap-3.w-full'); // Seletor para o container onde os itens devem ser exibidos
+  const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+
+  carrinho.forEach(produto => {
+    const produtoDiv = document.createElement('div');
+    produtoDiv.classList.add('flex', 'items-center', 'justify-between', 'p-2', 'gap-2', 'w-full', 'border', 'border-gray-50', 'shadow-md', 'rounded-md');
+    produtoDiv.innerHTML = `
+      <img src="/images/${produto.imagem}.png" alt="${produto.nome}" class="w-16 h-16">
+      <div class="flex justify-between items-center w-full">
+        <div class="w-fit h-fit flex flex-col gap-3">
+          <p class="text-sm">${produto.nome}</p>
+          <span class="text-teal-500 text-sm">R$: ${produto.valor.toFixed(2)}</span>
+        </div>
+        <div class="flex flex-col gap-3">
+          <button class="self-end delete" data-produto-id="${produto.produtoId}"><i class="fa-solid fa-trash text-red-500"></i></button>
+          <div class="border border-yellow-500 rounded-full flex justify-center items-center text-sm">
+            <button data-produto-id="${produto.produtoId}" class="md:w-8 w-5 flex items-center justify-center decrease">-</button>
+            <span class="md:w-8 w-4 border-r border-l border-yellow-500 text-teal-500 flex items-center justify-center">${produto.quantidade}</span>
+            <button data-produto-id="${produto.produtoId}" class="md:w-8 w-5 flex items-center justify-center increase">+</button>
+          </div>
+        </div>
+      </div>
+    `;
+    carrinhoContainer.appendChild(produtoDiv);
+  });
+});
+
+
+function updateQuantity(produtoId, change) {
     const quantityDisplays = document.querySelectorAll(`.quantity_${produtoId}`);
     if (quantityDisplays.length === 0) {
-      console.error(`Elemento não encontrado para ProdutoId: ${produtoId}`);
-      return; // Saia da função se não encontrar o elemento
+        console.error(`Elemento não encontrado para ProdutoId: ${produtoId}`);
+        return; // Saia da função se não encontrar o elemento
     }
 
     let quantityDisplay = quantityDisplays[0];
@@ -299,9 +147,9 @@
 
     // Se a quantidade atual é 1 e a mudança é negativa, não permita a mudança
     if (currentQuantity === 1 && change < 0) {
-      console.log("Quantidade mínima alcançada, não pode diminuir mais.");
-      alert("Quantidade mínima alcançada, não pode diminuir mais.");
-      return; // Impede que a quantidade seja reduzida abaixo de 1
+        console.log("Quantidade mínima alcançada, não pode diminuir mais.");
+        alert("Quantidade mínima alcançada, não pode diminuir mais.");
+        return; // Impede que a quantidade seja reduzida abaixo de 1
     }
 
     let newQuantity = currentQuantity + change;
@@ -312,199 +160,82 @@
 
     const priceDisplay = document.querySelector(`#price_${produtoId}`);
     if (!priceDisplay) {
-      console.error(`Elemento de preço não encontrado para ProdutoId: ${produtoId}`);
-      return;
+        console.error(`Elemento de preço não encontrado para ProdutoId: ${produtoId}`);
+        return;
     }
-    const unitPrice = parseFloat(priceDisplay.textContent.replace(/[^0-9\.-]+/g, "")); // Garante que o texto seja convertido para número
+    const unitPrice = parseFloat(priceDisplay.textContent.replace(/[^0-9\.-]+/g,"")); // Garante que o texto seja convertido para número
 
     // Atualizar subtotal
     const subtotalDisplay = document.querySelector('#subtotal');
-    let currentSubtotal = parseFloat(subtotalDisplay.textContent.replace(/[^0-9\.-]+/g, ""));
-    if (isNaN(currentSubtotal) || isNaN(unitPrice)) {
-      console.error('Erro ao calcular subtotal: valores inválidos');
-      return;
+    let currentSubtotal = parseFloat(subtotalDisplay.textContent.replace(/[^0-9\.-]+/g,""));
+    if(isNaN(currentSubtotal) || isNaN(unitPrice)) {
+        console.error('Erro ao calcular subtotal: valores inválidos');
+        return;
     }
     currentSubtotal += change * unitPrice;
     subtotalDisplay.textContent = currentSubtotal;
-
+    
     fetch(`/carrinho/update/${produtoId}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ quantity: newQuantity })
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ quantity: newQuantity })
     })
-      .then(response => response.json())
-      .then(data => {
+    .then(response => response.json())
+    .then(data => {
         console.log('Success:', data);
-      })
-      .catch((error) => {
+    })
+    .catch((error) => {
         console.error('Error:', error);
-      });
-  }
+    });
+}
 
 
-  function deleteProduct(produtoId) {
+function deleteProduct(produtoId) {
     // Enviar a solicitação de delete para o servidor
     fetch(`/carrinho/delete/${produtoId}`, {
-      method: 'DELETE'
+        method: 'DELETE'
     })
-      .then(response => response.json())
-      .then(data => {
+    .then(response => response.json())
+    .then(data => {
         console.log('Product deleted:', data);
         // Certifique-se de remover o elemento do DOM
         const productElement = document.querySelector(`#product_${produtoId}`);
         if (productElement) {
-          productElement.remove();
+            productElement.remove();
         } else {
-          console.error('Elemento do produto não encontrado no DOM:', produtoId);
+            console.error('Elemento do produto não encontrado no DOM:', produtoId);
         }
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
-  }
-
-  document.getElementById('confirmarPedido').addEventListener('click', function () {
-    const carrinho = JSON.parse(localStorage.getItem('carrinho'));
-    fetch('/confirmarPedido', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ carrinho: carrinho })
     })
-      .then(response => response.json())
-      .then(data => {
-        console.log(data.message);
-        if (data.success) {
-          localStorage.removeItem('carrinho'); // Limpa o carrinho no localStorage
-          alert('Pedido confirmado com sucesso!');
-        }
-      })
-      .catch(error => {
-        console.error('Erro:', error);
-      });
-  });
-
-// js do pagamento
-document.getElementById("card-number").addEventListener("input", function (e) {
-  let input = e.target;
-  let value = input.value.replace(/\D/g, ""); // Remove todos os caracteres não numéricos
-  if (value.length > 16) value = value.slice(0, 16); // Limita a 16 caracteres
-
-  let formattedValue = value.match(/.{1,4}/g)?.join(" ") ?? ""; // Formata o valor
-
-  input.value = formattedValue;
-});
-
-document.getElementById("CVV").addEventListener("input", function (e) {
-  let input = e.target;
-  input.value = input.value.replace(/\D/g, ""); // Remove todos os caracteres não numéricos
-});
-
-document.addEventListener("DOMContentLoaded", function () {
-  const monthSelect = document.getElementById("exp-month");
-  const yearSelect = document.getElementById("exp-year");
-  const currentYear = new Date().getFullYear();
-
-  // Populate month select
-  for (let month = 1; month <= 12; month++) {
-    const option = document.createElement("option");
-    option.value = month.toString().padStart(2, "0"); // Format as "01", "02", etc.
-    option.textContent = month.toString().padStart(2, "0");
-    monthSelect.appendChild(option);
-  }
-
-  // Populate year select
-  for (let year = currentYear; year <= currentYear + 10; year++) {
-    const option = document.createElement("option");
-    option.value = year;
-    option.textContent = year;
-    yearSelect.appendChild(option);
-  }
-});
-
-//modal pagamento
-document.addEventListener("DOMContentLoaded", function() {
-  let formCard = document.getElementById("formCard");
-  let formSlip = document.getElementById("formSlip");
-
-  let credito = document.getElementById("credito");
-  let debito = document.getElementById("debito");
-  let boleto = document.getElementById("boleto");
-
-  let modalCard = document.getElementById("modalCard");
-  let btnPedir = document.getElementById("btnPedir");
-  let header = document.getElementById("header");
-  let footer = document.getElementById("footer");
-  let arrow = document.getElementById("arrow");
-
-  let options = [credito, debito, boleto];
-
-  //quando apertar em pedido, verifica quem contem a classe active para 
-  btnPedir.addEventListener("click", () => {
-      showModal(modalCard);
-      //quando clicar em uma das opções ele tira de todas e coloca na opção apertada
-  options.forEach(option => {
-    option.addEventListener("click", function() {
-        options.forEach(opt => opt.classList.remove("active", "border", "border-[#EF4444]"));
-        this.classList.add("active", "border", "border-[#EF4444]");
-        if (credito.classList.contains("active") || debito.classList.contains("active")) {
-          showCards(formCard);
-          closeSlip(formSlip);
-      } 
-        if (boleto.classList.contains("active")) {
-          showSlip(formSlip);
-          closeCards(formCard);
-      }
-  });
+    .catch((error) => {
+        console.error('Error:', error);
     });
-});
-     
-  arrow.addEventListener("click", () => {
-      closeModal(modalCard);
+}
+
+document.getElementById('confirmarPedido').addEventListener('click', function() {
+  const carrinho = JSON.parse(localStorage.getItem('carrinho'));
+  fetch('/confirmarPedido', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ carrinho: carrinho })
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log(data.message);
+    if (data.success) {
+      localStorage.removeItem('carrinho'); // Limpa o carrinho no localStorage
+      alert('Pedido confirmado com sucesso!');
+    }
+  })
+  .catch(error => {
+    console.error('Erro:', error);
   });
-
-  function showModal(modal) {
-      modal.classList.remove("hidden");
-      modal.classList.add("opacity-100", "pointer-events-auto", "z-10");
-      header.classList.add("pointer-events-none", "z-0");
-      footer.classList.add("pointer-events-none", "z-0");
-  }
-
-  function closeModal(modal) {
-      modal.classList.add("hidden");
-      modal.classList.remove("opacity-100", "pointer-events-auto", "z-10");
-      header.classList.remove("pointer-events-none", "z-0");
-      footer.classList.remove("pointer-events-none", "z-0");
-  }
-
-  //mostrar conteudo de cartões
-  function showCards(formsCard){
-      formsCard.classList.remove("opacity-0", "hidden");
-      formsCard.classList.add("opacity-100", "pointer-events-auto", "z-10");
-  }
-
-  function closeCards(formsCard){
-      formsCard.classList.add("opacity-0", "hidden");
-      formsCard.classList.remove("opacity-100", "pointer-events-auto", "z-10");
-  }
-
-  //mostrar conteudo de boleto
-  function showSlip(slip){
-      slip.classList.remove("opacity-0", "hidden");
-      slip.classList.add("opacity-100", "pointer-events-auto", "z-10");
-  }
-
-  function closeSlip(slip){
-      slip.classList.add("opacity-0", "hidden");
-      slip.classList.remove("opacity-100", "pointer-events-auto", "z-10");
-  }
-
 });
 
 </script>
-</div>
-</div>
-</div>
+        </div>
+      </div>
+    </div>

@@ -1,5 +1,3 @@
-// models/User.js
-
 const db = require("./banco");
 const { Sequelize } = require("sequelize");
 
@@ -8,10 +6,6 @@ const User = db.sequelize.define("User", {
     type: db.Sequelize.INTEGER,
     autoIncrement: true,
     primaryKey: true,
-  },
-  foto: {
-    type: Sequelize.STRING,
-    allowNull: true,
   },
   nome: {
     type: db.Sequelize.STRING,
@@ -36,10 +30,12 @@ const User = db.sequelize.define("User", {
   password: {
     type: db.Sequelize.STRING,
     allowNull: false,
-  }
+  },
+});
 
-})
-// //Adicionando login de adms automaticamente ao ser iniciada
+module.exports = User;
+
+//Adicionando login de adms automaticamente ao ser iniciada
 // User.addHook('afterSync', 'addInitialData', async () => {
 //     try {
 //         await User.bulkCreate([
@@ -51,7 +47,7 @@ const User = db.sequelize.define("User", {
 //     }
 // });
 
-// //Sincronizando o modelo com o banco de dados
+// Sincronizando o modelo com o banco de dados
 // (async () => {
 //     try {
 //         await User.sync({});
@@ -61,10 +57,9 @@ const User = db.sequelize.define("User", {
 //     }
 // })();
 
-//     User.hasMany(Pedido, {
-//          constraint: true,
-//          foreignKey: 'PedidoID'
-//  }
-//  );
+    // User.hasMany(Pedido, {
+    //     constraint: true,
+    //     foreignKey: 'PedidoID'}
+    // );
 
 module.exports = User
