@@ -430,25 +430,30 @@ router.post('/carrinho/adicionar/:produtoId', async (req, res) => {
   const quantidade = parseInt(req.body.quantidade) || 1;
 
   try {
-    const produto = await Produto.findByPk(produtoId);
-    if (!produto) {
-      console.error(`Nenhum produto encontrado com ID: ${produtoId}`);
-      return res.status(404).send("Produto não encontrado");
-    }
+      const produto = await Produto.findByPk(produtoId);
+      if (!produto) {
+          console.error(`Nenhum produto encontrado com ID: ${produtoId}`);
+          return res.status(404).json({ success: false, message: "Produto não encontrado" });
+      }
 
-    // Retorna os detalhes necessários do produto para serem usados no localStorage
-    res.json({
-      message: "Produto obtido com sucesso",
-      produtoId: produto.id,
-      nome: produto.nome,
-      precoUnitario: produto.valor,
-      quantidade: quantidade
-    });
+      res.json({
+          success: true,
+          message: "Produto obtido com sucesso",
+          produto: {
+              produtoId: produto.ProdutoId, // Confirme se é produto.id ou produto.produtoId
+              nome: produto.nome,
+              precoUnitario: produto.valor, // Confirme se é produto.valor
+              imagem: produto.imagem
+          },
+          quantidade: quantidade
+      });
   } catch (error) {
-    console.error("Erro ao buscar produto:", error);
-    res.status(500).send("Erro interno do servidor");
+      console.error("Erro ao buscar produto:", error);
+      res.status(500).json({ success: false, message: "Erro interno do servidor", error: error.toString() });
   }
 });
+
+
 
 
 router.post('/confirmarPedido', async (req, res) => {

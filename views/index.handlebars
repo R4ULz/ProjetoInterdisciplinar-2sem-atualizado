@@ -142,44 +142,70 @@
   </div>
 </section>
 <script>
-  document.querySelectorAll('.add-to-cart').forEach(button => {
-  button.addEventListener('click', function() {
-    const produtoId = this.getAttribute('data-produtoid');
-    const quantidade = 1; // Ajuste conforme necessário
+document.querySelectorAll('.add-to-cart').forEach(button => {
+    button.addEventListener('click', function() {
+        const produtoId = this.getAttribute('data-produtoid');
+        if (!produtoId) {
+            console.error("Não foi possível encontrar o ID do produto para este botão.");
+            return;
+        }
 
-    fetch(`/carrinho/adicionar/${produtoId}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify({ quantidade: quantidade })
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.message === "Produto obtido com sucesso") {
-        updateLocalStorageCart(data.produtoId, data.quantidade, data.nome, data.precoUnitario);
-        alert('Produto adicionado ao carrinho!');
-      } else {
-        alert(data.message);
-      }
-    })
-    .catch(error => {
-      console.error('Erro:', error);
-      alert('Falha ao adicionar o produto ao carrinho.');
+        const quantidade = 1; // Ajuste conforme necessário
+
+        fetch(`/carrinho/adicionar/${produtoId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ quantidade: quantidade })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Falha na resposta do servidor: ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success && data.produto) {
+                console.log('Dados do produto recebidos:', data.produto);
+                updateLocalStorageCart(data.produto.produtoId, quantidade, data.produto.nome, data.produto.precoUnitario, data.produto.imagem);
+            } else {
+                console.error('Erro ao adicionar produto ao carrinho:', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao adicionar produto ao carrinho:', error.message);
+        });
     });
-  });
 });
 
-  function updateLocalStorageCart(produtoId, quantidade) {
+function updateLocalStorageCart(produtoId, quantidade, nome, precoUnitario, imagem) {
+  
+  console.log('Tentando atualizar o carrinho com:', {produtoId, quantidade, nome, precoUnitario, imagem});
+  
+
+  if (!produtoId || !nome || precoUnitario == null || imagem == null) {
+    console.error('Dados faltando para adicionar ao carrinho:', {produtoId, quantidade, nome, precoUnitario, imagem});
+    return;
+  }
+
   let carrinho = JSON.parse(localStorage.getItem('carrinho')) || {};
+  
   if (carrinho[produtoId]) {
-    carrinho[produtoId].quantidade += quantidade;
-  } else {
-    carrinho[produtoId] = { quantidade: quantidade };
+    let novaQuantidade = carrinho[produtoId].quantidade + quantidade;
+    if (novaQuantidade > 0) {
+      carrinho[produtoId].quantidade = novaQuantidade;
+    } else {
+      delete carrinho[produtoId]; // Remove o produto do carrinho se a quantidade for zero ou negativa
+    }
+  } else if (quantidade > 0) { // Só adiciona novos produtos com quantidade positiva
+    carrinho[produtoId] = { quantidade, nome, precoUnitario, imagem };
   }
 
   localStorage.setItem('carrinho', JSON.stringify(carrinho));
-  console.log('Carrinho atualizado no localStorage:', carrinho);
+  console.log('Carrinho atualizado:', carrinho);
 }
+
+
 </script>
