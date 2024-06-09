@@ -1,4 +1,4 @@
-# Projeto interdisciplinar segundo semestre do curso de Desenvolvimento de software multiplataforma da Fatec Zona Leste
+# Projeto interdisciplinar do segundo semestre do curso de Desenvolvimento de Software Multiplataforma da Fatec Zona Leste
 
 ## O software é um sistema de pedidos para uma hamburgueria fictícia
 
