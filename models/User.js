@@ -1,39 +1,41 @@
-const db = require("./banco");
-const { Sequelize } = require("sequelize");
+const db = require("./banco")
+const Pedido = require('./pedido');
 
 const User = db.sequelize.define("User", {
-  UserId: {
-    type: db.Sequelize.INTEGER,
-    autoIncrement: true,
-    primaryKey: true,
-  },
-  nome: {
-    type: db.Sequelize.STRING,
-    allowNull: false,
-  },
-  email: {
-    type: db.Sequelize.STRING,
-    allowNull: false,
-  },
-  endereco: { 
-    type: db.Sequelize.STRING,
-    allowNull: true, 
-  },
-  telefone: { 
-    type: db.Sequelize.STRING,
-    allowNull: true, 
-  },
-  cpf: {
-    type: db.Sequelize.STRING,
-    allowNull: false,
-  },
-  password: {
-    type: db.Sequelize.STRING,
-    allowNull: false,
-  },
-});
-
-module.exports = User;
+    UserId: {
+      type: db.Sequelize.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    foto: {
+        type: db.Sequelize.STRING,
+        allowNull: true,
+      },
+    nome: {
+      type: db.Sequelize.STRING,
+      allowNull: false,
+    },
+    email: {
+      type: db.Sequelize.STRING,
+      allowNull: false,
+    },
+    endereco: { 
+      type: db.Sequelize.STRING,
+      allowNull: true, 
+    },
+    telefone: { 
+      type: db.Sequelize.STRING,
+      allowNull: true, 
+    },
+    cpf: {
+      type: db.Sequelize.STRING,
+      allowNull: false,
+    },
+    password: {
+      type: db.Sequelize.STRING,
+      allowNull: false,
+    },
+  });
 
 //Adicionando login de adms automaticamente ao ser iniciada
 // User.addHook('afterSync', 'addInitialData', async () => {
@@ -47,19 +49,5 @@ module.exports = User;
 //     }
 // });
 
-// Sincronizando o modelo com o banco de dados
-// (async () => {
-//     try {
-//         await User.sync({});
-//         console.log('Estrutura do banco de dados sincronizada com sucesso!');
-//     } catch (error) {
-//         console.error('Erro ao sincronizar a estrutura do banco de dados:', error);
-//     }
-// })();
-
-    // User.hasMany(Pedido, {
-    //     constraint: true,
-    //     foreignKey: 'PedidoID'}
-    // );
 
 module.exports = User

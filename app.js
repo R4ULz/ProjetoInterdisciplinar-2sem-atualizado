@@ -46,6 +46,8 @@ app.engine("handlebars", handlebars({
   }
 }));
 
+app.use('/public', express.static(path.join(__dirname, 'public')));
+
 app.set("view engine", "handlebars");
 
 //definindo acesso a pasta publica
