@@ -27,8 +27,8 @@
               <div class="">
 
               </div>
-              <div class="flex flex-col gap-5">
-                <div class="flex gap-7">
+              <div id="pedidosContainer" class="flex flex-col gap-5">
+                {{!-- <div class="flex gap-7">
                   <div class="flex flex-col">
                     <p>ID do pedido: #222</p>
                     <p class="text-xs">HORA: 15:22</p>
@@ -41,7 +41,7 @@
                 <div class="flex items-center gap-6">
                   <p>Total do pedido: R$ 89,99</p>
                   <button class="px-7  py-1 bg-orange-500 rounded-full text-white">Detalhes</button>
-                </div>
+                </div> --}}
               </div>
             </div>
           </div>
@@ -50,3 +50,38 @@
     </div>
   </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  fetch('/api/meus-pedidos', { method: 'GET' })
+    .then(response => response.json())
+    .then(data => {
+      console.log("teste", data); // Primeiro, imprima os dados para ver o que está sendo recebido
+      if (!data.success || !Array.isArray(data.pedidos)) {
+        console.error('Esperava-se um array, recebido:', data);
+        return; // Pare a execução se não for um array
+      }
+
+      const container = document.getElementById('pedidosContainer');
+      data.pedidos.forEach(pedido => { // Certifique-se de iterar sobre data.pedidos, que é o array
+        console.log(pedido);
+        const total = Number(pedido.total); // Garante que total seja um número
+        const pedidoElement = document.createElement('div');
+        pedidoElement.className = 'flex justify-between items-center bg-gray-50 p-4 rounded-lg shadow';
+        pedidoElement.innerHTML = `
+          <div>
+            <p>ID do pedido: #${pedido.PedidoId}</p>
+            <p class="text-xs">HORA: ${pedido.createdAt}</p>
+            <p class="text-xs">DATA: ${pedido.data}</p>
+          </div>
+          <div>
+            <p>Status: ${pedido.Status} <div class="w-[10px] h-[10px] bg-orange-500 rounded-full" style="background-color: ${pedido.statusColor};"></div></p>
+            <p>Total do pedido: R$ ${total.toFixed(2)}</p>
+            <button class="px-7 py-1 bg-orange-500 rounded-full text-white">Detalhes</button>
+          </div>
+        `;
+        container.appendChild(pedidoElement);
+      });
+    })
+    .catch(error => console.error('Erro ao buscar pedidos:', error));
+});
+</script>

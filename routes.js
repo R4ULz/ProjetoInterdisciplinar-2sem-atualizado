@@ -1,12 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const Produto = require("./models/produto");
-const Pedido = require("./models/pedido");
-const User = require("./models/User");
 const db = require("./models/banco");
 const path = require("path");
-const Pedido_Produto = require("./models/pedido_produto");
-const Gerente = require("./models/gerente");
+const { Sequelize } = require('sequelize');
+const { Pedido, Pedido_Produto, Produto, Gerente, User} = require('./models');
 const bcrypt = require("bcryptjs");
 const { passport, authMiddleware } = require("./config/auth");
 const multer = require("multer");
@@ -566,38 +563,62 @@ router.post("/carrinho/adicionar/:produtoId", async (req, res) => {
   }
 });
 
-router.get("/thanku", (req, res) => {
-  res.render("thankU");
-});
+router.post('/api/pedidos', async (req, res) => {
+  if (!req.user) {
+    return res.status(403).json({ success: false, message: 'Usuário não autenticado' });
+  }
 
-router.post("/confirmarPedido", async (req, res) => {
-  const { carrinho } = req.body; // O carrinho é esperado como { produtoId: { quantidade, precoUnitario, ... }, ... }
+  const { carrinho, total } = req.body;
+  if (!carrinho) {
+    return res.status(400).json({ success: false, message: 'Carrinho vazio' });
+  }
 
+  console.log("Total recebido:", total);
+  console.log("Carrinho recebido:", carrinho);
   try {
+    // Criar novo pedido com total
     const novoPedido = await Pedido.create({
-      UserId: req.user.id, // Asumindo que o usuário está autenticado e seu id está disponível
-      status: "Confirmado",
-      // outros campos necessários
-    });
+      UserId: req.user.UserId,
+      Status: 'Preparando',
+      Total: total  // Certifique-se de que total está sendo passado corretamente
+    })
 
-    for (const produtoId in carrinho) {
-      const { quantidade, precoUnitario } = carrinho[produtoId];
-      await PedidoProduto.create({
-        PedidoId: novoPedido.id,
-        ProdutoId: produtoId,
-        quantidade: quantidade,
-        precoUnitario: precoUnitario,
-      });
-    }
+      const produtosPedido = Object.entries(carrinho).map(([produtoId, produto]) => ({
+      PedidoId: novoPedido.PedidoId,
+      ProdutoId: parseInt(produtoId),
+      Quantidade: produto.quantidade,
+      PrecoUnitario: produto.precoUnitario
+    }));
 
-    res.json({ success: true, message: "Pedido confirmado com sucesso!" });
+    await Pedido_Produto.bulkCreate(produtosPedido);
+
+    res.json({ success: true, message: 'Pedido criado com sucesso!', pedidoId: novoPedido.PedidoId });
   } catch (error) {
-    console.error("Erro ao salvar o pedido:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Erro ao processar o pedido." });
+    console.error('Erro ao criar pedido:', error);
+    res.status(500).json({ success: false, message: 'Erro ao processar o pedido.' });
   }
 });
+
+router.get('/api/meus-pedidos', async (req, res) => {
+  try {
+    const userId = req.user.UserId;
+    const pedidos = await Pedido.findAll({
+      where: { UserId: userId },
+      include: [{ model: Pedido_Produto, include: [Produto] }],
+      attributes: [
+        'PedidoId',
+        'Status',
+        [Sequelize.fn('sum', Sequelize.col('pedido_produtos.precoUnitario')), 'Total']
+      ],
+      group: ['PedidoId']
+    });
+    res.json({ success: true, pedidos: pedidos });
+  } catch (error) {
+    console.error('Erro ao buscar pedidos:', error);
+    res.status(500).json({ success: false, message: 'Erro ao processar a solicitação.' });
+  }
+});
+
 
 router.get("/gerenciarGerente", (req, res) => {
   res.render("cadastrarGerente");
