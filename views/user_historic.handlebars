@@ -68,15 +68,21 @@ document.addEventListener('DOMContentLoaded', function() {
         const pedidoElement = document.createElement('div');
         pedidoElement.className = 'flex justify-between items-center bg-gray-50 p-4 rounded-lg shadow';
         pedidoElement.innerHTML = `
-          <div>
-            <p>ID do pedido: #${pedido.PedidoId}</p>
-            <p class="text-xs">HORA: ${pedido.createdAt}</p>
-            <p class="text-xs">DATA: ${pedido.data}</p>
-          </div>
-          <div>
-            <p>Status: ${pedido.Status} <div class="w-[10px] h-[10px] bg-orange-500 rounded-full" style="background-color: ${pedido.statusColor};"></div></p>
-            <p>Total do pedido: R$ ${total.toFixed(2)}</p>
-            <button class="px-7 py-1 bg-orange-500 rounded-full text-white">Detalhes</button>
+          <div class="flex gap-8 justify-between items-center">
+            <div class="flex flex-col gap-4 items-center">
+              <p>ID do pedido: #${pedido.PedidoId}</p>
+              <p class="text-xs">HORA: ${pedido.createdAt}</p>
+              <p class="text-xs">DATA: ${pedido.data}</p>
+            </div>
+            <div class="flex flex-col gap-1">
+              <div class="flex gap-2 items-center">
+                <p>Status: ${pedido.Status} </p>
+                <div class="w-[10px] h-[10px] bg-orange-500 rounded-full flex" style="background-color: ${pedido.statusColor};">
+              </div>
+            </div>
+              <p>Total do pedido: R$ ${pedido.total}</p>
+              <button class="px-7 py-1 bg-orange-500 rounded-full text-white">Detalhes</button>
+            </div>
           </div>
         `;
         container.appendChild(pedidoElement);
