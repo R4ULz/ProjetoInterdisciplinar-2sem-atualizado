@@ -432,19 +432,25 @@ router.get("/carrinho", authMiddleware, async (req, res) => {
       include: [
         {
           model: Pedido_Produto,
-          include: [Produto],
-        },
-      ],
+          as: 'pedido_produtos', // Usando o alias correto
+          include: [
+            {
+              model: Produto,
+              as: 'Produto' // Usando o alias correto
+            }
+          ]
+        }
+      ]
     });
 
     if (!pedido) {
       return res.render("cart", { produtos: [], subtotal: 0.0 }); // Mostra carrinho vazio se não houver pedido
     }
 
-    console.log("Pedido encontrado:", pedido);
+    console.log("Pedido encontrado:", JSON.stringify(pedido, null, 2));
 
-    const produtos = pedido.Pedido_Produtos.map((item) => {
-      if (!item.produto) {
+    const produtos = pedido.pedido_produtos.map((item) => {
+      if (!item.Produto) {
         console.error(
           "Produto não encontrado para o Pedido_Produto com ID:",
           item.ProdutoId
@@ -453,10 +459,10 @@ router.get("/carrinho", authMiddleware, async (req, res) => {
       }
 
       return {
-        nome: item.produto.nome,
-        descricao: item.produto.descricao,
-        imagem: item.produto.imagem,
-        valor: item.produto.valor,
+        nome: item.Produto.nome,
+        descricao: item.Produto.descricao,
+        imagem: item.Produto.imagem,
+        valor: item.Produto.valor,
         quantidade: item.Quantidade,
         ProdutoId: item.ProdutoId,
       };
@@ -480,6 +486,7 @@ router.get("/carrinho", authMiddleware, async (req, res) => {
     res.status(500).send("Erro ao processar o pedido de carrinho.");
   }
 });
+
 
 // Atualizar a quantidade do produto
 router.post("/carrinho/update/:produtoId", async (req, res) => {
@@ -604,20 +611,35 @@ router.get('/api/meus-pedidos', async (req, res) => {
     const userId = req.user.UserId;
     const pedidos = await Pedido.findAll({
       where: { UserId: userId },
-      include: [{ model: Pedido_Produto, include: [Produto] }],
+      include: [
+        {
+          model: Pedido_Produto,
+          as: 'pedido_produtos',
+          include: [{
+            model: Produto,
+            as: 'Produto'
+          }]
+        }
+      ],
       attributes: [
         'PedidoId',
         'Status',
-        [Sequelize.fn('sum', Sequelize.col('pedido_produtos.precoUnitario')), 'Total']
+        'createdAt',
+        [Sequelize.literal('SUM(pedido_produtos.precoUnitario * pedido_produtos.quantidade)'), 'total']
       ],
-      group: ['PedidoId']
+      group: ['Pedido.PedidoId', 'pedido_produtos.PedidoId', 'pedido_produtos.ProdutoId', 'pedido_produtos.PedidoId']
     });
+
+    // Log detalhado da estrutura dos dados retornados
+    console.log("Pedidos encontrados:", JSON.stringify(pedidos, null, 2));
+
     res.json({ success: true, pedidos: pedidos });
   } catch (error) {
     console.error('Erro ao buscar pedidos:', error);
     res.status(500).json({ success: false, message: 'Erro ao processar a solicitação.' });
   }
 });
+
 
 
 router.get("/gerenciarGerente", (req, res) => {
