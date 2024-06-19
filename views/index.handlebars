@@ -32,9 +32,11 @@
 
 <section id="ofertas" class="w-full h-fit px-5 flex justify-center mt-10">
   <div class="max-w-screen-2xl w-full h-fit flex flex-col gap-5">
-    <div class="flex justify-start items-center gap-1">
-      <div class="bg-gradient-to-b from-orange-400 to-red-600 w-2 h-4 sm:h-6"></div>
-      <h2 class="font-bold text-2xl sm:text-3xl capitalize">Krusty ofertas hoje</h2>
+    <div class="flex flex-col md:flex-row justify-start items-center gap-1">
+      <div class="flex items-center">
+        <div class="bg-gradient-to-b from-orange-400 to-red-600 w-2 h-4 sm:h-6"></div>
+        <h2 class="font-bold text-2xl sm:text-3xl capitalize">Krusty ofertas hoje</h2>
+      </div>
       <div class="ml-auto font-bold text-1xl sm:text-1xl capitalize flex items-center gap-2">
         <label for="categoria">Selecione uma categoria:</label>
         <select id="categoria" name="categoria" class="border border-gray-300 rounded-md py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
@@ -74,7 +76,7 @@
       <div class="bg-gradient-to-b from-orange-400 to-red-600 w-2 h-4 sm:h-6"></div>
       <h2 class="font-bold text-2xl sm:text-3xl capitalize">Explore o menu krusty</h2>
     </div>
-    <div class="flex overflow-x-auto overflow-y-hidden whitespace-nowrap w-full gap-3 custom-scrollbar draggable">
+    <div id="custom-select-page"class="flex overflow-x-auto overflow-y-hidden whitespace-nowrap w-full gap-3 custom-scrollbar draggable">
       <div
         class="w-[245px] lg:w-[297px] flex-shrink-0 w-48 cursor-pointer bg-white border border-gray-200 rounded-xl px-8 py-2 flex justify-center items-center gap-3 h-fit transition-all duration-300 ease-in-out hover:border-red-500 mb-3">
         <img class="w-16" src="/images/1.svg">
@@ -138,6 +140,13 @@
     </div>
   </div>
 </section>
+
+<style>
+        #custom-select-page ::selection {
+            background: transparent; /* Remove a cor de fundo */
+            color: inherit; /* Mantém a cor do texto */
+        }
+</style>
 
 <script>
   document.querySelectorAll('.add-to-cart').forEach(button => {

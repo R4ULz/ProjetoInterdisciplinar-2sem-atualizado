@@ -16,18 +16,15 @@
           <li><button class="border border-red-500 rounded-full px-6 py-1 text-red-500 font-semibold">Sair</button></li>
         </a>
       </ul>
-      <section class="flex flex-col mt-8 p-5 md:w-[80%] col-span-3 md:shadow-md bg-white md:shadow-inner md:mt-0">
+      <section class="flex flex-col mt-8 p-5 md:w-[80%] h-[500px] overflow-auto col-span-3 md:shadow-md bg-white md:shadow-inner md:mt-0">
         <div class="flex items-center gap-1">
           <div class="bg-gradient-to-b from-orange-400 to-red-600 w-1 h-4"></div>
           <h2>Histórico de <span>pedidos</span></h2>
         </div>
-        <div class="h-full w-full flex justify-center items-center p-4">
-          <div class="h-fit w-fit flex justify-center">
-            <div class="w-full bg-gray-50 flex gap-6">
-              <div class="">
-
-              </div>
-              <div id="pedidosContainer" class="flex flex-col gap-5">
+        <div class="h-[900px] w-full flex justify-center items-center p-4">
+          <div class="h-fit w-full flex justify-center">
+            <div class="w-full bg-gray-100 flex gap-6">
+              <div id="pedidosContainer" class="flex flex-col gap-5 w-full p-2 h-fit">
                 {{!-- <div class="flex gap-7">
                   <div class="flex flex-col">
                     <p>ID do pedido: #222</p>
@@ -66,22 +63,31 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log(pedido);
         const total = Number(pedido.total); // Garante que total seja um número
         const pedidoElement = document.createElement('div');
-        pedidoElement.className = 'flex justify-between items-center bg-gray-50 p-4 rounded-lg shadow';
+        pedidoElement.className = 'flex justify-between items-center bg-gray-50 p-2 rounded-lg shadow';
         pedidoElement.innerHTML = `
-          <div class="flex gap-8 justify-between items-center">
-            <div class="flex flex-col gap-4 items-center">
+          <div class="flex gap-5 md:gap-8 justify-between md:items-center w-full md:flex-row flex-col md:text-sm text-xs">
+            <div class="flex flex-col gap-2 md:gap-4">
               <p>ID do pedido: #${pedido.PedidoId}</p>
               <p class="text-xs">HORA: ${pedido.createdAt}</p>
               <p class="text-xs">DATA: ${pedido.data}</p>
             </div>
-            <div class="flex flex-col gap-1">
+            <div class="flex flex-col gap-1 md:gap-5">
               <div class="flex gap-2 items-center">
                 <p>Status: ${pedido.Status} </p>
                 <div class="w-[10px] h-[10px] bg-orange-500 rounded-full flex" style="background-color: ${pedido.statusColor};">
               </div>
             </div>
               <p>Total do pedido: R$ ${pedido.total}</p>
-              <button class="px-7 py-1 bg-orange-500 rounded-full text-white">Detalhes</button>
+            </div>
+            <div class="w-full md:w-[180px] h-[80px] md:h-[100px] overflow-x-auto ">
+            <p>aAQASGJAIGO</p>
+            <p>aAQASGJAIGO</p>
+            <p>aAQASGJAIGO</p>
+            <p>aAQASGJAIGOgdagagadg</p>
+            <p>aAQASGJAIGO</p>
+            <p>aAQASGJAIGO</p>
+            <p>aAQASGJAIGO</p>
+            <p>aAQASGJAIGO</p>
             </div>
           </div>
         `;
