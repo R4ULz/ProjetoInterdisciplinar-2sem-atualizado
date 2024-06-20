@@ -32,6 +32,7 @@
 
 <section id="ofertas" class="w-full h-fit px-5 flex justify-center mt-10">
   <div class="max-w-screen-2xl w-full h-fit flex flex-col gap-5">
+<<<<<<< Updated upstream
     <div class="flex justify-start items-center gap-1">
       <div class="bg-gradient-to-b from-orange-400 to-red-600 w-2 h-4 sm:h-6"></div>
       <h2 class="font-bold text-2xl sm:text-3xl capitalize">Krusty ofertas hoje</h2>
@@ -43,6 +44,12 @@
           <option value="{{this}}">{{this}}</option>
           {{/each}}
         </select>
+=======
+    <div class="flex flex-col md:flex-row justify-start items-center gap-1">
+      <div class="flex items-center">
+        <div class="bg-gradient-to-b from-orange-400 to-red-600 w-2 h-4 sm:h-6"></div>
+        <h2 class="font-bold text-2xl sm:text-3xl capitalize">Krusty ofertas hoje</h2>
+>>>>>>> Stashed changes
       </div>
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3 produtos-container">
@@ -74,52 +81,61 @@
       <div class="bg-gradient-to-b from-orange-400 to-red-600 w-2 h-4 sm:h-6"></div>
       <h2 class="font-bold text-2xl sm:text-3xl capitalize">Explore o menu krusty</h2>
     </div>
+<<<<<<< Updated upstream
     <div class="flex overflow-x-auto overflow-y-hidden whitespace-nowrap w-full gap-3 custom-scrollbar draggable">
       <div
         class="w-[245px] lg:w-[297px] flex-shrink-0 w-48 cursor-pointer bg-white border border-gray-200 rounded-xl px-8 py-2 flex justify-center items-center gap-3 h-fit transition-all duration-300 ease-in-out hover:border-red-500 mb-3">
+=======
+    <div id="custom-select-page" class="flex overflow-x-auto overflow-y-hidden whitespace-nowrap w-full gap-3 custom-scrollbar ">
+     
+      <div id="category-todos" class="w-[245px] lg:w-[297px] flex-shrink-0 cursor-pointer bg-white border border-gray-200 rounded-xl px-8 py-2 flex justify-center items-center gap-3 h-fit transition-all duration-300 ease-in-out hover:border-red-500 mb-3">
+        <img class="w-16" src="/images/all.png">
+        <p class="text-xl flex flex-col">
+          <span class="bg-red-500 w-fit text-white px-2 rounded">Krusty</span>
+          <span class="ml-1">Todos</span>
+        </p>
+      </div>
+      <div id="category-lanches" class="w-[245px] lg:w-[297px] flex-shrink-0 cursor-pointer bg-white border border-gray-200 rounded-xl px-8 py-2 flex justify-center items-center gap-3 h-fit transition-all duration-300 ease-in-out hover:border-red-500 mb-3">
+>>>>>>> Stashed changes
         <img class="w-16" src="/images/1.svg">
         <p class="text-xl flex flex-col">
           <span class="bg-red-500 w-fit text-white px-2 rounded">Krusty</span>
-          <span class="ml-5">Lanches</span>
+          <span class="ml-1">Lanches</span>
         </p>
       </div>
-      <div
-        class="w-[245px] lg:w-[297px] flex-shrink-0 w-48 cursor-pointer bg-white border border-gray-200 rounded-xl px-8 py-2 flex justify-center items-center gap-3 h-fit transition-all duration-300 ease-in-out hover:border-red-500 mb-3">
+      <div id="category-bebidas" class="w-[245px] lg:w-[297px] flex-shrink-0 cursor-pointer bg-white border border-gray-200 rounded-xl px-8 py-2 flex justify-center items-center gap-3 h-fit transition-all duration-300 ease-in-out hover:border-red-500 mb-3">
         <img class="w-16" src="/images/2.svg">
         <p class="text-xl flex flex-col">
           <span class="bg-red-500 w-fit text-white px-2 rounded">Krusty</span>
-          <span class="ml-5">Bebidas</span>
+          <span class="ml-1">Bebidas</span>
         </p>
       </div>
-      <div
-        class="w-[245px] lg:w-[297px] flex-shrink-0 w-48 cursor-pointer bg-white border border-gray-200 rounded-xl px-8 py-2 flex justify-center items-center gap-3 h-fit transition-all duration-300 ease-in-out hover:border-red-500 mb-3">
+      <div id="category-porções" class="w-[245px] lg:w-[297px] flex-shrink-0 cursor-pointer bg-white border border-gray-200 rounded-xl px-8 py-2 flex justify-center items-center gap-3 h-fit transition-all duration-300 ease-in-out hover:border-red-500 mb-3">
         <img class="w-16" src="/images/3.svg">
         <p class="text-xl flex flex-col">
           <span class="bg-red-500 w-fit text-white px-2 rounded">Krusty</span>
-          <span class="ml-5">Fritos</span>
+          <span class="ml-1">Porções</span>
         </p>
       </div>
-      <div
-        class="w-[245px] lg:w-[297px] flex-shrink-0 w-48 cursor-pointer bg-white border border-gray-200 rounded-xl px-8 py-2 flex justify-center items-center gap-3 h-fit transition-all duration-300 ease-in-out hover:border-red-500 mb-3">
+      <div id="category-sobremesas" class="w-[245px] lg:w-[297px] flex-shrink-0 cursor-pointer bg-white border border-gray-200 rounded-xl px-8 py-2 flex justify-center items-center gap-3 h-fit transition-all duration-300 ease-in-out hover:border-red-500 mb-3">
         <img class="w-16" src="/images/4.svg">
         <p class="text-xl flex flex-col">
           <span class="bg-red-500 w-fit text-white px-2 rounded">Krusty</span>
-          <span class="ml-5">Sobremesas</span>
+          <span class="ml-1">Sobremesas</span>
         </p>
       </div>
-      <div
-        class="w-[245px] lg:w-[297px] flex-shrink-0 w-48 cursor-pointer bg-white border border-gray-200 rounded-xl px-8 py-2 flex justify-center items-center gap-3 h-fit transition-all duration-300 ease-in-out hover:border-red-500 mb-3">
+      <div id="category-combos" class="w-[245px] lg:w-[297px] flex-shrink-0 cursor-pointer bg-white border border-gray-200 rounded-xl px-8 py-2 flex justify-center items-center gap-3 h-fit transition-all duration-300 ease-in-out hover:border-red-500 mb-3">
         <img class="w-16" src="/images/5.svg">
         <p class="text-xl flex flex-col">
           <span class="bg-red-500 w-fit text-white px-2 rounded">Krusty</span>
-          <span class="ml-5">Combos</span>
+          <span class="ml-1">Combos</span>
         </p>
       </div>
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3 produtos-container">
       {{#each Produto}}
       {{#dataValues}}
-      <div class="border border-gray-200 w-full h-fit flex flex-col gap-3 p-5 bg-white rounded-lg">
+      <div class="border border-gray-200 w-full h-fit flex flex-col gap-3 p-5 bg-white rounded-lg" data-category="{{categoria}}">
         <div class="rounded-xl">
           <img src="images/{{imagem}}" alt="{{nome}}" class="rounded-xl produto-imagem">
         </div>
@@ -129,8 +145,7 @@
         </div>
         <div class="flex justify-between items-center">
           <span class="text-xl font-bold text-teal-500">R$ {{valor}},00</span>
-          <button data-produtoid="{{ProdutoId}}"
-            class="bg-orange-500 text-sm text-white px-6 py-2 rounded-full font-bold uppercase add-to-cart">adicionar</button>
+          <button data-produtoid="{{ProdutoId}}" class="bg-orange-500 text-sm text-white px-6 py-2 rounded-full font-bold uppercase add-to-cart">adicionar</button>
         </div>
       </div>
       {{/dataValues}}
@@ -139,14 +154,52 @@
   </div>
 </section>
 
+<<<<<<< Updated upstream
 <script>
   const categorias = ["Lanches", "Bebidas", "Sobremesas", "Combos", "Porções"];
+=======
+<style>
+  #custom-select-page ::selection {
+    background: transparent; /* Remove a cor de fundo */
+    color: inherit; /* Mantém a cor do texto */
+  }
+</style>
+
+<script>
+  // Adiciona event listeners aos botões de categoria
+  document.querySelectorAll('[id^="category-"]').forEach(button => {
+    button.addEventListener('click', function () {
+      const selectedCategory = this.id.replace('category-', ''); // Extrai a categoria do id do botão
+      filterProductsByCategory(selectedCategory);
+    });
+  });
+
+  // Função para filtrar produtos com base na categoria
+    function filterProductsByCategory(category) {
+    const products = document.querySelectorAll('.produtos-container > div');
+
+    products.forEach(product => {
+      const productCategory = product.getAttribute('data-category');
+      if (category === 'todos' || productCategory === category) {
+        product.style.display = 'inline-block'; // Mostra o produto
+      } else {
+        product.style.display = 'none'; // Esconde o produto
+      }
+    });
+  }
+
+  document.querySelectorAll('.add-to-cart').forEach(button => {
+    button.addEventListener('click', function () {
+      const produtoId = this.getAttribute('data-produtoid');
+      console.log("Produto ID capturado:", produtoId);  // Verifica se o ID é capturado corretamente
+>>>>>>> Stashed changes
 
 document.addEventListener('DOMContentLoaded', function () {
   const categorias = ["Lanches", "Bebidas", "Sobremesas", "Combos", "Porções"];
   const selectCategoria = document.getElementById('categoria');
   const produtosContainer = document.querySelector('.produtos-container');
 
+<<<<<<< Updated upstream
   // Populate the category select dropdown
   categorias.forEach(categoria => {
     const option = document.createElement('option');
@@ -170,6 +223,40 @@ document.addEventListener('DOMContentLoaded', function () {
   // Add change event listener to category select
   selectCategoria.addEventListener('change', function () {
     const categoriaSelecionada = this.value;
+=======
+      fetch(`/carrinho/adicionar/${produtoId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ quantidade: quantidade })
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Falha na resposta do servidor: ' + response.statusText);
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.success && data.produto) {
+          console.log('Produto adicionado:', data);
+          updateLocalStorageCart(data.produto.produtoId, quantidade, data.produto.nome, data.produto.precoUnitario, data.produto.imagem);
+          alert('Produto adicionado ao carrinho!');
+          atualizarQuantidadeNoIconeCarrinho();
+        } else {
+          console.error('Erro ao adicionar produto ao carrinho:', data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Erro ao adicionar produto ao carrinho:', error);
+      });
+    });
+  });
+
+  function updateLocalStorageCart(produtoId, quantidade, nome, precoUnitario, imagem) {
+    console.log('Tentando atualizar o carrinho com:', { produtoId, quantidade, nome, precoUnitario, imagem });
+>>>>>>> Stashed changes
 
     if (categoriaSelecionada) {
       fetch(`/produtos/${categoriaSelecionada}`)
@@ -231,5 +318,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     return produtoElement;
   }
+<<<<<<< Updated upstream
 });
 </script>
+=======
+</script>
+>>>>>>> Stashed changes
