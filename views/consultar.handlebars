@@ -28,7 +28,7 @@
       <div
         class="grid grid-cols-5 gap-3 w-full h-full p-1 items-center justify-center auto-rows-max text-sm md:text-lg"
       >
-        {{#each produto}}
+        {{#each Produto}}
           {{#dataValues}}
             <div
               class="auto-rows-max col-start-1 flex items-center justify-center"
@@ -46,11 +46,11 @@
               class="auto-rows-max col-start-5 flex gap-4 items-center justify-center text:sm"
             >
               <button type="button" class=" text-sm border border-red-500 rounded-lg px-3 py-1 text-red-500 font-semibold"><a
-                  href="/editar/{{id}}"
+                  href="/editar/{{ProdutoId}}"
                   style="color:inherit"
                 >Editar</a></button>
               <button type="button" class="text-sm border bg-red-500 rounded-lg px-3 py-1 text-white font-semibold"><a
-                  href="/excluir/{{id}}"
+                  href="/excluir/{{ProdutoId}}"
                   style="color:inherit"
                 >Excluir</a></button>
 

@@ -145,10 +145,10 @@
 </style>
 
 <script>
-
   document.addEventListener('DOMContentLoaded',()=>{
       atualizarQuantidadeNoIconeCarrinho();
   });
+
   document.querySelectorAll('.add-to-cart').forEach(button => {
     button.addEventListener('click', function () {
       const produtoId = this.getAttribute('data-produtoid');
@@ -213,6 +213,8 @@
 
     sessionStorage.setItem('carrinho', JSON.stringify(carrinho));
     console.log('Carrinho atualizado no sessionStorage:', carrinho);
+  };
+  
   // Adiciona event listeners aos botões de categoria
   document.querySelectorAll('[id^="category-"]').forEach(button => {
     button.addEventListener('click', function () {

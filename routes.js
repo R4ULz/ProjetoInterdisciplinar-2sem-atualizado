@@ -120,10 +120,10 @@ router.post("/cadastrarProduto", upload.single("imagem"), (req, res) => {
 module.exports = router;
 
 //rota para consultar
-router.get("/consultar", authMiddleware, (req, res) => {
+router.get("/consultar", (req, res) => {
   Produto.findAll()
     .then((produtos) => {
-      console.log("cheghei aquii");
+      console.log("cheghuei aquii");
       res.render("consultar", { Produto: produtos });
     })
     .catch(function (erro) {
@@ -132,8 +132,8 @@ router.get("/consultar", authMiddleware, (req, res) => {
 });
 
 //rota para editar
-router.get("/editar/:id", authMiddleware, function (req, res) {
-  Produto.findAll({ where: { id: req.params.id } })
+router.get("/editar/:id", function (req, res) {
+  Produto.findAll({ where: { ProdutoId: req.params.id } })
     .then(function (produtos) {
       res.render("editarProduto", { Produto: produtos });
     })
