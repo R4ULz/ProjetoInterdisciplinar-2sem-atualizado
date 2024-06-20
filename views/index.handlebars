@@ -32,24 +32,12 @@
 
 <section id="ofertas" class="w-full h-fit px-5 flex justify-center mt-10">
   <div class="max-w-screen-2xl w-full h-fit flex flex-col gap-5">
-<<<<<<< Updated upstream
-    <div class="flex justify-start items-center gap-1">
-      <div class="bg-gradient-to-b from-orange-400 to-red-600 w-2 h-4 sm:h-6"></div>
-      <h2 class="font-bold text-2xl sm:text-3xl capitalize">Krusty ofertas hoje</h2>
-      <div class="ml-auto font-bold text-1xl sm:text-1xl capitalize flex items-center gap-2">
-        <label for="categoria">Selecione uma categoria:</label>
-        <select id="categoria" name="categoria" class="border border-gray-300 rounded-md py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
-          <option value="">Todas as categorias</option>
-          {{#each categorias}}
-          <option value="{{this}}">{{this}}</option>
-          {{/each}}
-        </select>
-=======
+
     <div class="flex flex-col md:flex-row justify-start items-center gap-1">
       <div class="flex items-center">
         <div class="bg-gradient-to-b from-orange-400 to-red-600 w-2 h-4 sm:h-6"></div>
         <h2 class="font-bold text-2xl sm:text-3xl capitalize">Krusty ofertas hoje</h2>
->>>>>>> Stashed changes
+
       </div>
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3 produtos-container">
@@ -81,13 +69,7 @@
       <div class="bg-gradient-to-b from-orange-400 to-red-600 w-2 h-4 sm:h-6"></div>
       <h2 class="font-bold text-2xl sm:text-3xl capitalize">Explore o menu krusty</h2>
     </div>
-<<<<<<< Updated upstream
-    <div class="flex overflow-x-auto overflow-y-hidden whitespace-nowrap w-full gap-3 custom-scrollbar draggable">
-      <div
-        class="w-[245px] lg:w-[297px] flex-shrink-0 w-48 cursor-pointer bg-white border border-gray-200 rounded-xl px-8 py-2 flex justify-center items-center gap-3 h-fit transition-all duration-300 ease-in-out hover:border-red-500 mb-3">
-=======
-    <div id="custom-select-page" class="flex overflow-x-auto overflow-y-hidden whitespace-nowrap w-full gap-3 custom-scrollbar ">
-     
+    <div id="custom-select-page" class="flex overflow-x-auto overflow-y-hidden whitespace-nowrap w-full gap-3 custom-scrollbar draggable">
       <div id="category-todos" class="w-[245px] lg:w-[297px] flex-shrink-0 cursor-pointer bg-white border border-gray-200 rounded-xl px-8 py-2 flex justify-center items-center gap-3 h-fit transition-all duration-300 ease-in-out hover:border-red-500 mb-3">
         <img class="w-16" src="/images/all.png">
         <p class="text-xl flex flex-col">
@@ -96,7 +78,6 @@
         </p>
       </div>
       <div id="category-lanches" class="w-[245px] lg:w-[297px] flex-shrink-0 cursor-pointer bg-white border border-gray-200 rounded-xl px-8 py-2 flex justify-center items-center gap-3 h-fit transition-all duration-300 ease-in-out hover:border-red-500 mb-3">
->>>>>>> Stashed changes
         <img class="w-16" src="/images/1.svg">
         <p class="text-xl flex flex-col">
           <span class="bg-red-500 w-fit text-white px-2 rounded">Krusty</span>
@@ -154,10 +135,6 @@
   </div>
 </section>
 
-<<<<<<< Updated upstream
-<script>
-  const categorias = ["Lanches", "Bebidas", "Sobremesas", "Combos", "Porções"];
-=======
 <style>
   #custom-select-page ::selection {
     background: transparent; /* Remove a cor de fundo */
@@ -175,13 +152,13 @@
   });
 
   // Função para filtrar produtos com base na categoria
-    function filterProductsByCategory(category) {
+  function filterProductsByCategory(category) {
     const products = document.querySelectorAll('.produtos-container > div');
 
     products.forEach(product => {
       const productCategory = product.getAttribute('data-category');
       if (category === 'todos' || productCategory === category) {
-        product.style.display = 'inline-block'; // Mostra o produto
+        product.style.display = 'block'; // Mostra o produto
       } else {
         product.style.display = 'none'; // Esconde o produto
       }
@@ -192,38 +169,9 @@
     button.addEventListener('click', function () {
       const produtoId = this.getAttribute('data-produtoid');
       console.log("Produto ID capturado:", produtoId);  // Verifica se o ID é capturado corretamente
->>>>>>> Stashed changes
 
-document.addEventListener('DOMContentLoaded', function () {
-  const categorias = ["Lanches", "Bebidas", "Sobremesas", "Combos", "Porções"];
-  const selectCategoria = document.getElementById('categoria');
-  const produtosContainer = document.querySelector('.produtos-container');
+      const quantidade = 1;  // Quantidade inicial quando adicionado ao carrinho
 
-<<<<<<< Updated upstream
-  // Populate the category select dropdown
-  categorias.forEach(categoria => {
-    const option = document.createElement('option');
-    option.value = categoria;
-    option.textContent = categoria;
-    selectCategoria.appendChild(option);
-  });
-
-  // Fetch all products initially
-  fetch('/produtos')
-    .then(response => response.json())
-    .then(produtos => {
-      produtosContainer.innerHTML = '';
-      produtos.forEach(produto => {
-        const produtoElement = criarElementoProduto(produto);
-        produtosContainer.appendChild(produtoElement);
-      });
-    })
-    .catch(error => console.error('Erro ao buscar produtos:', error));
-
-  // Add change event listener to category select
-  selectCategoria.addEventListener('change', function () {
-    const categoriaSelecionada = this.value;
-=======
       fetch(`/carrinho/adicionar/${produtoId}`, {
         method: 'POST',
         headers: {
@@ -256,71 +204,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function updateLocalStorageCart(produtoId, quantidade, nome, precoUnitario, imagem) {
     console.log('Tentando atualizar o carrinho com:', { produtoId, quantidade, nome, precoUnitario, imagem });
->>>>>>> Stashed changes
 
-    if (categoriaSelecionada) {
-      fetch(`/produtos/${categoriaSelecionada}`)
-        .then(response => response.json())
-        .then(produtos => {
-          produtosContainer.innerHTML = '';
-          produtos.forEach(produto => {
-            const produtoElement = criarElementoProduto(produto);
-            produtosContainer.appendChild(produtoElement);
-          });
-        })
-        .catch(error => console.error('Erro ao buscar produtos:', error));
-    } else {
-      // Fetch all products when "Todas as categorias" is selected
-      fetch('/produtos')
-        .then(response => response.json())
-        .then(produtos => {
-          produtosContainer.innerHTML = '';
-          produtos.forEach(produto => {
-            const produtoElement = criarElementoProduto(produto);
-            produtosContainer.appendChild(produtoElement);
-          });
-        })
-        .catch(error => console.error('Erro ao buscar produtos:', error));
+    if (!produtoId || !nome || precoUnitario == null || imagem == null) {
+      console.error('Dados faltando para adicionar ao carrinho:', { produtoId, quantidade, nome, precoUnitario, imagem });
+      return;
     }
-  });
 
-  function criarElementoProduto(produto) {
-    const produtoElement = document.createElement('div');
-    produtoElement.classList.add('border', 'border-gray-200', 'w-full', 'h-fit', 'flex', 'flex-col', 'gap-3', 'p-5', 'bg-white', 'rounded-lg');
+    let carrinho = JSON.parse(sessionStorage.getItem('carrinho')) || {};
 
-    const imagemProduto = document.createElement('img');
-    imagemProduto.classList.add('rounded-xl', 'produto-imagem');
-    imagemProduto.src = `images/${produto.imagem}`;
-    imagemProduto.alt = produto.nome;
+    if (carrinho[produtoId]) {
+      let novaQuantidade = carrinho[produtoId].quantidade + quantidade;
+      if (novaQuantidade > 0) {
+        carrinho[produtoId].quantidade = novaQuantidade;
+        carrinho[produtoId].nome = nome;
+        carrinho[produtoId].precoUnitario = precoUnitario;
+        carrinho[produtoId].imagem = imagem;
+      } else {
+        delete carrinho[produtoId]; // Remove o produto do carrinho se a quantidade for zero ou negativa
+      }
+    } else if (quantidade > 0) { // Só adiciona novos produtos com quantidade positiva
+      carrinho[produtoId] = { quantidade, nome, precoUnitario, imagem };
+    }
 
-    const nomeProduto = document.createElement('h2');
-    nomeProduto.classList.add('font-bold', 'text-xl');
-    nomeProduto.textContent = produto.nome;
-
-    const descricaoProduto = document.createElement('p');
-    descricaoProduto.classList.add('text-gray-600', 'text-sm');
-    descricaoProduto.textContent = produto.descricao;
-
-    const precoProduto = document.createElement('span');
-    precoProduto.classList.add('text-xl', 'font-bold', 'text-teal-500');
-    precoProduto.textContent = `R$ ${produto.valor},00`;
-
-    const botaoAdicionar = document.createElement('button');
-    botaoAdicionar.classList.add('bg-orange-500', 'text-sm', 'text-white', 'px-6', 'py-2', 'rounded-full', 'font-bold', 'uppercase', 'add-to-cart');
-    botaoAdicionar.setAttribute('data-produtoid', produto.ProdutoId);
-    botaoAdicionar.textContent = 'adicionar';
-
-    produtoElement.appendChild(imagemProduto);
-    produtoElement.appendChild(nomeProduto);
-    produtoElement.appendChild(descricaoProduto);
-    produtoElement.appendChild(precoProduto);
-    produtoElement.appendChild(botaoAdicionar);
-
-    return produtoElement;
+    sessionStorage.setItem('carrinho', JSON.stringify(carrinho));
+    console.log('Carrinho atualizado no sessionStorage:', carrinho);
   }
-<<<<<<< Updated upstream
-});
 </script>
-=======
-</script>
->>>>>>> Stashed changes
