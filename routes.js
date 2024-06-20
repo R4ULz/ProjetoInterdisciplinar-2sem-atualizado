@@ -1,12 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const Produto = require("./models/produto");
-const Pedido = require("./models/pedido");
-const User = require("./models/User");
 const db = require("./models/banco");
 const path = require("path");
-const Pedido_Produto = require("./models/pedido_produto");
-const Gerente = require("./models/gerente");
+const { Sequelize } = require('sequelize');
+const { Pedido, Pedido_Produto, Produto, Gerente, User} = require('./models');
 const bcrypt = require("bcryptjs");
 const { passport, authMiddleware } = require("./config/auth");
 const multer = require("multer");
@@ -427,51 +424,78 @@ router.post("/alterar-senha", authMiddleware, async (req, res) => {
   res.redirect("/profile");
 });
 
-router.get("/carrinho", authMiddleware, async (req, res) => {
+router.get("/carrinho", async (req, res) => {
   try {
-    // Supondo que o modelo de Pedido armazene uma referência ao UserId
-    const pedido = await Pedido.findOne({
-      where: { UserId: req.user.UserId, Status: "ativo" }, // Ajuste o campo conforme seu modelo
-      include: [
-        {
-          model: Pedido_Produto,
-          include: [Produto],
-        },
-      ],
-    });
+    let pedido = null;
+    let produtos = [];
+    let subtotal = 0;
 
-    if (!pedido) {
-      return res.render("cart", { produtos: [], subtotal: 0.0 }); // Mostra carrinho vazio se não houver pedido
-    }
+    if (req.isAuthenticated && req.isAuthenticated()) {
+      // Usuário autenticado
+      pedido = await Pedido.findOne({
+        where: { UserId: req.user.UserId, Status: "ativo" }, // Ajuste o campo conforme seu modelo
+        include: [
+          {
+            model: Pedido_Produto,
+            as: 'pedido_produtos', // Usando o alias correto
+            include: [
+              {
+                model: Produto,
+                as: 'Produto' // Usando o alias correto
+              }
+            ]
+          }
+        ]
+      });
 
-    console.log("Pedido encontrado:", pedido);
+      if (pedido) {
+        console.log("Pedido encontrado:", JSON.stringify(pedido, null, 2));
 
-    const produtos = pedido.Pedido_Produtos.map((item) => {
-      if (!item.produto) {
-        console.error(
-          "Produto não encontrado para o Pedido_Produto com ID:",
-          item.ProdutoId
+        produtos = pedido.pedido_produtos.map((item) => {
+          if (!item.Produto) {
+            console.error(
+              "Produto não encontrado para o Pedido_Produto com ID:",
+              item.ProdutoId
+            );
+            return {}; // Retorna um objeto vazio ou padrão se não encontrar o produto
+          }
+
+          return {
+            nome: item.Produto.nome,
+            descricao: item.Produto.descricao,
+            imagem: item.Produto.imagem,
+            valor: item.Produto.valor,
+            quantidade: item.Quantidade,
+            ProdutoId: item.ProdutoId,
+          };
+        });
+
+        console.log("Produtos a serem renderizados:", produtos);
+
+        // Calcula o subtotal
+        subtotal = produtos.reduce(
+          (acc, curr) => acc + curr.quantidade * curr.valor,
+          0
         );
-        return {}; // Retorna um objeto vazio ou padrão se não encontrar o produto
       }
+    } else {
+      // Usuário não autenticado
+      const carrinho = JSON.parse(req.session.carrinho || '{}');
+      produtos = Object.keys(carrinho).map(produtoId => {
+        const produto = carrinho[produtoId];
+        subtotal += produto.quantidade * produto.precoUnitario;
+        return {
+          nome: produto.nome,
+          descricao: produto.descricao,
+          imagem: produto.imagem,
+          valor: produto.precoUnitario,
+          quantidade: produto.quantidade,
+          ProdutoId: produtoId,
+        };
+      });
 
-      return {
-        nome: item.produto.nome,
-        descricao: item.produto.descricao,
-        imagem: item.produto.imagem,
-        valor: item.produto.valor,
-        quantidade: item.Quantidade,
-        ProdutoId: item.ProdutoId,
-      };
-    });
-
-    console.log("Produtos a serem renderizados:", produtos);
-
-    // Calcula o subtotal
-    const subtotal = produtos.reduce(
-      (acc, curr) => acc + curr.quantidade * curr.valor,
-      0
-    );
+      console.log("Produtos do carrinho não autenticado:", produtos);
+    }
 
     // Passando produtos e subtotal para a view
     res.render("cart", {
@@ -483,6 +507,7 @@ router.get("/carrinho", authMiddleware, async (req, res) => {
     res.status(500).send("Erro ao processar o pedido de carrinho.");
   }
 });
+
 
 // Atualizar a quantidade do produto
 router.post("/carrinho/update/:produtoId", async (req, res) => {
@@ -566,36 +591,81 @@ router.post("/carrinho/adicionar/:produtoId", async (req, res) => {
   }
 });
 
-router.get("/thanku", (req, res) => {
-  res.render("thankU");
+router.post('/api/pedidos', authMiddleware, async (req, res) => {
+  if (!req.user) {
+    return res.status(403).json({ success: false, message: 'Usuário não autenticado' });
+  }
+
+  const { carrinho, total } = req.body;
+  if (!carrinho) {
+    return res.status(400).json({ success: false, message: 'Carrinho vazio' });
+  }
+
+  console.log("Total recebido:", total);
+  console.log("Carrinho recebido:", carrinho);
+  try {
+    // Criar novo pedido com total
+    const novoPedido = await Pedido.create({
+      UserId: req.user.UserId,
+      Status: 'Preparando',
+      Total: total  // Certifique-se de que total está sendo passado corretamente
+    })
+
+      const produtosPedido = Object.entries(carrinho).map(([produtoId, produto]) => ({
+      PedidoId: novoPedido.PedidoId,
+      ProdutoId: parseInt(produtoId),
+      Quantidade: produto.quantidade,
+      PrecoUnitario: produto.precoUnitario
+    }));
+
+    await Pedido_Produto.bulkCreate(produtosPedido);
+
+    res.json({ success: true, message: 'Pedido criado com sucesso!', pedidoId: novoPedido.PedidoId });
+  } catch (error) {
+    console.error('Erro ao criar pedido:', error);
+    res.status(500).json({ success: false, message: 'Erro ao processar o pedido.' });
+  }
 });
 
-router.post("/confirmarPedido", async (req, res) => {
-  const { carrinho } = req.body; // O carrinho é esperado como { produtoId: { quantidade, precoUnitario, ... }, ... }
-
+router.get('/api/meus-pedidos', async (req, res) => {
   try {
-    const novoPedido = await Pedido.create({
-      UserId: req.user.id, // Asumindo que o usuário está autenticado e seu id está disponível
-      status: "Confirmado",
-      // outros campos necessários
+    const userId = req.user.UserId;
+    const pedidos = await Pedido.findAll({
+      where: { UserId: userId },
+      include: [
+        {
+          model: Pedido_Produto,
+          as: 'pedido_produtos',
+          include: [{
+            model: Produto,
+            as: 'Produto'
+          }]
+        }
+      ],
+      attributes: [
+        'PedidoId',
+        'Status',
+        'createdAt',
+        'Total'
+      ],
+      group: ['Pedido.PedidoId', 'pedido_produtos.PedidoId', 'pedido_produtos.ProdutoId', 'pedido_produtos.PedidoId']
     });
 
-    for (const produtoId in carrinho) {
-      const { quantidade, precoUnitario } = carrinho[produtoId];
-      await PedidoProduto.create({
-        PedidoId: novoPedido.id,
-        ProdutoId: produtoId,
-        quantidade: quantidade,
-        precoUnitario: precoUnitario,
-      });
-    }
+    // Log detalhado da estrutura dos dados retornados
+    console.log("Pedidos encontrados:", JSON.stringify(pedidos, null, 2));
 
-    res.json({ success: true, message: "Pedido confirmado com sucesso!" });
+    res.json({ success: true, pedidos: pedidos });
   } catch (error) {
-    console.error("Erro ao salvar o pedido:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Erro ao processar o pedido." });
+    console.error('Erro ao buscar pedidos:', error);
+    res.status(500).json({ success: false, message: 'Erro ao processar a solicitação.' });
+  }
+});
+
+router.get('/api/check-auth', (req, res) => {
+  if (req.isAuthenticated && req.isAuthenticated()) {
+    res.json({ authenticated: true });
+  } else {
+    res.status(401).json({ authenticated: false });
   }
 });
 
