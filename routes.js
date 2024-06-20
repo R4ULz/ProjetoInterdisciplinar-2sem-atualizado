@@ -424,57 +424,78 @@ router.post("/alterar-senha", authMiddleware, async (req, res) => {
   res.redirect("/profile");
 });
 
-router.get("/carrinho", authMiddleware, async (req, res) => {
+router.get("/carrinho", async (req, res) => {
   try {
-    // Supondo que o modelo de Pedido armazene uma referência ao UserId
-    const pedido = await Pedido.findOne({
-      where: { UserId: req.user.UserId, Status: "ativo" }, // Ajuste o campo conforme seu modelo
-      include: [
-        {
-          model: Pedido_Produto,
-          as: 'pedido_produtos', // Usando o alias correto
-          include: [
-            {
-              model: Produto,
-              as: 'Produto' // Usando o alias correto
-            }
-          ]
-        }
-      ]
-    });
+    let pedido = null;
+    let produtos = [];
+    let subtotal = 0;
 
-    if (!pedido) {
-      return res.render("cart", { produtos: [], subtotal: 0.0 }); // Mostra carrinho vazio se não houver pedido
-    }
+    if (req.isAuthenticated && req.isAuthenticated()) {
+      // Usuário autenticado
+      pedido = await Pedido.findOne({
+        where: { UserId: req.user.UserId, Status: "ativo" }, // Ajuste o campo conforme seu modelo
+        include: [
+          {
+            model: Pedido_Produto,
+            as: 'pedido_produtos', // Usando o alias correto
+            include: [
+              {
+                model: Produto,
+                as: 'Produto' // Usando o alias correto
+              }
+            ]
+          }
+        ]
+      });
 
-    console.log("Pedido encontrado:", JSON.stringify(pedido, null, 2));
+      if (pedido) {
+        console.log("Pedido encontrado:", JSON.stringify(pedido, null, 2));
 
-    const produtos = pedido.pedido_produtos.map((item) => {
-      if (!item.Produto) {
-        console.error(
-          "Produto não encontrado para o Pedido_Produto com ID:",
-          item.ProdutoId
+        produtos = pedido.pedido_produtos.map((item) => {
+          if (!item.Produto) {
+            console.error(
+              "Produto não encontrado para o Pedido_Produto com ID:",
+              item.ProdutoId
+            );
+            return {}; // Retorna um objeto vazio ou padrão se não encontrar o produto
+          }
+
+          return {
+            nome: item.Produto.nome,
+            descricao: item.Produto.descricao,
+            imagem: item.Produto.imagem,
+            valor: item.Produto.valor,
+            quantidade: item.Quantidade,
+            ProdutoId: item.ProdutoId,
+          };
+        });
+
+        console.log("Produtos a serem renderizados:", produtos);
+
+        // Calcula o subtotal
+        subtotal = produtos.reduce(
+          (acc, curr) => acc + curr.quantidade * curr.valor,
+          0
         );
-        return {}; // Retorna um objeto vazio ou padrão se não encontrar o produto
       }
+    } else {
+      // Usuário não autenticado
+      const carrinho = JSON.parse(req.session.carrinho || '{}');
+      produtos = Object.keys(carrinho).map(produtoId => {
+        const produto = carrinho[produtoId];
+        subtotal += produto.quantidade * produto.precoUnitario;
+        return {
+          nome: produto.nome,
+          descricao: produto.descricao,
+          imagem: produto.imagem,
+          valor: produto.precoUnitario,
+          quantidade: produto.quantidade,
+          ProdutoId: produtoId,
+        };
+      });
 
-      return {
-        nome: item.Produto.nome,
-        descricao: item.Produto.descricao,
-        imagem: item.Produto.imagem,
-        valor: item.Produto.valor,
-        quantidade: item.Quantidade,
-        ProdutoId: item.ProdutoId,
-      };
-    });
-
-    console.log("Produtos a serem renderizados:", produtos);
-
-    // Calcula o subtotal
-    const subtotal = produtos.reduce(
-      (acc, curr) => acc + curr.quantidade * curr.valor,
-      0
-    );
+      console.log("Produtos do carrinho não autenticado:", produtos);
+    }
 
     // Passando produtos e subtotal para a view
     res.render("cart", {
@@ -570,7 +591,7 @@ router.post("/carrinho/adicionar/:produtoId", async (req, res) => {
   }
 });
 
-router.post('/api/pedidos', async (req, res) => {
+router.post('/api/pedidos', authMiddleware, async (req, res) => {
   if (!req.user) {
     return res.status(403).json({ success: false, message: 'Usuário não autenticado' });
   }
@@ -625,7 +646,7 @@ router.get('/api/meus-pedidos', async (req, res) => {
         'PedidoId',
         'Status',
         'createdAt',
-        [Sequelize.literal('SUM(pedido_produtos.precoUnitario * pedido_produtos.quantidade)'), 'total']
+        'Total'
       ],
       group: ['Pedido.PedidoId', 'pedido_produtos.PedidoId', 'pedido_produtos.ProdutoId', 'pedido_produtos.PedidoId']
     });
@@ -640,7 +661,13 @@ router.get('/api/meus-pedidos', async (req, res) => {
   }
 });
 
-
+router.get('/api/check-auth', (req, res) => {
+  if (req.isAuthenticated && req.isAuthenticated()) {
+    res.json({ authenticated: true });
+  } else {
+    res.status(401).json({ authenticated: false });
+  }
+});
 
 router.get("/gerenciarGerente", (req, res) => {
   res.render("cadastrarGerente");

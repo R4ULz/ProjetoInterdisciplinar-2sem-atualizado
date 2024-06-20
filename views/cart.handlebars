@@ -64,139 +64,134 @@
   </div>
 </div>
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const carrinhoContainer = document.getElementById('carrinhoContainer');
-    if (!carrinhoContainer) {
-      console.error('O container do carrinho não foi encontrado na página.');
-      return;
-    }
+document.addEventListener('DOMContentLoaded', () => {
+  console.log("dom carregado totalmente")
+  atualizarQuantidadeNoIconeCarrinho();
 
-    const carrinho = JSON.parse(sessionStorage.getItem('carrinho')) || {};
-    Object.keys(carrinho).forEach(produtoId => {
-      const produto = carrinho[produtoId];
-      const produtoElement = document.createElement('div');
-      produtoElement.className = 'w-full produto_' + produtoId; // Adiciona uma classe única
-
-      const precoUnitario = produto.precoUnitario ? produto.precoUnitario.toFixed(2) : '0';
-
-      produtoElement.innerHTML = `
-            <div class="flex items-center justify-between p-2 gap-2 w-full border border-gray-50 shadow-md rounded-md">
-                <img src="/public/images/${produto.imagem}" class="w-16 h-16" alt="${produto.nome}">
-                <div class="flex justify-between items-center w-full">
-                    <div class="w-fit h-fit flex flex-col gap-3">
-                        <p class="text-sm">${produto.nome}</p>
-                        <span class="text-teal-500 text-sm">R$: ${precoUnitario}</span>
-                    </div>
-                    <div class="flex flex-col gap-3">
-                        <button class="self-end delete" data-produto-id="${produtoId}"><i class="fa-solid fa-trash text-red-500"></i></button>
-                        <div class="border border-yellow-500 rounded-full flex justify-center items-center text-sm">
-                            <button data-produto-id="${produtoId}" class="md:w-8 w-5 flex items-center justify-center decrease">-</button>
-                            <span class="md:w-8 w-4 border-r border-l border-yellow-500 text-teal-500 flex items-center justify-center quantity_${produtoId}">${produto.quantidade}</span>
-                            <button data-produto-id="${produtoId}" class="md:w-8 w-5 flex items-center justify-center increase">+</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-      carrinhoContainer.appendChild(produtoElement);
-    });
-
-    addEventListeners();
-    atualizarSubtotalECarrinho();
-    atualizarQuantidadeNoIconeCarrinho()
-  });
-
-  document.addEventListener('DOMContentLoaded', () => {
-    atualizarSubtotalECarrinho();  // Calcula o subtotal inicial quando a página carrega
-    atualizarQuantidadeNoIconeCarrinho();
-  });
-
-  function addEventListeners() {
-    document.querySelectorAll('.increase').forEach(button => {
-      button.addEventListener('click', function () {
-        const produtoId = this.dataset.produtoId;
-        updateQuantity(produtoId, 1);
-      });
-    });
-
-    document.querySelectorAll('.decrease').forEach(button => {
-      button.addEventListener('click', function () {
-        const produtoId = this.dataset.produtoId;
-        updateQuantity(produtoId, -1);
-      });
-    });
-
-    document.querySelectorAll('.delete').forEach(button => {
-      button.addEventListener('click', function () {
-        const produtoId = this.dataset.produtoId;
-        deleteProduct(produtoId);
-      });
-    });
+  const carrinhoContainer = document.getElementById('carrinhoContainer');
+  if (!carrinhoContainer) {
+    console.error('O container do carrinho não foi encontrado na página.');
+    return;
   }
 
- function updateQuantity(produtoId, change) {
-    const quantityDisplay = document.querySelector(`.produto_${produtoId} .quantity_${produtoId}`);
-    let currentQuantity = parseInt(quantityDisplay.textContent);
+  const carrinho = JSON.parse(sessionStorage.getItem('carrinho')) || {};
+  Object.keys(carrinho).forEach(produtoId => {
+    const produto = carrinho[produtoId];
+    const produtoElement = document.createElement('div');
+    produtoElement.className = 'w-full produto_' + produtoId; // Adiciona uma classe única
 
-    if (currentQuantity === 1 && change < 0) {
-        alert("Quantidade mínima alcançada, não pode diminuir mais.");
-        return;
-    }
+    const precoUnitario = produto.precoUnitario ? produto.precoUnitario.toFixed(2) : '0';
 
-    let newQuantity = Math.max(1, currentQuantity + change);
-    quantityDisplay.textContent = newQuantity;
+    produtoElement.innerHTML = `
+      <div class="flex items-center justify-between p-2 gap-2 w-full border border-gray-50 shadow-md rounded-md">
+        <img src="/public/images/${produto.imagem}" class="w-16 h-16" alt="${produto.nome}">
+        <div class="flex justify-between items-center w-full">
+          <div class="w-fit h-fit flex flex-col gap-3">
+            <p class="text-sm">${produto.nome}</p>
+            <span class="text-teal-500 text-sm">R$: ${precoUnitario}</span>
+          </div>
+          <div class="flex flex-col gap-3">
+            <button class="self-end delete" data-produto-id="${produtoId}"><i class="fa-solid fa-trash text-red-500"></i></button>
+            <div class="border border-yellow-500 rounded-full flex justify-center items-center text-sm">
+              <button data-produto-id="${produtoId}" class="md:w-8 w-5 flex items-center justify-center decrease">-</button>
+              <span class="md:w-8 w-4 border-r border-l border-yellow-500 text-teal-500 flex items-center justify-center quantity_${produtoId}">${produto.quantidade}</span>
+              <button data-produto-id="${produtoId}" class="md:w-8 w-5 flex items-center justify-center increase">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    carrinhoContainer.appendChild(produtoElement);
+  });
 
-    const carrinho = JSON.parse(sessionStorage.getItem('carrinho')) || {};
-    if (carrinho[produtoId]) {
-        carrinho[produtoId].quantidade = newQuantity;
-        sessionStorage.setItem('carrinho', JSON.stringify(carrinho));
-        atualizarSubtotalECarrinho(); // Garante que o subtotal seja atualizado
-        atualizarQuantidadeNoIconeCarrinho(); // Atualiza a quantidade mostrada no ícone do carrinho
-    }
+  addEventListeners();
+  atualizarSubtotalECarrinho();
+});
+
+function addEventListeners() {
+  document.querySelectorAll('.increase').forEach(button => {
+    button.addEventListener('click', function () {
+      const produtoId = this.dataset.produtoId;
+      updateQuantity(produtoId, 1);
+    });
+  });
+
+  document.querySelectorAll('.decrease').forEach(button => {
+    button.addEventListener('click', function () {
+      const produtoId = this.dataset.produtoId;
+      updateQuantity(produtoId, -1);
+    });
+  });
+
+  document.querySelectorAll('.delete').forEach(button => {
+    button.addEventListener('click', function () {
+      const produtoId = this.dataset.produtoId;
+      deleteProduct(produtoId);
+    });
+  });
 }
 
-  function deleteProduct(produtoId) {
-    let carrinho = JSON.parse(sessionStorage.getItem('carrinho')) || {};
+function updateQuantity(produtoId, change) {
+  const quantityDisplay = document.querySelector(`.produto_${produtoId} .quantity_${produtoId}`);
+  let currentQuantity = parseInt(quantityDisplay.textContent);
 
-    if (carrinho[produtoId]) {
-      delete carrinho[produtoId];  // Remove o produto do armazenamento local
-      sessionStorage.setItem('carrinho', JSON.stringify(carrinho));  // Atualiza o carrinho no armazenamento local
-      atualizarQuantidadeNoIconeCarrinho();
-      console.log(`Produto com ID ${produtoId} removido do carrinho.`);
-
-      // Remove o elemento visual do produto no carrinho
-      const produtoElement = document.querySelector(`.produto_${produtoId}`);
-      if (produtoElement) {
-        atualizarSubtotalECarrinho();
-        produtoElement.remove();  // Remove o elemento do DOM
-        console.log('Elemento do produto removido da página.');
-
-      } else {
-        console.error('Elemento do produto não encontrado no DOM:', produtoId);
-      }
-    } else {
-      console.error(`Produto com ID ${produtoId} não encontrado no carrinho.`);
-    }
+  if (currentQuantity === 1 && change < 0) {
+    alert("Quantidade mínima alcançada, não pode diminuir mais.");
+    return;
   }
+
+  let newQuantity = Math.max(1, currentQuantity + change);
+  quantityDisplay.textContent = newQuantity;
+
+  const carrinho = JSON.parse(sessionStorage.getItem('carrinho')) || {};
+  if (carrinho[produtoId]) {
+    carrinho[produtoId].quantidade = newQuantity;
+    sessionStorage.setItem('carrinho', JSON.stringify(carrinho));
+    atualizarSubtotalECarrinho(); // Garante que o subtotal seja atualizado
+    atualizarQuantidadeNoIconeCarrinho(); // Atualiza a quantidade mostrada no ícone do carrinho
+  }
+}
+
+function deleteProduct(produtoId) {
+  let carrinho = JSON.parse(sessionStorage.getItem('carrinho')) || {};
+
+  if (carrinho[produtoId]) {
+    delete carrinho[produtoId];  // Remove o produto do armazenamento local
+    sessionStorage.setItem('carrinho', JSON.stringify(carrinho));  // Atualiza o carrinho no armazenamento local
+    atualizarSubtotalECarrinho();
+    atualizarQuantidadeNoIconeCarrinho(); // Atualiza a quantidade mostrada no ícone do carrinho
+
+    // Remove o elemento visual do produto no carrinho
+    const produtoElement = document.querySelector(`.produto_${produtoId}`);
+    if (produtoElement) {
+      produtoElement.remove();  // Remove o elemento do DOM
+    } else {
+      console.error('Elemento do produto não encontrado no DOM:', produtoId);
+    }
+  } else {
+    console.error(`Produto com ID ${produtoId} não encontrado no carrinho.`);
+  }
+}
+
 let totalCarrinho = 0;
-  function atualizarSubtotalECarrinho() {
-    const carrinho = JSON.parse(sessionStorage.getItem('carrinho') || '{}');
-    let subtotal = 0;
+function atualizarSubtotalECarrinho() {
+  const carrinho = JSON.parse(sessionStorage.getItem('carrinho') || '{}');
+  let subtotal = 0;
 
-    Object.keys(carrinho).forEach(produtoId => {
-      const produto = carrinho[produtoId];
-      subtotal += produto.quantidade * produto.precoUnitario;
-    });
+  Object.keys(carrinho).forEach(produtoId => {
+    const produto = carrinho[produtoId];
+    subtotal += produto.quantidade * produto.precoUnitario;
+  });
 
-    const frete = 4.99;  // Valor fixo do frete para simplificação
-    totalCarrinho = subtotal + frete;  // Calcula o total incluindo o frete
+  const frete = 4.99;  // Valor fixo do frete para simplificação
+  totalCarrinho = subtotal + frete;  // Calcula o total incluindo o frete
 
-    // Atualizar o subtotal e o total no DOM
-    const subtotalElement = document.getElementById('subtotal');
-    const totalElement = document.getElementById('total');
+  // Atualizar o subtotal e o total no DOM
+  const subtotalElement = document.getElementById('subtotal');
+  const totalElement = document.getElementById('total');
 
-    if (subtotalElement) subtotalElement.textContent = subtotal.toFixed(2);
-    if (totalElement) totalElement.textContent = totalCarrinho.toFixed(2);
+  if (subtotalElement) subtotalElement.textContent = subtotal.toFixed(2);
+  if (totalElement) totalElement.textContent = totalCarrinho.toFixed(2);
 }
 
 document.getElementById('btnconfirmarPedido').addEventListener('click', function() {
@@ -206,33 +201,49 @@ document.getElementById('btnconfirmarPedido').addEventListener('click', function
     return;
   }
 
-  // Inclua o total no corpo da requisição
-  const requestBody = {
-    carrinho,
-    total: totalCarrinho
-  };
+  // Verifica se o usuário está logado
+  fetch('/api/check-auth', { method: 'GET' })
+    .then(response => {
+      if (response.status === 401) {
+        alert('Você precisa estar logado para confirmar o pedido.');
+        window.location.href = '/login';
+        throw new Error('Usuário não autenticado');
+      }
+      return response.json();
+    })
+    .then(authData => {
+      if (!authData || !authData.authenticated) return;
 
-  fetch('/api/pedidos', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(requestBody)
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      alert('Pedido confirmado com sucesso!');
-      sessionStorage.removeItem('carrinho'); // Limpar o carrinho após a confirmação
-      window.location.href = '/profile/pedidos'; // Redirecionar para a página de confirmação
-    } else {
-      alert('Erro ao confirmar o pedido: ' + data.message);
-    }
-  })
-  .catch(error => {
-    console.error('Erro ao enviar pedido:', error);
-    alert('Erro ao processar o pedido.');
-  });
+      // Inclua o total no corpo da requisição
+      const requestBody = {
+        carrinho,
+        total: totalCarrinho
+      };
+
+      return fetch('/api/pedidos', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestBody)
+      });
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert('Pedido confirmado com sucesso!');
+        sessionStorage.removeItem('carrinho'); // Limpar o carrinho após a confirmação
+        window.location.href = '/profile/pedidos'; // Redirecionar para a página de confirmação
+      } else {
+        alert('Erro ao confirmar o pedido: ' + data.message);
+      }
+    })
+    .catch(error => {
+      console.error('Erro ao processar o pedido:', error);
+      if (error.message !== 'Usuário não autenticado') {
+        alert('Erro ao processar o pedido.');
+      }
+    });
 });
 
 </script>

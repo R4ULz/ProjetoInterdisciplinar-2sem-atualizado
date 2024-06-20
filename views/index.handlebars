@@ -149,6 +149,10 @@
 </style>
 
 <script>
+
+  document.addEventListener('DOMContentLoaded',()=>{
+      atualizarQuantidadeNoIconeCarrinho();
+  });
   document.querySelectorAll('.add-to-cart').forEach(button => {
     button.addEventListener('click', function () {
       const produtoId = this.getAttribute('data-produtoid');
