@@ -31,14 +31,12 @@
           <h2 class="font-bold text-2xl sm:text-3xl capitalize">informações
             <span class="text-amber-600">pessoais</span>
           </h2>
-
         </div>
         <div id="uploadContainer" class="relative w-28 h-28">
           <img src="/profile_pics/{{dadosUser.foto}}" alt="Foto de Perfil" class="w-full h-full rounded-full">
         </div>
 
-        <form id="editForm" class="grid grid-cols-1 gap-6 md:grid-cols-2" action="/atualizarUsuario" method="POST"
-          enctype="multipart/form-data">
+        <form id="editForm" class="grid grid-cols-1 gap-6 md:grid-cols-2" action="/atualizarUsuario" method="POST">
           <div class="space-y-6">
             <div class="flex flex-col gap-1">
               <label for="nome">Nome</label>
@@ -88,6 +86,8 @@
               </div>
             </div>
           </div>
+          <input type="hidden" name="email" value="{{dadosUser.email}}">
+          <input type="hidden" name="cpf" value="{{dadosUser.cpf}}">
           <div class="flex gap-2 mt-8">
             <button type="button" id="editButton"
               class="border border-red-500 rounded-full px-6 py-2 text-red-500 font-semibold hover:bg-red-500 hover:text-white transition ease-in-out duration-300">Editar
@@ -109,9 +109,6 @@
             const emailInput = document.getElementById('email');
             const cpfInput = document.getElementById('cpf');
             const telefoneInput = document.getElementById('telefone');
-            const fotoInput = document.getElementById('foto');
-            const uploadContainer = document.getElementById('uploadContainer');
-            const alterarFotoLabel = document.getElementById('alterarFotoLabel');
             let originalValues = {};
 
             if (!telefoneInput.value) {
@@ -121,34 +118,17 @@
             $(telefoneInput).mask('+00 (00) 00000-0000');
             $('#cpf').mask('000.000.000-00', { reverse: true });
 
-
             editButton.addEventListener('click', function () {
               inputs.forEach(input => {
                 if (input !== emailInput && input !== cpfInput) {
                   input.disabled = false;
                   input.classList.remove('bg-gray-100', 'cursor-not-allowed');
                   originalValues[input.name] = input.value;
-                  fotoInput.classList.add('cursor-pointer');
                 }
               });
               saveButton.style.display = 'inline-block';
               cancelButton.style.display = 'inline-block';
               editButton.style.display = 'none';
-              // Exibir o contêiner do campo de upload de foto
-              uploadContainer.style.display = 'block';
-              // Exibir o texto "Alterar Foto"
-              alterarFotoLabel.style.display = 'block';
-              // Habilitar o input de upload de foto
-              fotoInput.disabled = false;
-            });
-
-            saveButton.addEventListener('click', function (event) {
-              // Temporarily enable email and cpf inputs
-              emailInput.disabled = false;
-              cpfInput.disabled = false;
-
-              // Submit the form
-              document.getElementById('editForm').submit();
             });
 
             cancelButton.addEventListener('click', function () {
@@ -157,21 +137,15 @@
                   input.value = originalValues[input.name];
                   input.disabled = true;
                   input.classList.add('bg-gray-100', 'cursor-not-allowed');
-                  fotoInput.classList.remove('cursor-pointer');
                 }
               });
               saveButton.style.display = 'none';
               cancelButton.style.display = 'none';
               editButton.style.display = 'inline-block';
-              // Ocultar o contêiner do campo de upload de foto
-              uploadContainer.style.display = 'block'; // Modificado para 'block'
-              // Ocultar o texto "Alterar Foto"
-              alterarFotoLabel.style.display = 'none';
-              // Desabilitar o input de upload de foto
-              fotoInput.disabled = true;
             });
           });
         </script>
-
       </section>
     </div>
+  </div>
+</div>

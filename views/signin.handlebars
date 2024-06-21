@@ -27,43 +27,57 @@
           <div class="mt-2">
             <input id="name" name="name" type="text" autocomplete="name" required
               class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6 px-2"
-              value="{{#if name}}{{name}}{{/if}}">
+              placeholder="Digite seu nome completo" value="{{#if name}}{{name}}{{/if}}">
           </div>
         </div>
-
+        <div>
+          <label for="telefone" class="block font-medium leading-6 text-gray-900">Telefone</label>
+          <div class="mt-2">
+            <input id="telefone" name="telefone" type="text" autocomplete="tel" required
+              class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6 px-2"
+              placeholder="(00) 00000-0000" value="{{#if telefone}}{{telefone}}{{/if}}">
+          </div>
+        </div>
+        <div>
+          <label for="endereco" class="block font-medium leading-6 text-gray-900">Endereço</label>
+          <div class="mt-2">
+            <input id="endereco" name="endereco" type="text" autocomplete="street-address" required
+              class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6 px-2"
+              placeholder="Digite seu endereço" value="{{#if endereco}}{{endereco}}{{/if}}">
+          </div>
+        </div>
         <div>
           <label for="cpf" class="block font-medium leading-6 text-gray-900">CPF</label>
           <div class="mt-2">
             <input id="cpf" name="cpf" type="text" required
-              class="cpf-mask block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6 px-2"
-              value="{{#if cpf}}{{cpf}}{{/if}}">
+              class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6 px-2"
+              placeholder="000.000.000-00" value="{{#if cpf}}{{cpf}}{{/if}}">
           </div>
         </div>
-
         <div>
           <label for="email" class="block font-medium leading-6 text-gray-900">Email</label>
           <div class="mt-2">
             <input id="email" name="email" type="email" autocomplete="email" required
               class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6 px-2"
-              value="{{#if email}}{{email}}{{/if}}">
+              placeholder="Digite seu email" value="{{#if email}}{{email}}{{/if}}">
           </div>
         </div>
-
         <div>
           <label for="password" class="block font-medium leading-6 text-gray-900">Senha</label>
           <div class="mt-2">
             <input id="password" name="password" type="password" autocomplete="new-password" required
-              class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6 px-2">
+              class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6 px-2"
+              placeholder="Digite sua senha">
           </div>
         </div>
         <div>
           <label for="confirmPassword" class="block font-medium leading-6 text-gray-900">Confirme a Senha</label>
           <div class="mt-2">
             <input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password" required
-              class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6 px-2">
+              class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6 px-2"
+              placeholder="Confirme sua senha">
           </div>
         </div>
-
         {{#if message}}
         <div class="flex flex-col text-center text-sm bg-red-500/20 px-3 py-2 rounded-md">
           <span>{{{message}}}</span>
@@ -75,20 +89,19 @@
             Conta</button>
         </div>
       </form>
-
       <p class="mt-10 text-center text-black">
         Já possui uma conta?
         <a href="/login" class="underline font-semibold leading-6 text-red-600 hover:text-red-600/80">Faça Login
           aqui!</a>
       </p>
     </div>
-
-    <script>
-      document.addEventListener('DOMContentLoaded', function () {
-        $('#cpf').mask('000.000.000-00', { reverse: true });
-      });
-    </script>
   </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      $('#cpf').mask('000.000.000-00', { reverse: true });
+      $('#telefone').mask('+55 (00) 00000-0000');
+    });
+  </script>
 </body>
 
 </html>
