@@ -10,6 +10,7 @@ const Gerente = require("./models/gerente");
 const bcrypt = require("bcryptjs");
 const { passport, authMiddleware } = require("./config/auth");
 const multer = require("multer");
+const fs = require('fs');
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -181,10 +182,19 @@ router.get("/signin", (req, res) => {
   res.render("signin");
 });
 
+// Função para obter uma imagem de perfil aleatória
+function getRandomProfilePic() {
+  const directoryPath = path.join(__dirname, 'public/profile_pics');
+  const files = fs.readdirSync(directoryPath);
+  const randomFile = files[Math.floor(Math.random() * files.length)];
+  return randomFile;
+}
+
 //metodo post do signin
 router.post("/signin", async (req, res) => {
   try {
     const { name, cpf, email, password, confirmPassword } = req.body;
+    const randomPic = getRandomProfilePic();
 
     // Verifica se o email já está em uso
     const existingUser = await User.findOne({
@@ -198,6 +208,7 @@ router.post("/signin", async (req, res) => {
         name: req.body.name,
         cpf: req.body.cpf,
         email: req.body.email,
+        foto: randomPic // Salvar o nome do arquivo da imagem como foto de perfil
       });
     }
 
@@ -241,6 +252,7 @@ router.post("/signin", async (req, res) => {
       email: req.body.email,
       cpf: cpfUnmasked,
       password: hashPassword,
+      foto: randomPic
     });
 
     console.log("Usuário cadastrado com sucesso no banco de dados!");
@@ -338,15 +350,14 @@ router.get("/painelGerente", authMiddleware, (req, res) => {
 });
 
 // Rota para renderizar a página de perfil
-router.get("/profile", authMiddleware, (req, res) => {
+router.get("/profile", authMiddleware, async (req, res) => {
   if (req.isAuthenticated()) {
     const userlogado = req.user;
-    const { nome, email, cpf, endereco, telefone } = userlogado;
-    const dadosUser = { nome, email, cpf, endereco, telefone };
+    const { nome, email, cpf, endereco, telefone, foto } = userlogado;
+    const dadosUser = { nome, email, cpf, endereco, telefone, foto };
     const userLoggedIn = true;
     res.render("user_info", { dadosUser, userLoggedIn });
   } else {
-    // Se o usuário não estiver autenticado, redirecione-o para a página de login
     res.redirect("/login");
   }
 });

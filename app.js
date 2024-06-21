@@ -10,6 +10,7 @@ const routes = require("./routes"); // Importando as rotas
 const bodyParser = require("body-parser");
 const {db} = require('./models');
 const cors = require('cors');
+const addUserData = require('./middlewares/addUserData');
 
 
 //const { resolveSOA } = require("dns");
@@ -70,6 +71,7 @@ db.sequelize.sync({}) // Use force: true com cautela em produção
     console.error("Erro ao sincronizar o banco de dados:", err);
 });
 
+app.use(addUserData);  // Middleware global para adicionar dados do usuário
 
 
 app.use(routes);
