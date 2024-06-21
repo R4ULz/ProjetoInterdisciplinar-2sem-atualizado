@@ -123,7 +123,6 @@ router.post("/cadastrarProduto",authMiddleware, checkRole(['manager', 'admin']),
 router.get("/consultar", authMiddleware, checkRole(['manager', 'admin']),(req, res) => {
   Produto.findAll()
     .then((produtos) => {
-      console.log("cheghuei aquii");
       res.render("consultar", { Produto: produtos });
     })
     .catch(function (erro) {
@@ -152,7 +151,7 @@ router.post("/atualizar", authMiddleware, checkRole(['manager', 'admin']), funct
       descricao: req.body.descricao,
       categoria: req.body.categoria,
     },
-    { where: { id: req.body.id } }
+    { where: { ProdutoId: req.body.id } }
   )
     .then(function () {
       res.redirect("/consultar");
@@ -164,7 +163,7 @@ router.post("/atualizar", authMiddleware, checkRole(['manager', 'admin']), funct
 
 // botão pra excluir
 router.get("/excluir/:id", authMiddleware, checkRole(['manager', 'admin']),function (req, res) {
-  Produto.destroy({ where: { id: req.params.id } })
+  Produto.destroy({ where: { ProdutoId: req.params.id } })
     .then(function () {
       res.redirect("/consultar");
     })
@@ -732,6 +731,24 @@ router.get("/gerenciarPedidos", authMiddleware, checkRole(['admin', 'manager']),
     res.status(500).send("Erro ao acessar os pedidos.");
   }
 });
+
+router.post('/api/cancelar-pedido/:pedidoId', async (req, res) => {
+  const { pedidoId } = req.params;
+  try {
+    const pedido = await Pedido.findByPk(pedidoId);
+    if (!pedido) {
+      return res.status(404).json({ success: false, message: 'Pedido não encontrado.' });
+    }
+    // Supondo que 'Cancelado' é um status válido em seu sistema
+    pedido.Status = 'Cancelado';
+    await pedido.save();
+    res.json({ success: true, message: 'Pedido cancelado com sucesso.' });
+  } catch (error) {
+    console.error('Erro ao cancelar o pedido:', error);
+    res.status(500).json({ success: false, message: 'Erro ao processar a solicitação.' });
+  }
+});
+
 
 function verificaAutenticacao(req, res, next) {
   if (req.session && req.session.user) {

@@ -57,3 +57,19 @@ a{
 .draggable.active {
   cursor: grabbing;
 }
+
+.status-cancelado {
+  color: red;
+}
+
+.status-preparando {
+  color: orange;
+}
+
+.status-entrega {
+  color: green;
+}
+
+.status-concluido {
+  color: blue;
+}

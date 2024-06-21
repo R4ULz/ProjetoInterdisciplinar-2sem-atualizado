@@ -38,52 +38,58 @@
 </div>
 </div>
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-  fetch('/api/meus-pedidos', { method: 'GET' })
-    .then(response => response.json())
-    .then(data => {
-      console.log("Dados recebidos:", data);
-      if (!data.success || !Array.isArray(data.pedidos)) {
-        console.error('Esperava-se um array, recebido:', data);
-        return; // Pare a execução se não for um array
-      }
+  document.addEventListener('DOMContentLoaded', function () {
+    fetch('/api/meus-pedidos', { method: 'GET' })
+      .then(response => response.json())
+      .then(data => {
+        console.log("Dados recebidos:", data);
+        if (!data.success || !Array.isArray(data.pedidos)) {
+          console.error('Erro ou formato de dados inesperado:', data);
+          return; // Pare a execução se não for um array
+        }
 
-      const container = document.getElementById('pedidosContainer');
-      data.pedidos.forEach(pedido => {
-        console.log("Pedido:", pedido);
-        const total = Number(pedido.Total); // Usando o valor total armazenado no banco
-        const pedidoElement = document.createElement('div');
-        pedidoElement.className = 'flex justify-between items-center bg-gray-50 p-2 rounded-lg shadow';
+        const container = document.getElementById('pedidosContainer');
+        data.pedidos.forEach(pedido => {
+          console.log("Pedido:", pedido);
+          const total = Number(pedido.Total); // Usando o valor total armazenado no banco
+          const pedidoElement = document.createElement('div');
+          pedidoElement.className = 'flex justify-between items-center bg-gray-50 p-2 rounded-lg shadow';
 
-        let itensHtml = '';
+          let itensHtml = '';
 
-        if (Array.isArray(pedido.pedido_produtos)) {
-          pedido.pedido_produtos.forEach(item => {
-            console.log("Item do pedido:", item);
-            if (item.Produto) {
-              const precoUnitario = Number(item.PrecoUnitario);
-              const quantidade = Number(item.Quantidade);
-              if (!isNaN(precoUnitario) && !isNaN(quantidade)) {
-                itensHtml += `
+          if (Array.isArray(pedido.pedido_produtos)) {
+            pedido.pedido_produtos.forEach(item => {
+              console.log("Item do pedido:", item);
+              if (item.Produto) {
+                const precoUnitario = Number(item.PrecoUnitario);
+                const quantidade = Number(item.Quantidade);
+                if (!isNaN(precoUnitario) && !isNaN(quantidade)) {
+                  itensHtml += `
                   <p>Produto: ${item.Produto.nome}</p>
                   <p>Quantidade: ${quantidade}</p>
                   <p>Preço unitário: R$ ${precoUnitario.toFixed(2)}</p>
                   <hr>
                 `;
+                } else {
+                  console.error('Preço unitário ou quantidade inválido no item:', item);
+                }
               } else {
-                console.error('Preço unitário ou quantidade inválido no item:', item);
+                console.error('Produto não encontrado no item:', item);
               }
-            } else {
-              console.error('Produto não encontrado no item:', item);
-            }
-          });
-        } else {
-          console.error('pedido.pedido_produtos não é um array:', pedido.pedido_produtos);
-          itensHtml = '<p>Nenhum item encontrado para este pedido.</p>';
-        }
-
-        console.log("HTML dos itens:", itensHtml);
-        pedidoElement.innerHTML = `
+            });
+          } else {
+            console.error('pedido.pedido_produtos não é um array:', pedido.pedido_produtos);
+            itensHtml = '<p>Nenhum item encontrado para este pedido.</p>';
+          }
+          const statusColors = {
+            'Cancelado': 'red',
+            'Preparando': 'orange',
+            'Saiu para entrega': 'green',
+            'Pronto para retirar': 'green',
+            'Concluído': 'blue'
+          };
+          console.log("HTML dos itens:", itensHtml);
+          pedidoElement.innerHTML = `
           <div class="flex gap-5 md:gap-8 justify-between md:items-center w-full md:flex-row flex-col md:text-sm text-xs">
             <div class="flex flex-col gap-2 md:gap-4">
               <p>ID do pedido: #${pedido.PedidoId}</p>
@@ -93,19 +99,45 @@
             <div class="flex flex-col gap-1 md:gap-5">
               <div class="flex gap-2 items-center">
                 <p>Status: ${pedido.Status}</p>
-                <div class="w-[10px] h-[10px] bg-orange-500 rounded-full flex" style="background-color: ${pedido.statusColor};"></div>
+                <div class="w-[10px] h-[10px] rounded-full flex" style="background-color: ${statusColors[pedido.Status]};"></div>
               </div>
               <p>Total do pedido: R$ ${total.toFixed(2)}</p>
+              <button class="cancelar-pedido" data-pedidoid="${pedido.PedidoId}">Cancelar Pedido</button>
             </div>
             <div class="w-full md:w-[180px] h-[100px] md:h-[100px] overflow-x-auto">
               ${itensHtml}
             </div>
           </div>
         `;
-        container.appendChild(pedidoElement);
-      });
-    })
-    .catch(error => console.error('Erro ao buscar pedidos:', error));
-});
+          container.appendChild(pedidoElement);
+        });
+
+        // Adiciona o listener de evento no container para delegação
+        container.addEventListener('click', function (event) {
+          const btn = event.target.closest('.cancelar-pedido');
+          if (btn) {
+            const pedidoId = btn.dataset.pedidoid;
+            fetch(`/api/cancelar-pedido/${pedidoId}`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            })
+              .then(response => response.json())
+              .then(data => {
+                if (data.success) {
+                  alert('Pedido cancelado com sucesso!');
+                  location.reload(); // Recarrega a página para atualizar a lista de pedidos
+                } else {
+                  alert('Erro ao cancelar o pedido: ' + data.message);
+                }
+              })
+              .catch(error => console.error('Erro ao cancelar o pedido:', error));
+          }
+        });
+      })
+      .catch(error => console.error('Erro ao buscar pedidos:', error));
+  });
+
 
 </script>
