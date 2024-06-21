@@ -62,6 +62,21 @@ app.use(cors({
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+async function createAdminUser() {
+  const adminExists = await db.User.findOne({ where: { email: "admin@example.com" } });
+  if (!adminExists) {
+    const hashPassword = await bcrypt.hash("admkrusty01", 8); // Use uma senha mais segura
+    await db.User.create({
+      nome: "Admin",
+      email: "admkrusty@krusty.com",
+      cpf: "00000000000",
+      password: hashPassword,
+      role: "admin",
+    });
+    console.log("Conta de administrador criada!");
+  }
+}
+
 db.sequelize.sync({}) // Use force: true com cautela em produção
   .then(() => {
     console.log("Banco de dados sincronizado.");

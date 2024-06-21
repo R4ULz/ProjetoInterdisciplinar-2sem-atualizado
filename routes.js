@@ -3,9 +3,10 @@ const router = express.Router();
 const db = require("./models/banco");
 const path = require("path");
 const { Sequelize } = require('sequelize');
-const { Pedido, Pedido_Produto, Produto, Gerente, User} = require('./models');
+const { Pedido, Pedido_Produto, Produto, User} = require('./models');
 const bcrypt = require("bcryptjs");
 const { passport, authMiddleware } = require("./config/auth");
+const checkRole = require('./middlewares/verificaRole');
 const multer = require("multer");
 const fs = require('fs');
 
@@ -47,7 +48,7 @@ passport.deserializeUser((UserId, done) => {
 //config do bodyparser para leitura do post
 
 // Rota inicial
-router.get("/", authMiddleware, (req, res) => {
+router.get("/", (req, res) => {
   Produto.findAll()
     .then((produtos) => {
       res.render("index", { Produto: produtos });
@@ -91,12 +92,12 @@ router.get('/produtos/:categoria?', async (req, res) => {
 
 
 // Rota para cadastrar produto
-router.get("/cadastrarProduto", authMiddleware, (req, res) => {
+router.get("/cadastrarProduto", authMiddleware, checkRole(['manager', 'admin']), (req, res) => {
   res.render("cadProduto");
 });
 
 // Rota POST para cadastrar produto
-router.post("/cadastrarProduto", upload.single("imagem"), (req, res) => {
+router.post("/cadastrarProduto",authMiddleware, checkRole(['manager', 'admin']), upload.single("imagem"), (req, res) => {
   if (!req.file) {
     return res.status(400).send("Nenhum arquivo foi enviado.");
   }
@@ -118,10 +119,8 @@ router.post("/cadastrarProduto", upload.single("imagem"), (req, res) => {
     });
 });
 
-module.exports = router;
-
 //rota para consultar
-router.get("/consultar", (req, res) => {
+router.get("/consultar", authMiddleware, checkRole(['manager', 'admin']),(req, res) => {
   Produto.findAll()
     .then((produtos) => {
       console.log("cheghuei aquii");
@@ -133,7 +132,7 @@ router.get("/consultar", (req, res) => {
 });
 
 //rota para editar
-router.get("/editar/:id", function (req, res) {
+router.get("/editar/:id", authMiddleware, checkRole(['manager', 'admin']), function (req, res) {
   Produto.findAll({ where: { ProdutoId: req.params.id } })
     .then(function (produtos) {
       res.render("editarProduto", { Produto: produtos });
@@ -144,7 +143,7 @@ router.get("/editar/:id", function (req, res) {
 });
 
 //metodo para atualizar da rota editar
-router.post("/atualizar", function (req, res) {
+router.post("/atualizar", authMiddleware, checkRole(['manager', 'admin']), function (req, res) {
   Produto.update(
     {
       imagem: req.body.imagem,
@@ -164,7 +163,7 @@ router.post("/atualizar", function (req, res) {
 });
 
 // botão pra excluir
-router.get("/excluir/:id", function (req, res) {
+router.get("/excluir/:id", authMiddleware, checkRole(['manager', 'admin']),function (req, res) {
   Produto.destroy({ where: { id: req.params.id } })
     .then(function () {
       res.redirect("/consultar");
@@ -263,7 +262,7 @@ router.post("/signin", async (req, res) => {
 });
 
 //rota painel ADM
-router.get("/painelAdm", authMiddleware, (req, res) => {
+router.get("/painelAdm", authMiddleware, checkRole(['admin']), (req, res) => {
   res.render("painelAdm");
 });
 
@@ -277,32 +276,7 @@ router.get("/login", (req, res) => {
 
 router.post("/login", async (req, res, next) => {
   const { email, password } = req.body;
-  if (
-    req.body.email === "admkrusty@krusty.com.br" &&
-    req.body.password === "admkrusty01"
-  ) {
-    return res.redirect("/painelAdm");
-  }
-  if (email.endsWith("@gerencia.com.br")) {
-    // Redirecionar para a página de painel de gerente
-    return res.redirect("/painelGerente");
-  }
-  // const existingGerente = await Gerente.findOne({ where: { email } });
-  // if (!existingGerente) {
-  //   // Se o email não existir, enviar a mensagem de erro para a página de login
-  //   const errorMessage = "Não existe cadastro com o e-mail fornecido!";
-  //   return res.render("login", { errorMessage, email });
-  // }
-  // const isPasswordValid = await bcrypt.compare(password, existingGerente.senha);
 
-  // if (!isPasswordValid) {
-  //   // Se a senha não coincidir, enviar a mensagem de erro para a página de login
-  //   const errorMessage = "Email e senha não coincidem.";
-  //   return res.render("login", { errorMessage, email });
-  // }
-
-  // // Redirecionar para o painel de gerentes após o login bem-sucedido
-  // res.redirect("/painelGerente");
   try {
     // Verificar se o email existe no banco de dados
     const existingUser = await User.findOne({ where: { email } });
@@ -310,19 +284,16 @@ router.post("/login", async (req, res, next) => {
       // Se o email não existir, enviar a mensagem de erro para a página de login
       const errorMessage =
         "Não existe cadastro com o e-mail fornecido!" +
-        "<br> <a href='/signin' class='text-blue-500 hover:underline'> Cadastre-se clicando aqui!</a>";
-      return res.render("login", { errorMessage, email }); // Passar o email de volta para a página de login
+        "<br> <a href='/signup' class='text-blue-500 hover:underline'>Cadastre-se clicando aqui!</a>";
+      return res.render("login", { errorMessage, email });
     }
 
     // Se o email existir, verificar se a senha está correta
-    const isPasswordValid = await bcrypt.compare(
-      password,
-      existingUser.password
-    );
+    const isPasswordValid = await bcrypt.compare(password, existingUser.password);
     if (!isPasswordValid) {
       // Se a senha não coincidir, enviar a mensagem de erro para a página de login
       const errorMessage = "Email e senha não coincidem.";
-      return res.render("login", { errorMessage, email }); // Passar o email de volta para a página de login
+      return res.render("login", { errorMessage, email });
     }
 
     // Autenticar usuário
@@ -331,8 +302,16 @@ router.post("/login", async (req, res, next) => {
         console.error("Erro ao fazer login:", err);
         return res.status(500).send("Erro ao fazer login");
       }
-      // Redirecionar para a página de perfil após o login bem-sucedido
-      return res.redirect("/profile");
+
+      // Redirecionar com base na role do usuário
+      switch (existingUser.role) {
+        case 'admin':
+          return res.redirect("/painelAdm");
+        case 'manager':
+          return res.redirect("/painelGerente");
+        default:
+          return res.redirect("/profile");
+      }
     });
   } catch (error) {
     // Tratar erros de forma adequada
@@ -342,12 +321,12 @@ router.post("/login", async (req, res, next) => {
 });
 
 // Rota para o painel de gerente
-router.get("/painelGerente", authMiddleware, (req, res) => {
+router.get("/painelGerente", authMiddleware, checkRole(['manager', 'admin']), (req, res) => {
   res.render("painelGerente");
 });
 
 // Rota para renderizar a página de perfil
-router.get("/profile", authMiddleware, async (req, res) => {
+router.get("/profile", authMiddleware, checkRole(['user', 'manager', 'admin']), async (req, res) => {
   if (req.isAuthenticated()) {
     const userlogado = req.user;
     const { nome, email, cpf, endereco, telefone, foto } = userlogado;
@@ -359,7 +338,7 @@ router.get("/profile", authMiddleware, async (req, res) => {
   }
 });
 
-router.post("/atualizarUsuario", upload.single("foto"), async (req, res) => {
+router.post("/atualizarUsuario", authMiddleware, checkRole(['user', 'manager', 'admin']), upload.single("foto"), async (req, res) => {
   try {
     const userId = req.user.UserId;
     const { nome, endereco, cpf, email, telefone } = req.body;
@@ -389,7 +368,7 @@ router.post("/atualizarUsuario", upload.single("foto"), async (req, res) => {
   }
 });
 
-router.get("/profile", authMiddleware, (req, res) => {
+router.get("/profile", authMiddleware, checkRole(['user', 'manager', 'admin']), (req, res) => {
   if (req.isAuthenticated()) {
     res.json(req.user);
   } else {
@@ -397,7 +376,7 @@ router.get("/profile", authMiddleware, (req, res) => {
   }
 });
 
-router.get("/logout", authMiddleware, (req, res, next) => {
+router.get("/logout", authMiddleware, checkRole(['user', 'manager', 'admin']), (req, res, next) => {
   req.logout((err) => {
     if (err) {
       return next(err);
@@ -413,11 +392,11 @@ router.get("/logout", authMiddleware, (req, res, next) => {
 });
 
 // Rota para alterar senha
-router.get("/alterar-senha", (req, res) => {
+router.get("/alterar-senha", authMiddleware, checkRole(['user', 'manager', 'admin']),(req, res) => {
   res.render("alterar-senha");
 });
 
-router.post("/alterar-senha", authMiddleware, async (req, res) => {
+router.post("/alterar-senha", authMiddleware, checkRole(['user', 'manager', 'admin']), async (req, res) => {
   const { novaSenha, confirmaSenha } = req.body;
   if (novaSenha !== confirmaSenha) {
     return alert("Senhas não são iguais");
@@ -564,7 +543,7 @@ router.post("/carrinho/update/:produtoId", async (req, res) => {
   }
 });
 
-router.get("/profile/pedidos", authMiddleware, (req, res) => {
+router.get("/profile/pedidos", authMiddleware, checkRole(['user']), (req, res) => {
   res.render("user_historic");
 });
 
@@ -602,7 +581,7 @@ router.post("/carrinho/adicionar/:produtoId", async (req, res) => {
   }
 });
 
-router.post('/api/pedidos', authMiddleware, async (req, res) => {
+router.post('/api/pedidos', authMiddleware, checkRole(['user']), async (req, res) => {
   if (!req.user) {
     return res.status(403).json({ success: false, message: 'Usuário não autenticado' });
   }
@@ -638,7 +617,7 @@ router.post('/api/pedidos', authMiddleware, async (req, res) => {
   }
 });
 
-router.get('/api/meus-pedidos', async (req, res) => {
+router.get('/api/meus-pedidos', authMiddleware, checkRole(['user']), async (req, res) => {
   try {
     const userId = req.user.UserId;
     const pedidos = await Pedido.findAll({
@@ -680,48 +659,77 @@ router.get('/api/check-auth', (req, res) => {
   }
 });
 
-router.get("/gerenciarGerente", (req, res) => {
+router.get("/gerenciarGerente", authMiddleware, checkRole(['admin']), (req, res) => {
   res.render("cadastrarGerente");
 });
 
-router.post("/cadastrarG", async (req, res) => {
+router.post("/cadastrarG", authMiddleware, checkRole(['admin']), async (req, res) => {
   try {
-    const existingUser = await Gerente.findOne({
-      where: { email: req.body.email },
-    });
+    const { name, cpf, email, senha, confirmPassword } = req.body;
+    const randomPic = getRandomProfilePic(); // Função para obter uma imagem de perfil aleatória
 
+    // Verifica se o email já está em uso
+    const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
       return res.render("cadastrarGerente", {
         message: "Esse email está em uso!",
-        name: req.body.name,
-        turno: req.body.turno,
-        email: req.body.email,
+        nome: name,
+        email,
+        cpf
       });
     }
 
-    if (req.body.senha !== req.body.confirmPassword) {
-      return res.render("/gerenciarGerente", {
+    // Verifica se o CPF já está cadastrado
+    const existingCpfUser = await User.findOne({ where: { cpf } });
+    if (existingCpfUser) {
+      return res.render("cadastrarGerente", {
+        message: "O CPF fornecido já está cadastrado!",
+        nome: name,
+        cpf,
+        email
+      });
+    }
+
+    // Verifica se as senhas são iguais
+    if (senha !== confirmPassword) {
+      return res.render("cadastrarGerente", {
         message: "As senhas não coincidem!",
-        name: req.body.name,
-        turno: req.body.turno,
-        email: req.body.email,
+        nome: name,
+        email,
+        cpf
       });
     }
 
-    const hashPassword = await bcrypt.hash(req.body.senha, 8);
-    await Gerente.create({
-      nome: req.body.name,
-      email: req.body.email,
-      turno: req.body.turno,
-      senha: hashPassword,
-    });
+    // Remove a máscara de CPF
+    const cpfUnmasked = cpf.replace(/\D/g, "");
 
-    res.redirect(
-      "/login?success=Usuário cadastrado com sucesso! Faça o login agora."
-    );
+    // Cria o hash da senha
+    const hashPassword = await bcrypt.hash(senha, 8);
+
+    // Cria o usuário no banco de dados com o role de 'manager'
+    await User.create({
+      nome: name,
+      email,
+      cpf: cpfUnmasked,
+      password: hashPassword,
+      foto: randomPic,  // Salvar o nome do arquivo da imagem como foto de perfil
+      role: 'manager'  // Especificando que este usuário é um gerente
+    });
+    console.log("Gerente cadastrado com sucesso no banco de dados!");
+    res.redirect("/login?success=Usuário cadastrado com sucesso! Faça o login agora.");
   } catch (error) {
     console.error("Erro ao criar usuário:", error);
     res.status(500).send("Erro ao criar usuário.");
+  }
+});
+
+router.get("/gerenciarPedidos", authMiddleware, checkRole(['admin', 'manager']), async (req, res) => {
+  try {
+    const pedidos = await Pedido.findAll(); // Busca todos os pedidos
+    res.json(pedidos); // Renderiza a página de lista de pedidos com os dados
+  } catch (error) {
+    console.error("Erro ao buscar pedidos:", error);
+    res.status(500).send("Erro ao acessar os pedidos.");
   }
 });
 

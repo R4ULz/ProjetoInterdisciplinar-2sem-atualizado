@@ -1,5 +1,5 @@
 const db = require("./banco")
-const Pedido = require('./pedido');
+const bcrypt = require('bcryptjs');
 
 const User = db.sequelize.define("User", {
     UserId: {
@@ -35,19 +35,27 @@ const User = db.sequelize.define("User", {
       type: db.Sequelize.STRING,
       allowNull: false,
     },
+    role: {
+      type: db.Sequelize.STRING,
+      defaultValue: 'user', // O padrão pode ser 'user', 'admin', 'manager', etc.
+      allowNull: false,
+    }
   });
 
-//Adicionando login de adms automaticamente ao ser iniciada
-// User.addHook('afterSync', 'addInitialData', async () => {
-//     try {
-//         await User.bulkCreate([
-//             { nome: 'adm1', email: 'admkrusty@krusty.com.br', cpf: '12345678900', password: 'admkrusty01' }
-//         ]);
-//         console.log('Valores iniciais adicionados com sucesso!');
-//     } catch (error) {
-//         console.error('Erro ao adicionar valores iniciais:', error);
-//     }
-// });
-
+  User.afterSync(async () => {
+    // Verifica se já existe um administrador
+    const admin = await User.findOne({ where: { email: "admin@example.com" } });
+    if (!admin) {
+      const hashPassword = await bcrypt.hash("admkrusty01", 8);  // Substitua "admin123" por uma senha segura
+      await User.create({
+        nome: "Admin",
+        email: "admkrusty@krusty.com",
+        cpf: "00000000000",  // Substitua por um CPF válido ou outro identificador
+        password: hashPassword,
+        role: "admin",
+      });
+      console.log("Administrador criado com sucesso!");
+    }
+  });
 
 module.exports = User

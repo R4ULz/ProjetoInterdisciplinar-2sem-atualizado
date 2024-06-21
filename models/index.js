@@ -5,7 +5,6 @@ const User = require('./User');
 const Pedido = require('./pedido');
 const Produto = require('./produto');
 const Pedido_Produto = require('./pedido_produto');
-const Gerente = require('./gerente')
 
 // Definindo relacionamentos
 User.hasMany(Pedido, {
@@ -44,5 +43,4 @@ module.exports = {
   Pedido,
   Produto,
   Pedido_Produto,
-  Gerente
 };
