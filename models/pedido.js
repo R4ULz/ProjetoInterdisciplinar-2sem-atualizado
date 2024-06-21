@@ -15,7 +15,7 @@ const Pedido = db.sequelize.define('Pedido', {
       defaultValue: 0.00  // Inicializa com zero
     },
     Status: {
-      type: db.Sequelize.ENUM('Ativo', 'concluído', 'cancelado'),
+      type: db.Sequelize.ENUM('Preparando', 'Concluído', 'Enviado', 'Cancelado'),
       allowNull: false
     }
   });

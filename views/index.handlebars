@@ -28,9 +28,14 @@
 <section id="ofertas" class="w-full h-fit px-5 flex justify-center mt-10">
   <div class="max-w-screen-2xl w-full h-fit flex flex-col gap-5">
     <div class="flex flex-col md:flex-row justify-start items-center gap-1">
+
       <div class="flex items-center">
+        <div class="flex items-center">
         <div class="bg-gradient-to-b from-orange-400 to-red-600 w-2 h-4 sm:h-6"></div>
+
         <h2 class="font-bold text-2xl sm:text-3xl capitalize">Krusty ofertas hoje</h2>
+      </div>
+
       </div>
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3 produtos-container">
@@ -61,7 +66,7 @@
       <div class="bg-gradient-to-b from-orange-400 to-red-600 w-2 h-4 sm:h-6"></div>
       <h2 class="font-bold text-2xl sm:text-3xl capitalize">Explore o menu krusty</h2>
     </div>
-    <div id="custom-select-page" class="flex overflow-x-auto overflow-y-hidden whitespace-nowrap w-full gap-3 custom-scrollbar draggable">
+    <div id="custom-select-page"id="custom-select-page" class="flex overflow-x-auto overflow-y-hidden whitespace-nowrap w-full gap-3 custom-scrollbar draggable">
       <div id="category-todos" class="w-[245px] lg:w-[297px] flex-shrink-0 cursor-pointer bg-white border border-gray-200 rounded-xl px-8 py-2 flex justify-center items-center gap-3 h-fit transition-all duration-300 ease-in-out hover:border-red-500 mb-3">
         <img class="w-16" src="/images/all.png">
         <p class="text-xl flex flex-col">
@@ -177,27 +182,28 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         body: JSON.stringify({ quantidade: quantidade })
       })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Falha na resposta do servidor: ' + response.statusText);
-        }
-        return response.json();
-      })
-      .then(data => {
-        if (data.success && data.produto) {
-          console.log('Produto adicionado:', data);
-          updateLocalStorageCart(data.produto.produtoId, quantidade, data.produto.nome, data.produto.precoUnitario, data.produto.imagem);
-          alert('Produto adicionado ao carrinho!');
-          atualizarQuantidadeNoIconeCarrinho();
-        } else {
-          console.error('Erro ao adicionar produto ao carrinho:', data.message);
-        }
-      })
-      .catch(error => {
-        console.error('Erro ao adicionar produto ao carrinho:', error);
-      });
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Falha na resposta do servidor: ' + response.statusText);
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.success && data.produto) {
+            console.log('Produto adicionado:', data);
+            updateLocalStorageCart(data.produto.produtoId, quantidade, data.produto.nome, data.produto.precoUnitario, data.produto.imagem);
+            alert('Produto adicionado ao carrinho!');
+            atualizarQuantidadeNoIconeCarrinho();
+          } else {
+            console.error('Erro ao adicionar produto ao carrinho:', data.message);
+          }
+        })
+        .catch(error => {
+          console.error('Erro ao adicionar produto ao carrinho:', error);
+        });
     });
   });
+
 
   function updateLocalStorageCart(produtoId, quantidade, nome, precoUnitario, imagem) {
     console.log('Tentando atualizar o carrinho com:', { produtoId, quantidade, nome, precoUnitario, imagem });
@@ -225,6 +231,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     sessionStorage.setItem('carrinho', JSON.stringify(carrinho));
     console.log('Carrinho atualizado no sessionStorage:', carrinho);
+  };
+  
+  // Adiciona event listeners aos botões de categoria
+  document.querySelectorAll('[id^="category-"]').forEach(button => {
+    button.addEventListener('click', function () {
+      const selectedCategory = this.id.replace('category-', ''); // Extrai a categoria do id do botão
+      filterProductsByCategory(selectedCategory);
+    });
+  });
+
+  // Função para filtrar produtos com base na categoria
+  function filterProductsByCategory(category) {
+    const products = document.querySelectorAll('.produtos-container > div');
+
+    products.forEach(product => {
+      const productCategory = product.getAttribute('data-category');
+      if (category === 'todos' || productCategory === category) {
+        product.style.display = 'block'; // Mostra o produto
+      } else {
+        product.style.display = 'none'; // Esconde o produto
+      }
+    });
   }
 
   function atualizarQuantidadeNoIconeCarrinho() {
@@ -233,4 +261,5 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('carrinho-icone-quantidade').textContent = quantidadeTotal;
   }
 });
+
 </script>

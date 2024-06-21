@@ -45,8 +45,8 @@ a{
 
 .custom-scrollbar::-webkit-scrollbar {
   background-color: #fecaca; 
-  width: 8px; 
-  height: 3px;
+  width: 6px; 
+  height: 10px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {

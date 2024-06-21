@@ -9,35 +9,34 @@ const Gerente = require('./gerente')
 
 // Definindo relacionamentos
 User.hasMany(Pedido, {
-    constraint: true,
-    foreignKey: 'UserId'});
+  foreignKey: 'UserId',
+  constraints: true
+});
 Pedido.belongsTo(User, {
-    constraint: true,
-    foreignKey: 'UserId'});
+  foreignKey: 'UserId',
+  constraints: true
+});
+
 
 Produto.belongsToMany(Pedido, { 
   through: Pedido_Produto,
   foreignKey: 'ProdutoId',
-  otherKey: 'PedidoId'
- });
+  otherKey: 'PedidoId',
+  as: 'Pedidos'
+})
 Pedido.belongsToMany(Produto, { 
-    through: Pedido_Produto,
-    foreignKey: 'PedidoId',  // Chave estrangeira para Pedido em Pedido_Produto
-    otherKey: 'ProdutoId'    // Chave estrangeira para Produto em Pedido_Produto
+  through: Pedido_Produto,
+  foreignKey: 'PedidoId',
+  otherKey: 'ProdutoId',
+  as: 'Produtos'
 });
 
 
-Pedido.hasMany(Pedido_Produto, { foreignKey: 'PedidoId' });
-Pedido_Produto.belongsTo(Pedido, {
-  foreignKey: 'PedidoId'  // Confirma que a chave estrangeira na tabela 'Pedido_Produto' é 'PedidoId'
-});
+Pedido.hasMany(Pedido_Produto, { foreignKey: 'PedidoId', as: 'pedido_produtos' });
+Pedido_Produto.belongsTo(Pedido, { foreignKey: 'PedidoId', as: 'Pedido' });
 
-Produto.hasMany(Pedido_Produto, {
-  foreignKey: 'ProdutoId'
-});
-Pedido_Produto.belongsTo(Produto, {
-  foreignKey: 'ProdutoId'
-});
+Produto.hasMany(Pedido_Produto, { foreignKey: 'ProdutoId', as: 'pedido_produtos' });
+Pedido_Produto.belongsTo(Produto, { foreignKey: 'ProdutoId', as: 'Produto' });
 
 module.exports = {
   db,
