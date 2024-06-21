@@ -31,23 +31,11 @@
           <h2 class="font-bold text-2xl sm:text-3xl capitalize">informações
             <span class="text-amber-600">pessoais</span>
           </h2>
+
         </div>
         <div id="uploadContainer" class="relative w-28 h-28">
-          <!-- Texto "Alterar Foto" sobre o input de imagem -->
-          <label for="foto" id="alterarFotoLabel"
-            class="absolute bottom-4 left-6 text-xs text-gray-600 font-semibold cursor-pointer hidden">
-            Alterar Foto
-          </label>
-          <!-- Botão de troca de foto -->
-          <label for="foto"
-            class="flex items-center justify-center w-full h-full rounded-full bg-gray-200 border border-gray-300 cursor-pointer">
-            <i class="fas fa-camera text-gray-600 text-2xl"></i>
-          </label>
-          <!-- Input de upload de foto -->
-          <input type="file" name="foto" id="foto" class="outline-none w-full h-full opacity-0 absolute inset-0"
-            disabled>
+          <img src="/profile_pics/{{dadosUser.foto}}" alt="Foto de Perfil" class="w-full h-full rounded-full">
         </div>
-
 
         <form id="editForm" class="grid grid-cols-1 gap-6 md:grid-cols-2" action="/atualizarUsuario" method="POST"
           enctype="multipart/form-data">
