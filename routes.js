@@ -9,19 +9,64 @@ const { passport, authMiddleware } = require("./config/auth");
 const checkRole = require('./middlewares/verificaRole');
 const multer = require("multer");
 const fs = require('fs');
+const Jimp = require('jimp');
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "public/images/"); // Caminho da pasta onde os arquivos serão salvos
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(
-      null,
-      file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname)
+  }});
+
+  function getRandomColor() {
+    const r = Math.floor(Math.random() * 256);
+    const g = Math.floor(Math.random() * 256);
+    const b = Math.floor(Math.random() * 256);
+    return Jimp.rgbaToInt(r, g, b, 255);
+  }
+  
+  async function generateProfilePic(initial) {
+    const backgroundColor = getRandomColor(); // Gera uma cor de fundo aleatória
+    const image = new Jimp(128, 128, backgroundColor); // Cria uma imagem com fundo colorido aleatório
+    const font = await Jimp.loadFont(Jimp.FONT_SANS_64_WHITE); // Carrega uma fonte branca de tamanho 64
+    const shadowFont = await Jimp.loadFont(Jimp.FONT_SANS_64_BLACK); // Fonte preta para sombra
+  
+    // Calcula as dimensões do texto para centralizar
+    const textWidth = Jimp.measureText(font, initial);
+    const textHeight = Jimp.measureTextHeight(font, initial, 128);
+  
+    // Adiciona sombra
+    image.print(
+      shadowFont,
+      (image.bitmap.width - textWidth) / 2 + 2,
+      (image.bitmap.height - textHeight) / 2 + 2,
+      {
+        text: initial,
+        alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER,
+        alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE
+      },
+      textWidth,
+      textHeight
     );
-  },
-});
+  
+    // Adiciona texto principal
+    image.print(
+      font,
+      (image.bitmap.width - textWidth) / 2,
+      (image.bitmap.height - textHeight) / 2,
+      {
+        text: initial,
+        alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER,
+        alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE
+      },
+      textWidth,
+      textHeight
+    );
+  
+    const fileName = `profile_${Date.now()}.png`;
+    const filePath = path.join(__dirname, 'public/profile_pics', fileName);
+  
+    await image.writeAsync(filePath);
+    return fileName;
+  }
 
 const upload = multer({ storage: storage });
 
@@ -188,7 +233,7 @@ function getRandomProfilePic() {
 //metodo post do signin
 router.post("/signin", async (req, res) => {
   try {
-    const { name, cpf, email, password, confirmPassword } = req.body;
+    const { name, telefone, endereco, cpf, email, password, confirmPassword } = req.body;
     const randomPic = getRandomProfilePic();
 
     // Verifica se o email já está em uso
@@ -201,6 +246,8 @@ router.post("/signin", async (req, res) => {
         message:
           "Esse email está em uso! <a href='/login' class='text-blue-500 hover:underline'>Clique aqui para logar</a>",
         name: req.body.name,
+        telefone: req.body.telefone,
+        endereco: req.body.endereco,
         cpf: req.body.cpf,
         email: req.body.email,
         foto: randomPic // Salvar o nome do arquivo da imagem como foto de perfil
@@ -216,6 +263,8 @@ router.post("/signin", async (req, res) => {
         message:
           "O CPF fornecido já está cadastrado! <br> <a href='/login' class='text-blue-500 hover:underline'>Clique aqui para logar</a>",
         name: req.body.name,
+        telefone: req.body.telefone,
+        endereco: req.body.endereco,
         cpf: req.body.cpf,
         email: req.body.email,
       });
@@ -241,13 +290,19 @@ router.post("/signin", async (req, res) => {
     // Cria o hash da senha
     const hashPassword = await bcrypt.hash(password, 8);
 
+    // Gera a imagem de perfil com a letra inicial do nome
+    const initial = name.charAt(0).toUpperCase();
+    const profilePic = await generateProfilePic(initial);
+
     // Cria o usuário no banco de dados
     await User.create({
       nome: req.body.name,
       email: req.body.email,
+      telefone: req.body.telefone,
+      endereco: req.body.endereco,
       cpf: cpfUnmasked,
       password: hashPassword,
-      foto: randomPic
+      foto: profilePic
     });
 
     console.log("Usuário cadastrado com sucesso no banco de dados!");
@@ -268,9 +323,9 @@ router.get("/painelAdm", authMiddleware, checkRole(['admin']), (req, res) => {
 //rota login
 router.get("/login", (req, res) => {
   const successMessage = req.query.success;
-  const email = req.query.email || ""; // Adicione esta linha para passar o valor do campo de email, se estiver presente na query
-  const errorMessage = req.query.errorMessage || ""; // Adicione esta linha para passar a mensagem de erro, se estiver presente na query
-  res.render("login", { successMessage, email, errorMessage }); // Adicione email e errorMessage ao objeto passado para a renderização da página
+  const email = req.query.email || ""; 
+  const errorMessage = req.query.errorMessage || ""; 
+  res.render("login", { successMessage, email, errorMessage });
 });
 
 router.post("/login", async (req, res, next) => {
@@ -283,7 +338,7 @@ router.post("/login", async (req, res, next) => {
       // Se o email não existir, enviar a mensagem de erro para a página de login
       const errorMessage =
         "Não existe cadastro com o e-mail fornecido!" +
-        "<br> <a href='/signup' class='text-blue-500 hover:underline'>Cadastre-se clicando aqui!</a>";
+        "<br> <a href='/signin' class='text-blue-500 hover:underline'>Cadastre-se clicando aqui!</a>";
       return res.render("login", { errorMessage, email });
     }
 
