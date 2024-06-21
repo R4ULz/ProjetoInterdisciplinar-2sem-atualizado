@@ -29,6 +29,23 @@ const handleOutsideClick = (event) => {
 };
 
 
+//Menu se fecha quando clicar em algumas das opções
+const opcoes = document.querySelectorAll(".menu-option")
+opcoes.forEach(opcao =>{
+  opcao.addEventListener("click", ()=>{
+    menuMobile.classList.remove("active-menu");
+    menuMobile.classList.add("disable-menu");
+  })
+})
+const menuOptionsLogged = document.querySelectorAll('.menu-option-logged');
+menuOptionsLogged.forEach(option => {
+  option.addEventListener('click', () => {
+    menuMobileLogged.classList.remove("active-menu-logged");
+    menuMobileLogged.classList.add("disable-menu");
+  });
+});
+
+
 //Menu com Draggable
 document.addEventListener('DOMContentLoaded', function() {
   const slider = document.querySelector('.draggable');
@@ -71,6 +88,7 @@ function atualizarQuantidadeNoIconeCarrinho() {
     carrinhoIconeQuantidade.textContent = totalItens;  // atualizando o texto do elemento
   }
 }
+
 
 //Funcionamento Produtos
 const lancheImg = document.querySelector('.lanche-item--img');

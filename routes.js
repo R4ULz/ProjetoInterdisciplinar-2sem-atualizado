@@ -163,6 +163,10 @@ router.post("/cadastrarProduto",authMiddleware, checkRole(['manager', 'admin']),
       res.status(500).send("Erro ao processar o cadastro do produto.");
     });
 });
+//rota sobre nós
+router.get("/sobre", (req,res)=>{
+  res.render("sobre");
+});
 
 //rota para consultar
 router.get("/consultar", authMiddleware, checkRole(['manager', 'admin']),(req, res) => {
