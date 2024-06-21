@@ -25,7 +25,6 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-router.use(authMiddleware);
 
 passport.serializeUser((user, done) => {
   console.log("Serializando", user.UserId);
@@ -330,8 +329,7 @@ router.get("/profile", authMiddleware, checkRole(['user', 'manager', 'admin']), 
     const userlogado = req.user;
     const { nome, email, cpf, endereco, telefone, foto } = userlogado;
     const dadosUser = { nome, email, cpf, endereco, telefone, foto };
-    const userLoggedIn = true;
-    res.render("user_info", { dadosUser, userLoggedIn });
+    res.render("user_info", { dadosUser });
   } else {
     res.redirect("/login");
   }
@@ -749,6 +747,71 @@ router.post('/api/cancelar-pedido/:pedidoId', async (req, res) => {
   }
 });
 
+router.get('/visualizarPedido', checkRole(['admin', 'manager']),  async (req, res) => {
+  try {
+    const pedidos = await Pedido.findAll({
+      include: [
+        { model: User, attributes: ['nome'] },
+        { model: Produto, as: 'Produtos', through: { attributes: ['Quantidade', 'PrecoUnitario'] } }
+      ]
+    });
+
+    const pedidosData = pedidos.map(pedido => ({
+      PedidoId: pedido.PedidoId,
+      Total: pedido.Total,
+      Status: pedido.Status,
+      User: { nome: pedido.User.nome },
+      Produtos: pedido.Produtos.map(produto => ({
+        nome: produto.nome,
+        quantidade: produto.Pedido_Produto.Quantidade,
+        precoUnitario: produto.Pedido_Produto.PrecoUnitario
+      }))
+    }));
+
+    res.render('visualizarPedido', { pedidos: pedidosData });
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+router.post("/atualizarStatus", async (req, res) => {
+  const { pedidoId, status } = req.body;
+  console.log("Recebido no servidor:", pedidoId, status);
+
+  try {
+    if (!pedidoId || !status) {
+      return res.status(400).json({ error: 'PedidoId e status são obrigatórios.' });
+    }
+
+    // Atualizar o status dos pedidos no banco de dados
+    await Pedido.update({ Status: status }, {
+      where: {
+        PedidoId: pedidoId
+      }
+    });
+
+    res.redirect("/visualizarPedido");
+  } catch (error) {
+    console.error('Erro ao atualizar pedido:', error);
+    res.status(500).json({ error: 'Erro ao atualizar pedido.' });
+  }
+});
+
+router.get('/api/getUserRole', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findByPk(req.user.UserId, {
+      attributes: ['role']
+    });
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Usuário não encontrado' });
+    }
+    res.json({ success: true, role: user.role });
+  } catch (error) {
+    console.error('Erro ao obter a função do usuário:', error);
+    res.status(500).json({ success: false, message: 'Erro ao obter a função do usuário' });
+  }
+});
 
 function verificaAutenticacao(req, res, next) {
   if (req.session && req.session.user) {
