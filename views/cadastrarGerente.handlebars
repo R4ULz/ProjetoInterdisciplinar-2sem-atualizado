@@ -1,3 +1,12 @@
+<head>
+  <meta charset="UTF-8">
+  <!-- Tailwind CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <!-- Include jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- Include jQuery Mask Plugin -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+</head>
 <div class="flex h-fit flex-col justify-center items-center px-3 py-12 max-w-screen-2xl w-full">
         <div class="flex justify-start flex-col w-full">
           <ul class="flex flex-col gap-4 pl-5 font-semibold col-span-1 text-lg">
@@ -16,47 +25,46 @@
 
   <div class="mt-5 sm:mx-auto sm:w-full sm:max-w-sm">
     <form class="space-y-3" action="/cadastrarG" method="POST">
-      <div>
-        <label for="name" class="block font-medium leading-6 text-gray-900">Nome Completo</label>
-        <div class="mt-2">
-          <input id="name" name="name" type="text" autocomplete="name" required
-            class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6 px-2"
-            value="{{#if name}}{{name}}{{/if}}">
+ <div>
+          <label for="name" class="block text-lg font-semibold text-gray-900">Nome Completo</label>
+          <div class="mt-1">
+            <input id="name" placeholder="Seu nome" name="name" type="text" autocomplete="name" required
+              class="block w-full rounded-md bg-white py-2 px-3 text-gray-900 shadow ring-1 ring-gray-300 placeholder:text-gray-400 focus:ring-red-500 focus:border-red-500">
+          </div>
         </div>
-      </div>
 
+<<<<<<< Updated upstream
       <div>
         <label for="cpf" class="block font-medium leading-6 text-gray-900">CPF</label>
         <div class="mt-2">
           <input id="cpf" name="cpf" type="text" autocomplete="cpf" required
             class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6 px-2"
             value="{{#if cpf}}{{cpf}}{{/if}}">
+=======
+        <div>
+          <label for="cpf" class="block text-lg font-semibold text-gray-900">CPF</label>
+          <div class="mt-1">
+            <input id="cpf" placeholder="000.000.000-00" name="cpf" type="text" required
+              class="block w-full rounded-md bg-white py-2 px-3 text-gray-900 shadow ring-1 ring-gray-300 placeholder:text-gray-400 focus:ring-red-500 focus:border-red-500">
+          </div>
+>>>>>>> Stashed changes
         </div>
-      </div>
 
-      <div>
-        <label for="email" class="block font-medium leading-6 text-gray-900">Email</label>
-        <div class="mt-2">
-          <input id="email" name="email" type="email" autocomplete="email" required
-            class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6 px-2"
-            value="{{#if email}}{{email}}{{/if}}">
+        <div>
+          <label for="email" class="block text-lg font-semibold text-gray-900">Email</label>
+          <div class="mt-1">
+            <input id="email" placeholder="example@gmail.com" name="email" type="email" autocomplete="email" required
+              class="block w-full rounded-md bg-white py-2 px-3 text-gray-900 shadow ring-1 ring-gray-300 placeholder:text-gray-400 focus:ring-red-500 focus:border-red-500">
+          </div>
         </div>
-      </div>
 
-      <div>
-        <label for="senha" class="block font-medium leading-6 text-gray-900">Senha</label>
-        <div class="mt-2">
-          <input id="senha" name="senha" type="password" autocomplete="new-password" required
-            class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6 px-2">
+        <div>
+          <label for="password" class="block text-lg font-semibold text-gray-900">Senha</label>
+          <div class="mt-1">
+            <input type="password" name="senha" required placeholder="*********"
+              class="block w-full rounded-md bg-white py-2 px-3 text-gray-900 shadow ring-1 ring-gray-300 placeholder:text-gray-400 focus:ring-red-500 focus:border-red-500">
+          </div>
         </div>
-      </div>
-      <div>
-        <label for="confirmPassword" class="block font-medium leading-6 text-gray-900">Confirme a Senha</label>
-        <div class="mt-2">
-          <input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password" required
-            class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6 px-2">
-        </div>
-      </div>
 
       {{#if message}}
       <div class="flex flex-col text-center text-sm bg-red-500/20 px-3 py-2 rounded-md">
@@ -66,14 +74,15 @@
 
       <div>
         <button type="submit"
-          class="flex w-full justify-center rounded-md bg-red-600 px-3 py-1.5 font-semibold leading-6 text-white shadow-sm hover:bg-red-600/90 transition-all ease-in-out duration-300">Criar
-          Conta</button>
+          class="flex w-full justify-center rounded-md bg-red-600 px-3 py-1.5 font-semibold leading-6 text-white shadow-sm hover:bg-red-600/90 transition-all ease-in-out duration-300">Cadastrar gerente</button>
       </div>
     </form>
 
-    <p class="mt-10 text-center text-black">
-      Já possui uma conta?
-      <a href="/login" class="underline font-semibold leading-6 text-red-600 hover:text-red-600/80">Faça Login aqui!</a>
-    </p>
   </div>
 </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      $('#cpf').mask('000.000.000-00', { reverse: true });
+    });
+  </script>

@@ -2,9 +2,9 @@
   <div class="max-w-screen-2xl w-full h-fit flex flex-col gap-5">
     <div class="grid grid-cols-1 md:grid-cols-4 items-start">
       <ul class="flex flex-col justify-center gap-4 pl-5 font-semibold col-span-1 text-lg">
-        <a href="/painelAdm" class="hover:text-red-500 ease-in-out duration-300">
+<a href="/painelGerente" class="hover:text-red-500 ease-in-out duration-300">
           <li><button id="verificarRole">Voltar ao Painel </button></li>
-        </a>
+        </a>
         <a href="/logout" class="hover:text-red-500 ease-in-out duration-300 w-fit">
           <li><button class="border border-red-500 rounded-full px-6 py-1 text-red-500 font-semibold">Sair</button></li>
         </a>
@@ -14,16 +14,15 @@
           <div class="bg-gradient-to-b from-orange-400 to-red-600 w-1 h-4"></div>
           <h2>Pedidos dos clientes</h2>
         </div>
-        <div class="h-[900px] w-full flex justify-center p-2 overflow-auto tabelinha">
+        <div class="h-[900px] w-full flex justify-center p-2">
           <div class="h-[500px] w-full flex justify-center">
-            <div class="w-full h-fit bg-gray-100 grid grid-cols-2 md:grid-cols-5 auto-rows-auto">
-              <!-- Cabeçalho da Tabela -->
+            <div class="w-full h-fit bg-gray-100 grid grid-cols-2 md:grid-cols-5 auto-rows-auto overflow-auto">
               <div class="border border-black p-2"><p>Selecionar</p></div>
               <div class="border border-black p-2"><p>ID do pedido</p></div>
               <div class="border border-black p-2"><p>Cliente</p></div>
               <div class="border border-black p-2"><p>Status</p></div>
               <div class="border border-black p-2"><p>Itens pedidos</p></div>
-              <!-- Conteúdo da Tabela -->
+              
               {{#each pedidos}}
                 <div class="border border-black flex p-2 items-center">
                   <input type="radio" name="selectedPedidoId" value="{{this.PedidoId}}" onclick="setPedidoId(this.value)">
@@ -42,9 +41,8 @@
             </div>
           </div>
         </div>
-        <!-- Botões Abaixo da Tabela -->
-        <div class="w-full h-fit mt-4 flex justify-center">
-          <form id="statusForm" action="/atualizarStatus" method="POST" class="flex gap-4">
+        <div class="w-full h-fit flex justify-between">
+          <form id="statusForm" action="/atualizarStatusGerente" method="POST">
             <input type="hidden" name="pedidoId" id="pedidoIdInput">
             <select name="status" class="border border-red-500 bg-red-500 px-6 py-1 rounded-full text-white font-semibold">
               <option value="">Escolha uma opção</option>
@@ -60,7 +58,6 @@
     </div>
   </div>
 </div>
-
 
 <script>
   function setPedidoId(pedidoId) {

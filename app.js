@@ -14,6 +14,7 @@ const addUserData = require('./middlewares/addUserData');
 const Handlebars = require('handlebars');
 
 
+
 //const { resolveSOA } = require("dns");
 
 //criando a sessão

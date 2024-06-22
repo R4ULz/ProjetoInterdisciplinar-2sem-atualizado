@@ -10,6 +10,7 @@ const multer = require("multer");
 const fs = require('fs');
 const Jimp = require('jimp');
 
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "public/images/"); // Caminho da pasta onde os arquivos serão salvos
@@ -134,13 +135,13 @@ router.get('/produtos/:categoria?', async (req, res) => {
 });
 
 
-// Rota para cadastrar produto
-router.get("/cadastrarProduto", authMiddleware, checkRole(['manager', 'admin']), (req, res) => {
-  res.render("cadProduto");
+// Rota para cadastrar produto Gerente
+router.get("/cadastrarProdutoGerente", authMiddleware, checkRole(['manager']), (req, res) => {
+  res.render("cadProdutoGerente");
 });
 
 // Rota POST para cadastrar produto
-router.post("/cadastrarProduto",authMiddleware, checkRole(['manager', 'admin']), upload.single("imagem"), (req, res) => {
+router.post("/cadastrarProdutoGerente",authMiddleware, checkRole(['manager']), upload.single("imagem"), (req, res) => {
   if (!req.file) {
     return res.status(400).send("Nenhum arquivo foi enviado.");
   }
@@ -154,42 +155,95 @@ router.post("/cadastrarProduto",authMiddleware, checkRole(['manager', 'admin']),
     categoria: req.body.categoria,
   })
     .then(() => {
-      res.redirect("/cadastrarProduto");
+      res.redirect("/cadastrarProdutoGerente");
     })
     .catch((erro) => {
       console.log("Falha ao cadastrar os dados" + erro);
       res.status(500).send("Erro ao processar o cadastro do produto.");
     });
 });
+
+
+// Rota para cadastrar produto Adm
+router.get("/cadastrarProdutoAdm", authMiddleware, checkRole(['admin']), (req, res) => {
+  res.render("cadProdutoAdm");
+});
+
+// Rota POST para cadastrar produto
+router.post("/cadastrarProdutoAdm",authMiddleware, checkRole(['admin']), upload.single("imagem"), (req, res) => {
+  if (!req.file) {
+    return res.status(400).send("Nenhum arquivo foi enviado.");
+  }
+  const imageName = req.file.filename; // Nome do arquivo salvo na pasta img
+  // Criação do Produto com o nome do arquivo de imagem
+  Produto.create({
+    imagem: imageName, // Salva o nome do arquivo no banco de dados
+    nome: req.body.nome,
+    valor: req.body.valor,
+    descricao: req.body.descricao,
+    categoria: req.body.categoria,
+  })
+    .then(() => {
+      res.redirect("/cadastrarProdutoAdm");
+    })
+    .catch((erro) => {
+      console.log("Falha ao cadastrar os dados" + erro);
+      res.status(500).send("Erro ao processar o cadastro do produto.");
+    });
+});
+
+
 //rota sobre nós
 router.get("/sobre", (req,res)=>{
   res.render("sobre");
 });
 
-//rota para consultar
-router.get("/consultar", authMiddleware, checkRole(['manager', 'admin']),(req, res) => {
+//rota para consultar Gerente
+router.get("/consultarProdutoGerente", authMiddleware, checkRole(['manager', 'admin']),(req, res) => {
   Produto.findAll()
     .then((produtos) => {
-      res.render("consultar", { Produto: produtos });
+      res.render("consultarProdutoGerente", { Produto: produtos });
     })
     .catch(function (erro) {
       res.send("Falha ao consultar os dados: " + erro);
     });
 });
 
-//rota para editar
-router.get("/editar/:id", authMiddleware, checkRole(['manager', 'admin']), function (req, res) {
+//rota para consultar Gerente
+router.get("/consultarProdutoAdm", authMiddleware, checkRole(['manager', 'admin']),(req, res) => {
+  Produto.findAll()
+    .then((produtos) => {
+      res.render("consultarProdutoAdm", { Produto: produtos });
+    })
+    .catch(function (erro) {
+      res.send("Falha ao consultar os dados: " + erro);
+    });
+});
+
+//rota para editar Gerente
+router.get("/editarProdutoGerente/:id", authMiddleware, checkRole(['manager', 'admin']), function (req, res) {
   Produto.findAll({ where: { ProdutoId: req.params.id } })
     .then(function (produtos) {
-      res.render("editarProduto", { Produto: produtos });
+      res.render("editarProdutoGerente", { Produto: produtos });
     })
     .catch(function (erro) {
       res.send("Falha ao acessar a pagina editar: " + erro);
     });
 });
 
-//metodo para atualizar da rota editar
-router.post("/atualizar", authMiddleware, checkRole(['manager', 'admin']), function (req, res) {
+//rota para editar Gerente
+router.get("/editarProdutoAdm/:id", authMiddleware, checkRole(['manager', 'admin']), function (req, res) {
+  Produto.findAll({ where: { ProdutoId: req.params.id } })
+    .then(function (produtos) {
+      res.render("editarProdutoAdm", { Produto: produtos });
+    })
+    .catch(function (erro) {
+      res.send("Falha ao acessar a pagina editar: " + erro);
+    });
+});
+
+//metodo para atualizar da rota editar Gerente
+router.post("/atualizarGerente", authMiddleware, checkRole(['manager', 'admin']), function (req, res) {
   Produto.update(
     {
       imagem: req.body.imagem,
@@ -201,18 +255,70 @@ router.post("/atualizar", authMiddleware, checkRole(['manager', 'admin']), funct
     { where: { ProdutoId: req.body.id } }
   )
     .then(function () {
-      res.redirect("/consultar");
+      res.redirect("/consultarProdutoGerente");
     })
     .catch(function (erro) {
       res.send("Falha ao atualizar os dados: " + erro);
     });
 });
 
-// botão pra excluir
-router.get("/excluir/:id", authMiddleware, checkRole(['manager', 'admin']),function (req, res) {
+//metodo para atualizar da rota editar Adm
+router.post("/atualizarProdutoGerente", authMiddleware, checkRole(['manager', 'admin']), function (req, res) {
+  Produto.update(
+    {
+      imagem: req.body.imagem,
+      nome: req.body.nome,
+      valor: req.body.valor,
+      descricao: req.body.descricao,
+      categoria: req.body.categoria,
+    },
+    { where: { ProdutoId: req.body.id } }
+  )
+    .then(function () {
+      res.redirect("/consultarProdutoGerente");
+    })
+    .catch(function (erro) {
+      res.send("Falha ao atualizar os dados: " + erro);
+    });
+});
+
+
+//metodo para atualizar da rota editar Adm
+router.post("/atualizarProdutoAdm", authMiddleware, checkRole(['manager', 'admin']), function (req, res) {
+  Produto.update(
+    {
+      imagem: req.body.imagem,
+      nome: req.body.nome,
+      valor: req.body.valor,
+      descricao: req.body.descricao,
+      categoria: req.body.categoria,
+    },
+    { where: { ProdutoId: req.body.id } }
+  )
+    .then(function () {
+      res.redirect("/consultarProdutoAdm");
+    })
+    .catch(function (erro) {
+      res.send("Falha ao atualizar os dados: " + erro);
+    });
+});
+
+// botão pra excluir Gerente
+router.get("/excluirGerente/:id", authMiddleware, checkRole(['manager', 'admin']),function (req, res) {
   Produto.destroy({ where: { ProdutoId: req.params.id } })
     .then(function () {
-      res.redirect("/consultar");
+      res.redirect("/consultarGerente");
+    })
+    .catch(function (erro) {
+      res.send("erro ao excluir" + erro);
+    });
+});
+
+// botão pra excluir Adm
+router.get("/excluirProdutoAdm/:id", authMiddleware, checkRole(['manager', 'admin']),function (req, res) {
+  Produto.destroy({ where: { ProdutoId: req.params.id } })
+    .then(function () {
+      res.redirect("/consultarProdutoAdm");
     })
     .catch(function (erro) {
       res.send("erro ao excluir" + erro);
@@ -252,7 +358,7 @@ router.post("/signin", async (req, res) => {
         endereco: req.body.endereco,
         cpf: req.body.cpf,
         email: req.body.email,
-        foto: randomPic // Salvar o nome do arquivo da imagem como foto de perfil
+        foto: randomPic // Salvar o nomfe do arquivo da imagem como foto de perfil
       });
     }
 
@@ -734,7 +840,7 @@ router.get("/cadastrarGerentes", authMiddleware, checkRole(['admin']), (req, res
 
 router.post("/cadastrarG", authMiddleware, checkRole(['admin']), async (req, res) => {
   try {
-    const { name, cpf, email, senha, confirmPassword } = req.body;
+    const { name, cpf, email, senha } = req.body;
     const randomPic = getRandomProfilePic(); // Função para obter uma imagem de perfil aleatória
 
     // Verifica se o email já está em uso
@@ -756,16 +862,6 @@ router.post("/cadastrarG", authMiddleware, checkRole(['admin']), async (req, res
         nome: name,
         cpf,
         email
-      });
-    }
-
-    // Verifica se as senhas são iguais
-    if (senha !== confirmPassword) {
-      return res.render("cadastrarGerente", {
-        message: "As senhas não coincidem!",
-        nome: name,
-        email,
-        cpf
       });
     }
 
@@ -802,6 +898,17 @@ router.get("/excluirGerente/:id", authMiddleware, checkRole(['admin']),function 
     });
 });
 
+router.get("/excluirGerente/:id", authMiddleware, checkRole(['admin']),function (req, res) {
+  User.destroy({ where: { UserId: req.params.id } })
+    .then(function () {
+      res.redirect("/consultarGerentes");
+    })
+    .catch(function (erro) {
+      res.send("erro ao excluir gerente" + erro);
+    });
+});
+
+
 router.get("/gerenciarPedidos", authMiddleware, checkRole(['admin', 'manager']), async (req, res) => {
   try {
     const pedidos = await Pedido.findAll(); // Busca todos os pedidos
@@ -829,7 +936,8 @@ router.post('/api/cancelar-pedido/:pedidoId', async (req, res) => {
   }
 });
 
-router.get('/visualizarPedido', checkRole(['admin', 'manager']),  async (req, res) => {
+//visualizarPedidoGerente
+router.get('/visualizarPedidoGerente', checkRole(['admin', 'manager']),  async (req, res) => {
   try {
     const pedidos = await Pedido.findAll({
       include: [
@@ -850,14 +958,43 @@ router.get('/visualizarPedido', checkRole(['admin', 'manager']),  async (req, re
       }))
     }));
 
-    res.render('visualizarPedido', { pedidos: pedidosData });
+    res.render('visualizarPedidoGerente', { pedidos: pedidosData });
   } catch (error) {
     console.error('Error fetching orders:', error);
     res.status(500).send('Internal Server Error');
   }
 });
 
-router.post("/atualizarStatus", async (req, res) => {
+//visualizarPedidoAdm
+router.get('/visualizarPedidoAdm', checkRole(['admin', 'manager']),  async (req, res) => {
+  try {
+    const pedidos = await Pedido.findAll({
+      include: [
+        { model: User, attributes: ['nome'] },
+        { model: Produto, as: 'Produtos', through: { attributes: ['Quantidade', 'PrecoUnitario'] } }
+      ]
+    });
+
+    const pedidosData = pedidos.map(pedido => ({
+      PedidoId: pedido.PedidoId,
+      Total: pedido.Total,
+      Status: pedido.Status,
+      User: { nome: pedido.User.nome },
+      Produtos: pedido.Produtos.map(produto => ({
+        nome: produto.nome,
+        quantidade: produto.Pedido_Produto.Quantidade,
+        precoUnitario: produto.Pedido_Produto.PrecoUnitario
+      }))
+    }));
+
+    res.render('visualizarPedidoAdm', { pedidos: pedidosData });
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+router.post("/atualizarStatusAdm", async (req, res) => {
   const { pedidoId, status } = req.body;
   console.log("Recebido no servidor:", pedidoId, status);
 
@@ -873,7 +1010,34 @@ router.post("/atualizarStatus", async (req, res) => {
       }
     });
 
-    res.redirect("/visualizarPedido");
+
+    res.redirect("/visualizarPedidoAdm");
+  } catch (error) {
+    console.error('Erro ao atualizar pedido:', error);
+    res.status(500).json({ error: 'Erro ao atualizar pedido.' });
+  }
+});
+
+
+
+router.post("/atualizarStatusAdm", async (req, res) => {
+  const { pedidoId, status } = req.body;
+  console.log("Recebido no servidor:", pedidoId, status);
+
+  try {
+    if (!pedidoId || !status) {
+      return res.status(400).json({ error: 'PedidoId e status são obrigatórios.' });
+    }
+
+    // Atualizar o status dos pedidos no banco de dados
+    await Pedido.update({ Status: status }, {
+      where: {
+        PedidoId: pedidoId
+      }
+    });
+
+
+    res.redirect("/visualizarPedidoGerente");
   } catch (error) {
     console.error('Erro ao atualizar pedido:', error);
     res.status(500).json({ error: 'Erro ao atualizar pedido.' });
