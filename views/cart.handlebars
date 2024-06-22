@@ -239,6 +239,8 @@ document.getElementById('btnconfirmarPedido').addEventListener('click', function
     .then(authData => {
       if (!authData || !authData.authenticated) return;
 
+        const totalCarrinho = Object.values(carrinho).reduce((total, item) => total + item.precoUnitario * item.quantidade, 0);
+
       // Inclua o total no corpo da requisição
       const requestBody = {
         carrinho,
