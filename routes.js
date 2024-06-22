@@ -714,13 +714,19 @@ router.get('/api/check-auth', (req, res) => {
   }
 });
 //aaaaaa
-router.get("/gerenciarGerentes", authMiddleware, checkRole(['manager', 'admin']), (req, res) => {
+router.get("/gerenciarGerentes", authMiddleware, checkRole(['admin']), (req, res) => {
   res.render("gerenciarGerente");
 });
 
-router.get("/consultarGerentes", authMiddleware, checkRole(['manager', 'admin']), (req, res) => {
-  res.render("consultarGerente");
-});
+router.get("/consultarGerentes", authMiddleware, checkRole(['admin']), async (req, res) => {
+    User.findAll({where: {role: 'manager'}}).then((gerentes) => {
+      res.render("consultarGerente", { User: gerentes });
+    })
+    .catch(function (erro) {
+      console.error("Erro ao buscar gerentes:", error);
+      res.status(500).send("Erro interno do servidor");
+    });
+   }); // Passa a lista de gerentes para o template
 
 router.get("/cadastrarGerentes", authMiddleware, checkRole(['admin']), (req, res) => {
   res.render("cadastrarGerente");
@@ -784,6 +790,16 @@ router.post("/cadastrarG", authMiddleware, checkRole(['admin']), async (req, res
     console.error("Erro ao criar usuário:", error);
     res.status(500).send("Erro ao criar usuário.");
   }
+});
+
+router.get("/excluirGerente/:id", authMiddleware, checkRole(['admin']),function (req, res) {
+  User.destroy({ where: { UserId: req.params.id } })
+    .then(function () {
+      res.redirect("/consultarGerentes");
+    })
+    .catch(function (erro) {
+      res.send("erro ao excluir gerente" + erro);
+    });
 });
 
 router.get("/gerenciarPedidos", authMiddleware, checkRole(['admin', 'manager']), async (req, res) => {

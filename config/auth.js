@@ -4,13 +4,13 @@ const bcrypt = require("bcryptjs");
 const User  = require("../models/User");
 
 const authMiddleware = (req, res, next) => {
-  if (req.isAuthenticated()) {
-    res.locals.userLoggedIn = true; // Define uma variável local para ser acessada nos templates
-  } else {
-    res.locals.userLoggedIn = false;
-  }
+  res.locals.userLoggedIn = req.isAuthenticated();
+  res.locals.isAdmin = req.user && req.user.isAdmin;
+  res.locals.isManager = req.user && req.user.isManager;
+
   next();
 };
+
 
 passport.use(
   new localStrategy(
@@ -48,6 +48,11 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser(async (id, done) => {
   try {
     const user = await User.findByPk(id);
+    if (user) {
+      
+      user.isAdmin = user.role === 'admin';
+      user.isManager = user.role === 'manager';
+    }
     done(null, user);
   } catch (error) {
     done(error);

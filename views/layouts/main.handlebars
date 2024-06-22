@@ -2,7 +2,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Krust Burguer</title>
+    <title>Krusty Burguer</title>
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,11 +14,17 @@
     <script src="/js/script.js" defer></script>
   </head>
   <body class="overflow-x-hidden bg-gray-100">
-{{#if userLoggedIn}}
-    {{> headerLoggedIn}}
-{{else}}
-    {{> headerNotLoggedIn}}
-{{/if}}
+      {{#if userLoggedIn}}
+          {{#if isAdmin}}
+              {{> headerADM}}
+          {{else if isManager}}
+              {{> headerManager}}
+          {{else}}
+              {{> headerLoggedIn}}
+          {{/if}}
+      {{else}}
+          {{> headerNotLoggedIn}}
+      {{/if}}
     <main class="w-screen my-20 flex flex-col items-center">
       {{{body}}}
     </main>
