@@ -21,7 +21,7 @@
         <div>
           <label for="name" class="block text-lg font-semibold text-gray-900">Nome Completo</label>
           <div class="mt-1">
-            <input id="name" placeholder="Seu nome" name="name" type="text" autocomplete="name" required
+            <input id="name" placeholder="Seu nome" name="name" type="text" value="{{#if name}}{{name}}{{/if}}" required
               class="block w-full rounded-md bg-white py-2 px-3 text-gray-900 shadow ring-1 ring-gray-300 placeholder:text-gray-400 focus:ring-red-500 focus:border-red-500">
           </div>
         </div>
@@ -29,7 +29,7 @@
         <div>
           <label for="telefone" class="block text-lg font-semibold text-gray-900">Telefone</label>
           <div class="mt-1">
-            <input id="telefone" placeholder="(00) 00000-0000" name="telefone" type="text" autocomplete="tel" required
+            <input id="telefone" placeholder="(00) 00000-0000" name="telefone" type="text" value="{{#if telefone}}{{telefone}}{{/if}}" required
               class="block w-full rounded-md bg-white py-2 px-3 text-gray-900 shadow ring-1 ring-gray-300 placeholder:text-gray-400 focus:ring-red-500 focus:border-red-500">
           </div>
         </div>
@@ -37,7 +37,7 @@
         <div>
           <label for="endereco" class="block text-lg font-semibold text-gray-900">Endereço</label>
           <div class="mt-1">
-            <input id="endereco" placeholder="Rua Krusty N°12" name="endereco" type="text" autocomplete="street-address" required
+            <input id="endereco" placeholder="Rua Krusty N°12" name="endereco" type="text" value="{{#if endereco}}{{endereco}}{{/if}}" required
               class="block w-full rounded-md bg-white py-2 px-3 text-gray-900 shadow ring-1 ring-gray-300 placeholder:text-gray-400 focus:ring-red-500 focus:border-red-500">
           </div>
         </div>
@@ -45,7 +45,7 @@
         <div>
           <label for="cpf" class="block text-lg font-semibold text-gray-900">CPF</label>
           <div class="mt-1">
-            <input id="cpf" placeholder="000.000.000-00" name="cpf" type="text" required
+            <input id="cpf" placeholder="000.000.000-00" name="cpf" type="text" value="{{#if cpf}}{{cpf}}{{/if}}" required
               class="block w-full rounded-md bg-white py-2 px-3 text-gray-900 shadow ring-1 ring-gray-300 placeholder:text-gray-400 focus:ring-red-500 focus:border-red-500">
           </div>
         </div>
@@ -53,7 +53,7 @@
         <div>
           <label for="email" class="block text-lg font-semibold text-gray-900">Email</label>
           <div class="mt-1">
-            <input id="email" placeholder="example@gmail.com" name="email" type="email" autocomplete="email" required
+            <input id="email" placeholder="example@gmail.com" name="email" type="email" value="{{#if email}}{{email}}{{/if}}" required
               class="block w-full rounded-md bg-white py-2 px-3 text-gray-900 shadow ring-1 ring-gray-300 placeholder:text-gray-400 focus:ring-red-500 focus:border-red-500">
           </div>
         </div>

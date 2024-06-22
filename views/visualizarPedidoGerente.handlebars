@@ -14,7 +14,7 @@
           <div class="bg-gradient-to-b from-orange-400 to-red-600 w-1 h-4"></div>
           <h2>Pedidos dos clientes</h2>
         </div>
-        <div class="h-[900px] w-full flex justify-center p-2">
+        <div class="h-[900px] w-full flex justify-center p-2 overflow-auto tabelinha">
           <div class="h-[500px] w-full flex justify-center">
             <div class="w-full h-fit bg-gray-100 grid grid-cols-2 md:grid-cols-5 auto-rows-auto overflow-auto">
               <div class="border border-black p-2"><p>Selecionar</p></div>
@@ -41,7 +41,7 @@
             </div>
           </div>
         </div>
-        <div class="w-full h-fit flex justify-between">
+        <div class="w-full h-fit flex justify-between mt-4">
           <form id="statusForm" action="/atualizarStatusGerente" method="POST">
             <input type="hidden" name="pedidoId" id="pedidoIdInput">
             <select name="status" class="border border-red-500 bg-red-500 px-6 py-1 rounded-full text-white font-semibold">

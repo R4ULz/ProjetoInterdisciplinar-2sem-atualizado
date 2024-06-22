@@ -23,7 +23,7 @@
       <div>
         <label for="email" class="block text-lg font-semibold text-gray-900">Email</label>
         <div class="mt-1">
-          <input id="email" name="email" type="email" autocomplete="email" required
+          <input id="email" name="email" type="email" value="{{#if email}}{{email}}{{/if}}" required
             class="block w-full rounded-md bg-white py-2 px-3 text-gray-900 shadow ring-1 ring-gray-300 placeholder:text-gray-400 focus:ring-red-500 focus:border-red-500">
         </div>
       </div>
@@ -31,7 +31,7 @@
       <div>
         <label for="password" class="block text-lg font-semibold text-gray-900">Senha</label>
         <div class="mt-1">
-          <input id="password" name="password" type="password" autocomplete="current-password" required
+          <input id="password" name="password" type="password" required
             class="block w-full rounded-md bg-white py-2 px-3 text-gray-900 shadow ring-1 ring-gray-300 placeholder:text-gray-400 focus:ring-red-500 focus:border-red-500">
         </div>
       </div>
