@@ -1,3 +1,24 @@
+{{#if success_msg}}
+    <div class="alert alert-success">
+      {{success_msg}}
+    </div>
+  {{/if}}
+  {{#if error_msg}}
+    <div id="alertFlash" class="z-30 rounded-md top-[90px] w-[280px] fixed bg-red-400 justify-center items-center flex">
+        <div class="shadow-lg max-w-md w-[280px] text-white">
+            <div class="flex justify-center w-[280px] h-[40px] p-4 font-bold items-center text-sm">
+      <p class="p-3">{{error_msg}}</p> 
+      </div>
+            <div class="absolute bottom-0 rounded-full w-[280px] h-1 bg-red-700 progress-bar"></div>
+        </div>
+    </div>
+    </div>
+  {{/if}}
+  {{#if error}}
+    <div class="alert alert-danger">
+      {{error}}
+    </div>
+  {{/if}}
 <section class="w-full bg-[url('/images/hero.png')] bg-cover bg-bottom h-[400px] lg:h-[600px] flex items-center justify-center pl-6 md:pl-10">
 <div id="customAlert" class="z-30 rounded-md top-[90px] w-[250px] fixed bg-green-400 justify-center items-center flex hidden">
         <div class="shadow-lg max-w-md w-[250px] text-white">
@@ -51,7 +72,7 @@
       </div>
     </div>
     <div  class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3 produtos-container">
-      {{#each Produto}}
+      {{#each (limit Produto 5)}}
       {{#dataValues}}
       <div class="border border-gray-200 w-full h-fit flex flex-col gap-3 p-5 bg-white rounded-lg">
         <div class="rounded-xl">
@@ -180,8 +201,26 @@
   progressBar.style.animation = 'none'; // Reset the animation
 }
 
+function showAlertFlash(){
+  const alert = document.getElementById('alertFlash')
+  alert.classList.remove('hidden')
+  const progressBar = alert.querySelector('.progress-bar');
+  progressBar.style.animation = 'progress 3s linear';
+
+  setTimeout(() => {
+  closeCustomAlertFlash();
+  }, 3000);       
+}
+
+function closeCustomAlertFlash() {
+  const alertBox = document.getElementById('alertFlash');
+  alertBox.classList.add('hidden');
+  const progressBar = alertBox.querySelector('.progress-bar');
+  progressBar.style.animation = 'none'; // Reset the animation
+}
   document.addEventListener('DOMContentLoaded',()=>{
       atualizarQuantidadeNoIconeCarrinho();
+      showAlertFlash();
   });
 
   document.querySelectorAll('.add-to-cart').forEach(button => {

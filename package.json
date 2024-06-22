@@ -2,10 +2,10 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
+    "connect-flash": "^0.1.1",
     "connect-redis": "^7.1.1",
     "cors": "^2.8.5",
     "express": "^4.19.2",
-    "express-flash": "^0.0.2",
     "express-handlebars": "^7.1.2",
     "express-session": "^1.18.0",
     "jimp": "^0.22.12",

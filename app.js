@@ -4,7 +4,7 @@ const app = express();
 const {passport, authMiddleware} = require("./config/auth");
 const session = require("express-session");
 const path = require("path");
-const flash = require("express-flash");
+const flash = require("connect-flash");
 const handlebars = require("express-handlebars").engine;
 const routes = require("./routes"); // Importando as rotas
 const bodyParser = require("body-parser");
@@ -30,11 +30,21 @@ app.use(session({
 
 app.use(flash());
 
+// Middleware para configurar variáveis globais
+app.use((req, res, next) => {
+  res.locals.success_msg = req.flash('success_msg');
+  res.locals.error_msg = req.flash('error_msg');
+  res.locals.error = req.flash('error');
+  next();
+});
+
+
 //configurando os middleware
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.json());
 app.use(authMiddleware);
+
 
 //config engines
 app.engine("handlebars", handlebars({ 
@@ -44,7 +54,11 @@ app.engine("handlebars", handlebars({
   helpers: {
     formatCurrency: function(value) {
         return parseFloat(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    }
+    },
+    limit: function(arr, limit) {
+      if (!Array.isArray(arr)) { return []; }
+      return arr.slice(0, limit);
+  }
   }
 }));
 

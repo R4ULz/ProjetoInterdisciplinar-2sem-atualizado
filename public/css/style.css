@@ -73,3 +73,8 @@ a{
 .status-concluido {
   color: blue;
 }
+
+.tabelinha{
+  overflow-x: auto; /* Permite scroll horizontal */
+  white-space: nowrap; /* Evita quebra de linha */
+}

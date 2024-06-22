@@ -11,6 +11,22 @@ const authMiddleware = (req, res, next) => {
   next();
 };
 
+const ensureAuthenticated = (req, res, next) => {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  req.flash('error_msg', 'Você não tem permissão para acessar essa página');
+  res.redirect('/');
+};
+
+const checkRole = (roles) => (req, res, next) => {
+  if (req.isAuthenticated() && roles.includes(req.user.role)) {
+    next();
+  } else {
+    req.flash('error_msg', 'Você não tem permissão para acessar essa página');
+    res.redirect('/');
+  }
+};
 
 passport.use(
   new localStrategy(
@@ -59,4 +75,4 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
-module.exports = {passport, authMiddleware};
+module.exports = {passport, authMiddleware, ensureAuthenticated, checkRole};

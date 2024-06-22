@@ -5,8 +5,7 @@ const path = require("path");
 const { Sequelize } = require('sequelize');
 const { Pedido, Pedido_Produto, Produto, User} = require('./models');
 const bcrypt = require("bcryptjs");
-const { passport, authMiddleware } = require("./config/auth");
-const checkRole = require('./middlewares/verificaRole');
+const { passport, authMiddleware, ensureAuthenticated, checkRole } = require("./config/auth");
 const multer = require("multer");
 const fs = require('fs');
 const Jimp = require('jimp');
@@ -319,7 +318,7 @@ router.post("/signin", async (req, res) => {
 });
 
 //rota painel ADM
-router.get("/painelAdm", authMiddleware, checkRole(['admin']), (req, res) => {
+router.get("/painelAdm", authMiddleware, checkRole(['admin']), ensureAuthenticated, (req, res) => {
   res.render("painelAdm");
 });
 
@@ -442,6 +441,7 @@ router.get("/logout", authMiddleware, checkRole(['user', 'manager', 'admin']), (
         return next(err);
       }
       res.clearCookie("connect.sid");
+      
       res.redirect("/login");
     });
   });
@@ -652,7 +652,7 @@ router.post('/api/pedidos', authMiddleware, checkRole(['user']), async (req, res
     // Criar novo pedido com total
     const novoPedido = await Pedido.create({
       UserId: req.user.UserId,
-      Status: 'Preparando',
+      Status: 'Aguardando Pagamento',
       Total: total  // Certifique-se de que total está sendo passado corretamente
     })
 
@@ -894,6 +894,10 @@ router.get('/api/getUserRole', authMiddleware, async (req, res) => {
     res.status(500).json({ success: false, message: 'Erro ao obter a função do usuário' });
   }
 });
+
+router.get('/thankU', authMiddleware, checkRole(['user']), (req, res)=>{
+  res.render('thankU');
+})
 
 function verificaAutenticacao(req, res, next) {
   if (req.session && req.session.user) {
