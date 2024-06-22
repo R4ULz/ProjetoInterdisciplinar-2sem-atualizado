@@ -716,8 +716,16 @@ router.get('/api/check-auth', (req, res) => {
     res.status(401).json({ authenticated: false });
   }
 });
+//aaaaaa
+router.get("/gerenciarGerentes", authMiddleware, checkRole(['manager', 'admin']), (req, res) => {
+  res.render("gerenciarGerente");
+});
 
-router.get("/gerenciarGerente", authMiddleware, checkRole(['admin']), (req, res) => {
+router.get("/consultarGerentes", authMiddleware, checkRole(['manager', 'admin']), (req, res) => {
+  res.render("consultarGerente");
+});
+
+router.get("/cadastrarGerentes", authMiddleware, checkRole(['admin']), (req, res) => {
   res.render("cadastrarGerente");
 });
 
@@ -774,7 +782,7 @@ router.post("/cadastrarG", authMiddleware, checkRole(['admin']), async (req, res
       role: 'manager'  // Especificando que este usuário é um gerente
     });
     console.log("Gerente cadastrado com sucesso no banco de dados!");
-    res.redirect("/login?success=Usuário cadastrado com sucesso! Faça o login agora.");
+    res.redirect("/gerenciarGerentes?success=Usuário cadastrado com sucesso! Faça o login agora.");
   } catch (error) {
     console.error("Erro ao criar usuário:", error);
     res.status(500).send("Erro ao criar usuário.");
