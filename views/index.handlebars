@@ -1,7 +1,16 @@
 <section class="w-full bg-[url('/images/hero.png')] bg-cover bg-bottom h-[400px] lg:h-[600px] flex items-center justify-center pl-6 md:pl-10">
+<div id="customAlert" class="z-30 rounded-md top-[90px] w-[250px] fixed bg-green-400 justify-center items-center flex hidden">
+        <div class="shadow-lg max-w-md w-[250px] text-white">
+            <div class="flex justify-center w-[250px] h-[40px] font-bold items-center text-sm">
+                <p class="">Produto adicionado ao carrinho!</p>
+            </div>
+            <div class="absolute bottom-0 rounded-full w-[250px] h-1 bg-green-700 progress-bar"></div>
+        </div>
+    </div>
   <div class="max-w-screen-2xl w-full relative">
     <div class="flex flex-col gap-7">
       <div class="text-white font-semibold flex text-3xl md:text-5xl">
+      
         <div class="bg-gradient-to-b from-orange-400 to-red-600 w-2 h-10 absolute -left-4 top-2"></div>
         <h1>Saboreie a alegria em <br> Cada <span class="text-orange-500 font-bold">Mordida</span>!</h1>
       </div>
@@ -27,8 +36,8 @@
 
 <section id="ofertas" class="w-full h-fit px-5 flex justify-center mt-10">
   <div class="max-w-screen-2xl w-full h-fit flex flex-col gap-5">
-    <div class="flex flex-col md:flex-row justify-start items-center gap-1">
 
+    <div class="flex flex-col md:flex-row flex-col md:flex-row justify-start items-center gap-1">
       <div class="flex items-center">
         <div class="flex items-center">
         <div class="bg-gradient-to-b from-orange-400 to-red-600 w-2 h-4 sm:h-6"></div>
@@ -41,7 +50,7 @@
     <div  class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3 produtos-container">
       {{#each Produto}}
       {{#dataValues}}
-      <div class="border border-gray-200 w-full h-fit flex flex-col gap-3 p-5 bg-white rounded-lg" data-category="{{categoria}}">
+      <div class="border border-gray-200 w-full h-fit flex flex-col gap-3 p-5 bg-white rounded-lg">
         <div class="rounded-xl">
           <img src="images/{{imagem}}" alt="{{nome}}" class="rounded-xl produto-imagem">
         </div>
@@ -51,7 +60,8 @@
         </div>
         <div class="flex justify-between items-center">
           <span class="text-xl font-bold text-teal-500">R$ {{valor}},00</span>
-          <button data-produtoid="{{ProdutoId}}" class="bg-orange-500 text-sm text-white px-6 py-2 rounded-full font-bold uppercase add-to-cart">adicionar</button>
+          <button data-produtoid="{{ProdutoId}}"
+            class="bg-orange-500 text-sm text-white px-6 py-2 rounded-full font-bold uppercase add-to-cart">adicionar</button>
         </div>
       </div>
       {{/dataValues}}
@@ -137,36 +147,38 @@
     background: transparent; /* Remove a cor de fundo */
     color: inherit; /* Mantém a cor do texto */
   }
+  @keyframes progress {
+  from {
+  width: 100%;
+        }
+  to {
+ width: 0%;
+   }
+ }
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  atualizarQuantidadeNoIconeCarrinho();
+ function showAlert(){
+  const alert = document.getElementById('customAlert')
+  alert.classList.remove('hidden')
+  const progressBar = alert.querySelector('.progress-bar');
+  progressBar.style.animation = 'progress 5s linear';
 
-  // Adiciona event listeners aos botões de categoria
-  document.querySelectorAll('[id^="category-"]').forEach(button => {
-    button.addEventListener('click', function () {
-      const selectedCategory = this.id.replace('category-', ''); // Extrai a categoria do id do botão
-      filterProductsByCategory(selectedCategory);
-    });
+  setTimeout(() => {
+  closeCustomAlert();
+  }, 5000); // 5 segundos       
+}
+  function closeCustomAlert() {
+  const alertBox = document.getElementById('customAlert');
+  alertBox.classList.add('hidden');
+  const progressBar = alertBox.querySelector('.progress-bar');
+  progressBar.style.animation = 'none'; // Reset the animation
+}
+
+  document.addEventListener('DOMContentLoaded',()=>{
+      atualizarQuantidadeNoIconeCarrinho();
   });
 
-  // Função para filtrar produtos com base na categoria
-  function filterProductsByCategory(category) {
-    const products = document.querySelectorAll('.produtos-container > div');
-
-    products.forEach(product => {
-      const productCategory = product.getAttribute('data-category');
-      if (category === 'todos' || productCategory === category) {
-        product.style.display = 'block'; // Mostra o produto
-      } else {
-        product.style.display = 'none'; // Esconde o produto
-      }
-    });
-  }
-
-
-  // Função para adicionar produto ao carrinho
   document.querySelectorAll('.add-to-cart').forEach(button => {
     button.addEventListener('click', function () {
       const produtoId = this.getAttribute('data-produtoid');
@@ -192,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (data.success && data.produto) {
             console.log('Produto adicionado:', data);
             updateLocalStorageCart(data.produto.produtoId, quantidade, data.produto.nome, data.produto.precoUnitario, data.produto.imagem);
-            alert('Produto adicionado ao carrinho!');
+            showAlert()
             atualizarQuantidadeNoIconeCarrinho();
           } else {
             console.error('Erro ao adicionar produto ao carrinho:', data.message);
@@ -254,12 +266,5 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-
-  function atualizarQuantidadeNoIconeCarrinho() {
-    let carrinho = JSON.parse(sessionStorage.getItem('carrinho')) || {};
-    let quantidadeTotal = Object.values(carrinho).reduce((total, item) => total + item.quantidade, 0);
-    document.getElementById('carrinho-icone-quantidade').textContent = quantidadeTotal;
-  }
-});
 
 </script>

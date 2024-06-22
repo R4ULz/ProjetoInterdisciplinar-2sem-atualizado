@@ -1,5 +1,13 @@
 <div class="w-full h-fit text-black px-3 py-5 flex justify-center items-center md:mt-12">
   <div class="max-w-screen-2xl w-full h-fit flex flex-col gap-5 items-center">
+    <div id="loginAlert" class="z-30 rounded-md top-[90px] w-[400px] fixed bg-red-900 justify-center items-center flex hidden transition-opacity opacity-0">
+        <div class="w-[250px] text-white">
+            <div class="flex flex-col gap-2 justify-center w-[250px] font-bold items-center text-sm">
+                <p class="">Entre na sua conta para pedir!</p>
+                <button><a href="/login">Login</a></button>
+            </div>
+        </div>
+    </div>
     <div class="grid grid-cols-1 w-full md:w-[70%] h-fit md:grid-cols-3 md:gap-10 ">
       <div
         class="flex flex-col gap-5 p-3 h-fit md:h-[400px] md:overflow-auto custom-scrollbar md:border border-red-500 col-span-2 md:shadow-md md:p-5 md:rounded-md">
@@ -63,7 +71,14 @@
     </div>
   </div>
 </div>
+
 <script>
+function alertaLogin(){
+  const alerta = document.getElementById('loginAlert')
+  alerta.classList.remove('hidden')
+}
+
+
 document.addEventListener('DOMContentLoaded', () => {
   console.log("DOM totalmente carregado");
   atualizarQuantidadeNoIconeCarrinho();
@@ -213,23 +228,16 @@ document.getElementById('btnconfirmarPedido').addEventListener('click', function
     return;
   }
 
-  // Verifica se o usuário está logado
   fetch('/api/check-auth', { method: 'GET' })
     .then(response => {
       if (response.status === 401) {
-        alert('Você precisa estar logado para confirmar o pedido.');
-        window.location.href = '/login';
-        return Promise.reject('Usuário não autenticado'); // Use Promise.reject para parar a cadeia de promises
+        alertaLogin();
+        throw new Error('Usuário não autenticado');
       }
       return response.json();
     })
     .then(authData => {
-      if (!authData || !authData.authenticated) {
-        return Promise.reject('Falha na autenticação');
-      }
-
-      // Calcula o total novamente ou garante que está acessível
-      const totalCarrinho = calcularTotalCarrinho(carrinho);
+      if (!authData || !authData.authenticated) return;
 
       // Inclua o total no corpo da requisição
       const requestBody = {
@@ -253,7 +261,7 @@ document.getElementById('btnconfirmarPedido').addEventListener('click', function
       if (data.success) {
         alert('Pedido confirmado com sucesso!');
         sessionStorage.removeItem('carrinho'); // Limpar o carrinho após a confirmação
-        window.location.href = '/profile/pedidos'; // Redirecionar para a página de confirmação
+        window.location.href = '/profile/pedidos'; // Redirecionar para a página de pedidos
       } else {
         throw new Error('Erro ao confirmar o pedido: ' + data.message);
       }

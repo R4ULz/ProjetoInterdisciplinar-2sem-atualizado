@@ -11,6 +11,7 @@ const bodyParser = require("body-parser");
 const {db} = require('./models');
 const cors = require('cors');
 const addUserData = require('./middlewares/addUserData');
+const Handlebars = require('handlebars');
 
 
 //const { resolveSOA } = require("dns");

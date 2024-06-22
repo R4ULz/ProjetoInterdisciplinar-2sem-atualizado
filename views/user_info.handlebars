@@ -100,6 +100,7 @@
               style="display: none;">Cancelar</button>
           </div>
         </form>
+
         <script>
           document.addEventListener('DOMContentLoaded', function () {
             const editButton = document.getElementById('editButton');
@@ -111,9 +112,9 @@
             const telefoneInput = document.getElementById('telefone');
             let originalValues = {};
 
-            if (!telefoneInput.value) {
-              telefoneInput.value = '+55';
-            }
+  if (!telefoneInput.value) {
+    telefoneInput.value = '+55';
+  }
 
             $(telefoneInput).mask('+00 (00) 00000-0000');
             $('#cpf').mask('000.000.000-00', { reverse: true });
