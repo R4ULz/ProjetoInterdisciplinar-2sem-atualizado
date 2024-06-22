@@ -1,0 +1,74 @@
+<div class="w-full h-fit text-black px-3 py-5 flex justify-center items-center md:mt-12">
+  <div class="max-w-screen-2xl w-full h-fit flex flex-col gap-5">
+    <div class="grid grid-cols-1 md:grid-cols-4 items-start">
+      <ul class="flex flex-col justify-center gap-4 pl-5 font-semibold col-span-1 text-lg">
+          <a href="/painelAdm" class="hover:text-red-500 ease-in-out duration-300">
+          <li><button id="verificarRole">Voltar ao Painel </button></li>
+        </a>
+        <a href="/logout" class="hover:text-red-500 ease-in-out duration-300 w-fit">
+          <li><button class="border border-red-500 rounded-full px-6 py-1 text-red-500 font-semibold">Sair</button></li>
+        </a>
+      </ul>
+      <section class="flex flex-col mt-8 p-3 md:p-5 md:w-full h-[700px] col-span-3 md:shadow-md bg-white md:shadow-inner md:mt-0">
+        <div class="flex items-center gap-1">
+          <div class="bg-gradient-to-b from-orange-400 to-red-600 w-1 h-4"></div>
+          <h2>Pedidos dos clientes</h2>
+        </div>
+        <div class="h-[900px] w-full flex justify-center p-2">
+          <div class="h-[500px] w-full flex justify-center">
+            <div class="w-full h-fit bg-gray-100 grid grid-cols-2 md:grid-cols-5 auto-rows-auto overflow-auto">
+              <div class="border border-black p-2"><p>Selecionar</p></div>
+              <div class="border border-black p-2"><p>ID do pedido</p></div>
+              <div class="border border-black p-2"><p>Cliente</p></div>
+              <div class="border border-black p-2"><p>Status</p></div>
+              <div class="border border-black p-2"><p>Itens pedidos</p></div>
+              
+              {{#each pedidos}}
+                <div class="border border-black flex p-2 items-center">
+                  <input type="radio" name="selectedPedidoId" value="{{this.PedidoId}}" onclick="setPedidoId(this.value)">
+                </div>
+                <div class="border border-black p-2 flex items-center"><p>{{this.PedidoId}}</p></div>
+                <div class="border border-black p-2 flex items-center"><p>{{this.User.nome}}</p></div>
+                <div class="border border-black p-2 flex items-center"><p>{{this.Status}}</p></div>
+                <div class="border border-black p-2 flex flex-col">
+                  {{#each this.Produtos}}
+                    <p>Produto: {{this.nome}}</p>
+                    <p>Qntd: {{this.quantidade}}</p>
+                    <p>Preço: {{this.precoUnitario}}</p>
+                  {{/each}}
+                </div>
+              {{/each}}
+            </div>
+          </div>
+        </div>
+        <div class="w-full h-fit flex justify-between">
+          <form id="statusForm" action="/atualizarStatusAdm" method="POST">
+            <input type="hidden" name="pedidoId" id="pedidoIdInput">
+            <select name="status" class="border border-red-500 bg-red-500 px-6 py-1 rounded-full text-white font-semibold">
+              <option value="">Escolha uma opção</option>
+              <option value="Preparando">Preparando</option>
+              <option value="Concluído">Concluído</option>
+              <option value="Enviado">Enviado</option>
+              <option value="Cancelado">Cancelado</option>
+            </select>
+            <button type="submit" class="border border-red-500 bg-red-500 px-6 py-1 rounded-full text-white font-semibold">Atualizar pedido</button>
+          </form>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+  function setPedidoId(pedidoId) {
+    document.getElementById('pedidoIdInput').value = pedidoId;
+    console.log("PedidoId definido:", pedidoId); // Log para depuração
+  }
+  
+  // Certifique-se de que o evento click no botão radio esteja configurado corretamente
+  document.querySelectorAll('input[name="selectedPedidoId"]').forEach(radio => {
+    radio.addEventListener('click', function() {
+      setPedidoId(this.value);
+    });
+  });
+</script>
