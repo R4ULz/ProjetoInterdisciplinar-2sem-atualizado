@@ -556,7 +556,6 @@ router.get("/carrinho", async (req, res) => {
   }
 });
 
-
 // Atualizar a quantidade do produto
 router.post("/carrinho/update/:produtoId", async (req, res) => {
   const { produtoId } = req.params;

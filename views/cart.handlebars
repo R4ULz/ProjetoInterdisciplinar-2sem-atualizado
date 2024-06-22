@@ -18,15 +18,15 @@
             <h2>Você <span class="text-orange-500">prefere</span></h2>
           </div>
           <div class="flex justify-center items-center gap-11 ">
-            <div class=" border border-red-500 w-max h-max p-3 rounded-md ">
-              <button>
+            <div class=" w-max h-max p-3 rounded-md ">
+              <button id="btnDelivery" class=" p-2 {{#if deliverySelected}}border-1 border-red-500{{else}}border{{/if}} toggle-option">
                 <img src="/images/moto.png" class="w-12" alt="">
                 <p class="text-sm">Delivery</p>
               </button>
             </div>
-            <div class="">
-              <button>
-                <img src="/images/retirar.png" class="w-8">
+            <div class="flex justify-center items-center gap-11 ">
+              <button id="btnRetirar" class="p-2 {{#if retirarSelected}}border-1 border-radius-50 border-red-500{{else}}border{{/if}} toggle-option">
+                <img src="/images/retirar.png" class="w-8 ml-1">
                 <p class="text-sm">Retirar</p>
               </button>
             </div>
@@ -42,10 +42,10 @@
               <p>Subtotal</p>
               <p id="subtotal">{{formatCurrency subtotal}}</p>
             </div>
-            <div class="flex items-center justify-between gap-10 text-[10px] text-zinc-500">
-              <p>Frete</p>
-              <p>R$4,99</p>
-            </div>
+              <div class="flex items-center justify-between gap-10 text-[10px] text-zinc-500">
+                <p>Frete</p>
+                <p id="frete">R$0,00</p>
+              </div>
             <div class="flex items-center justify-between gap-10 text-[10px] text-zinc-500">
               <p>Descontos</p>
               <p>00,00</p>
@@ -65,8 +65,9 @@
 </div>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  console.log("dom carregado totalmente")
+  console.log("DOM totalmente carregado");
   atualizarQuantidadeNoIconeCarrinho();
+  atualizarSubtotalECarrinho();  // Garantir que essa função seja chamada ao carregar a página.
 
   const carrinhoContainer = document.getElementById('carrinhoContainer');
   if (!carrinhoContainer) {
@@ -77,10 +78,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const carrinho = JSON.parse(sessionStorage.getItem('carrinho')) || {};
   Object.keys(carrinho).forEach(produtoId => {
     const produto = carrinho[produtoId];
-    const produtoElement = document.createElement('div');
-    produtoElement.className = 'w-full produto_' + produtoId; // Adiciona uma classe única
-
     const precoUnitario = produto.precoUnitario ? produto.precoUnitario.toFixed(2) : '0';
+    const produtoElement = document.createElement('div');
+    produtoElement.className = 'w-full produto_' + produtoId;
 
     produtoElement.innerHTML = `
       <div class="flex items-center justify-between p-2 gap-2 w-full border border-gray-50 shadow-md rounded-md">
@@ -105,8 +105,40 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   addEventListeners();
+});
+
+let metodoEntrega = 'retirar';
+
+document.getElementById('btnDelivery').addEventListener('click', function() {
+  this.classList.add('border-1', 'border-red-500');
+  document.getElementById('btnRetirar').classList.remove('border-1', 'border-red-500');
+  metodoEntrega = 'delivery';
   atualizarSubtotalECarrinho();
 });
+
+document.getElementById('btnRetirar').addEventListener('click', function() {
+  this.classList.add('border-1', 'border-red-500');
+  document.getElementById('btnDelivery').classList.remove('border-1', 'border-red-500');
+  metodoEntrega = 'retirar';
+  atualizarSubtotalECarrinho();
+});
+
+function atualizarSubtotalECarrinho() {
+  const carrinho = JSON.parse(sessionStorage.getItem('carrinho') || '{}');
+  let subtotal = 0;
+
+  Object.keys(carrinho).forEach(produtoId => {
+    subtotal += carrinho[produtoId].quantidade * carrinho[produtoId].precoUnitario;
+  });
+
+  let frete = metodoEntrega === 'delivery' ? 4.99 : 0;
+  let total = subtotal + frete;
+
+  document.getElementById('subtotal').textContent = subtotal.toFixed(2);
+  document.getElementById('frete').textContent = `R$${frete.toFixed(2)}`;
+  document.getElementById('total').textContent = total.toFixed(2);
+}
+
 
 function addEventListeners() {
   document.querySelectorAll('.increase').forEach(button => {
@@ -173,26 +205,6 @@ function deleteProduct(produtoId) {
   }
 }
 
-let totalCarrinho = 0;
-function atualizarSubtotalECarrinho() {
-  const carrinho = JSON.parse(sessionStorage.getItem('carrinho') || '{}');
-  let subtotal = 0;
-
-  Object.keys(carrinho).forEach(produtoId => {
-    const produto = carrinho[produtoId];
-    subtotal += produto.quantidade * produto.precoUnitario;
-  });
-
-  const frete = 4.99;  // Valor fixo do frete para simplificação
-  totalCarrinho = subtotal + frete;  // Calcula o total incluindo o frete
-
-  // Atualizar o subtotal e o total no DOM
-  const subtotalElement = document.getElementById('subtotal');
-  const totalElement = document.getElementById('total');
-
-  if (subtotalElement) subtotalElement.textContent = subtotal.toFixed(2);
-  if (totalElement) totalElement.textContent = totalCarrinho.toFixed(2);
-}
 
 document.getElementById('btnconfirmarPedido').addEventListener('click', function() {
   const carrinho = JSON.parse(sessionStorage.getItem('carrinho') || '{}');
@@ -207,12 +219,17 @@ document.getElementById('btnconfirmarPedido').addEventListener('click', function
       if (response.status === 401) {
         alert('Você precisa estar logado para confirmar o pedido.');
         window.location.href = '/login';
-        throw new Error('Usuário não autenticado');
+        return Promise.reject('Usuário não autenticado'); // Use Promise.reject para parar a cadeia de promises
       }
       return response.json();
     })
     .then(authData => {
-      if (!authData || !authData.authenticated) return;
+      if (!authData || !authData.authenticated) {
+        return Promise.reject('Falha na autenticação');
+      }
+
+      // Calcula o total novamente ou garante que está acessível
+      const totalCarrinho = calcularTotalCarrinho(carrinho);
 
       // Inclua o total no corpo da requisição
       const requestBody = {
@@ -228,22 +245,32 @@ document.getElementById('btnconfirmarPedido').addEventListener('click', function
         body: JSON.stringify(requestBody)
       });
     })
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) throw new Error('Falha ao processar o pedido no servidor');
+      return response.json();
+    })
     .then(data => {
       if (data.success) {
         alert('Pedido confirmado com sucesso!');
         sessionStorage.removeItem('carrinho'); // Limpar o carrinho após a confirmação
         window.location.href = '/profile/pedidos'; // Redirecionar para a página de confirmação
       } else {
-        alert('Erro ao confirmar o pedido: ' + data.message);
+        throw new Error('Erro ao confirmar o pedido: ' + data.message);
       }
     })
     .catch(error => {
       console.error('Erro ao processar o pedido:', error);
-      if (error.message !== 'Usuário não autenticado') {
-        alert('Erro ao processar o pedido.');
-      }
+      alert('Erro ao processar o pedido: ' + error.message);
     });
 });
+
+function calcularTotalCarrinho(carrinho) {
+  let subtotal = 0;
+  Object.keys(carrinho).forEach(key => {
+    subtotal += carrinho[key].quantidade * carrinho[key].precoUnitario;
+  });
+  let frete = metodoEntrega === 'delivery' ? 4.99 : 0;
+  return subtotal + frete;
+}
 
 </script>
