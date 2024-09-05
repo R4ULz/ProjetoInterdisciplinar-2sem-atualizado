@@ -4,6 +4,7 @@ const Jimp = require('jimp');
 const fs = require('fs');
 const path = require('path');
 
+// Definição do modelo User
 const User = db.sequelize.define("User", {
   UserId: {
     type: db.Sequelize.INTEGER,
@@ -45,6 +46,7 @@ const User = db.sequelize.define("User", {
   }
 });
 
+// Função para gerar uma imagem de perfil
 async function generateProfilePic(initial) {
   const backgroundColor = getRandomColor();
   const image = new Jimp(128, 128, backgroundColor);
@@ -87,6 +89,7 @@ async function generateProfilePic(initial) {
   return fileName;
 }
 
+// Função para gerar uma cor aleatória
 function getRandomColor() {
   const r = Math.floor(Math.random() * 256);
   const g = Math.floor(Math.random() * 256);
@@ -94,21 +97,30 @@ function getRandomColor() {
   return Jimp.rgbaToInt(r, g, b, 255);
 }
 
-User.afterSync(async () => {
-  const admin = await User.findOne({ where: { email: "admkrusty@krusty.com" } });
-  if (!admin) {
-    const hashPassword = await bcrypt.hash("admkrusty01", 8);
-    const adminProfilePic = await generateProfilePic('A');
-    await User.create({
-      foto: adminProfilePic,
-      nome: "Admin",
-      email: "admkrusty@krusty.com",
-      cpf: "00000000000",
-      password: hashPassword,
-      role: "admin",
-    });
-    console.log("Administrador criado com sucesso!");
+// Função para criar o usuário admin
+async function createAdmin() {
+  try {
+    await db.sequelize.sync(); // Sincroniza os modelos com o banco de dados
+    const admin = await User.findOne({ where: { email: "admkrusty@krusty.com" } });
+    if (!admin) {
+      const hashPassword = await bcrypt.hash("admkrusty01", 8);
+      const adminProfilePic = await generateProfilePic('A');
+      await User.create({
+        foto: adminProfilePic,
+        nome: "Admin",
+        email: "admkrusty@krusty.com",
+        cpf: "00000000000",
+        password: hashPassword,
+        role: "admin",
+      });
+      console.log("Administrador criado com sucesso!");
+    }
+  } catch (error) {
+    console.error("Erro ao criar administrador: ", error);
   }
-});
+}
+
+// Chama a função para garantir que o administrador seja criado
+createAdmin();
 
 module.exports = User;
