@@ -25,7 +25,7 @@ const Pedido = db.sequelize.define('Pedido', {
 //    Pedido.hasMany(models.Pedido_Produto{ foreignKey: 'PedidoId' });
 //Pedido.belongsTo(models.User{ foreignKey: 'UserId' });  // Associações adicionais, se necessário
     // Se Pedido_Produto também tem associações, defina aqui
-};
+//};
 
 db.sequelize.models.Pedido.associate(db.sequelize.models);
 
