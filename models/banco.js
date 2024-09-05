@@ -2,7 +2,8 @@ const {Sequelize} = require("sequelize")
 
 const sequelize = new Sequelize("krusty_burger", "root", "", {
     host:"localhost",
-    dialect: "mysql"
+    dialect: "postgres",
+    logging: "false"
 })
 
 sequelize.authenticate().then(() =>{
