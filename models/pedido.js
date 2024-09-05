@@ -27,6 +27,6 @@ const Pedido = db.sequelize.define('Pedido', {
     // Se Pedido_Produto também tem associações, defina aqui
 //};
 
-db.sequelize.models.Pedido.associate(db.sequelize.models);
+//db.sequelize.models.Pedido.associate(db.sequelize.models);
 
 module.exports = Pedido;
