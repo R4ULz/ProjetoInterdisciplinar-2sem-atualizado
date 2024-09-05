@@ -21,9 +21,9 @@ const Pedido = db.sequelize.define('Pedido', {
 });
 
 // Definição das associações
-Pedido.associate = function(models) {
-    Pedido.hasMany(models.Pedido_Produto, { foreignKey: 'PedidoId' });
-    Pedido.belongsTo(models.User, { foreignKey: 'UserId' });  // Associações adicionais, se necessário
+//Pedido.associate = function(models) {
+//    Pedido.hasMany(models.Pedido_Produto{ foreignKey: 'PedidoId' });
+//Pedido.belongsTo(models.User{ foreignKey: 'UserId' });  // Associações adicionais, se necessário
     // Se Pedido_Produto também tem associações, defina aqui
 };
 
