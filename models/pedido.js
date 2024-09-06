@@ -1,6 +1,8 @@
 const db = require("./banco");
+const Pedido_Produto = require('./pedido_produto');
+const Produto = require('./produto');
 
-const Pedido = db.sequelize.define('Pedido', {
+const Pedido = db.sequelize.define('pedido', {
     PedidoId: {
         type: db.Sequelize.INTEGER,
         autoIncrement: true,
@@ -15,18 +17,11 @@ const Pedido = db.sequelize.define('Pedido', {
         type: db.Sequelize.ENUM('Aguardando Pagamento', 'Preparando', 'Concluído', 'Saiu para entrega', 'Pronto para retirar', 'Cancelado'),
         allowNull: false
     }
-}, {
-    tableName: 'pedidos',  // Nome da tabela em minúsculas para PostgreSQL
-    timestamps: false  // Desativa timestamps se não for necessário
-});
+})
 
-// Definição das associações
 Pedido.associate = function(models) {
-    Pedido.hasMany(models.Pedido_Produto, { foreignKey: 'PedidoId' });
-    Pedido.belongsTo(models.User, { foreignKey: 'UserId' });  // Associações adicionais, se necessário
-    // Se Pedido_Produto também tem associações, defina aqui
-};
+    Pedido.hasMany(models.Pedido_Produto, { foreignKey: 'pedidoId' });
+  };
 
-db.sequelize.models.Pedido.associate(db.sequelize.models);
 
 module.exports = Pedido;

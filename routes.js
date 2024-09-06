@@ -585,15 +585,15 @@ router.get("/carrinho", async (req, res) => {
     if (req.isAuthenticated && req.isAuthenticated()) {
       // Usuário autenticado
       pedido = await Pedido.findOne({
-        where: { UserId: req.user.UserId, Status: "ativo" }, // Ajuste o campo conforme seu modelo
+        where: { UserId: req.user.UserId, Status: "Preparando" }, // Ajuste o campo conforme seu modelo
         include: [
           {
             model: Pedido_Produto,
-            as: 'pedido_produtos', // Usando o alias correto
+            as: 'Pedido_Produtos', // Usando o alias correto
             include: [
               {
-                model: Produto,
-                as: 'Produto' // Usando o alias correto
+                model: produto,
+                as: 'produto' // Usando o alias correto
               }
             ]
           }
@@ -789,7 +789,7 @@ router.get('/api/meus-pedidos', authMiddleware, checkRole(['user']), async (req,
           as: 'pedido_produtos',
           include: [{
             model: Produto,
-            as: 'Produto'
+            as: 'produto'
           }]
         }
       ],
@@ -799,7 +799,7 @@ router.get('/api/meus-pedidos', authMiddleware, checkRole(['user']), async (req,
         'createdAt',
         'Total'
       ],
-      group: ['Pedido.PedidoId', 'pedido_produtos.PedidoId', 'pedido_produtos.ProdutoId', 'pedido_produtos.PedidoId']
+      group: ['Pedido.PedidoId', 'edido_produtos.PedidoId', 'pedido_produtos.ProdutoId', 'pedido_produtos.PedidoId']
     });
 
     // Log detalhado da estrutura dos dados retornados

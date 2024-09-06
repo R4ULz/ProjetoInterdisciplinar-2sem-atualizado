@@ -30,7 +30,7 @@ const Produtos = db.sequelize.define("Produtos", {
     }
 }, {
     tableName: 'produtos', // Nome da tabela em minúsculas
-    timestamps: false // Desativa timestamps se você não estiver usando createdAt e updatedAt
+    timestamps: true
 });
 
 module.exports = Produtos;

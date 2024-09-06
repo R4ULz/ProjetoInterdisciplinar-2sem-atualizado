@@ -6,11 +6,10 @@ const DB_NAME = process.env.DB_NAME;
 const DB_USER = process.env.DB_USER;
 const DB_PASSWORD = process.env.DB_PASSWORD;
 
-const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {
-    host: DB_HOST,
+const sequelize = new Sequelize('krusty_burg', 'postgres', '1234', {
+    host: '127.0.0.1',
     port: DB_PORT,
-    dialect: 'postgres',
-    logging: false // Desative o logging SQL se não for necessário
+    dialect: 'postgres'
 });
 
 // Verifique a conexão
